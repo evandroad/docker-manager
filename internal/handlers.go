@@ -91,3 +91,15 @@ func RemoveContainerHandler(w http.ResponseWriter, r *http.Request) {
 	result := RemoveContainer(id)
 	respond.JSON(w, http.StatusOK, respond.H{"result": result})
 }
+
+func ComposeStartHandler(w http.ResponseWriter, r *http.Request) {
+	project := r.URL.Query().Get("project")
+	result := ComposeStart(project)
+	respond.JSON(w, http.StatusOK, respond.H{"result": result})
+}
+
+func ComposeStopHandler(w http.ResponseWriter, r *http.Request) {
+	project := r.URL.Query().Get("project")
+	result := ComposeStop(project)
+	respond.JSON(w, http.StatusOK, respond.H{"result": result})
+}

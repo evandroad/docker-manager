@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"os/exec"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -100,5 +101,15 @@ func StopContainer(id string) string {
 		})
 	}()
 
+	return "ok"
+}
+
+func ComposeStart(project string) string {
+	go exec.Command("docker", "compose", "-p", project, "start").Run()
+	return "ok"
+}
+
+func ComposeStop(project string) string {
+	go exec.Command("docker", "compose", "-p", project, "stop").Run()
 	return "ok"
 }

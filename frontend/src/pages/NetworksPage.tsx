@@ -14,7 +14,7 @@ export default function NetworksPage() {
   const th = "bg-slate-700 p-2.5 text-left cursor-pointer select-none hover:bg-slate-600"
 
   return (
-    <table className="w-full border-collapse mt-4 bg-slate-800 text-sm">
+    <table className="w-full border-collapse bg-slate-800 text-sm">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('ID')}>ID{icon('ID')}</th>

@@ -51,6 +51,8 @@ func startServer() string {
 	mux.HandleFunc("/api/containers/start", internal.StartContainerHandler)
 	mux.HandleFunc("/api/containers/stop", internal.StopContainerHandler)
 	mux.HandleFunc("/api/containers/remove", internal.RemoveContainerHandler)
+	mux.HandleFunc("/api/compose/start", internal.ComposeStartHandler)
+	mux.HandleFunc("/api/compose/stop", internal.ComposeStopHandler)
 	mux.HandleFunc("/api/images", internal.ImagesHandler)
 	mux.HandleFunc("/api/images/remove", internal.RemoveImageHandler)
 	mux.HandleFunc("/api/volumes", internal.VolumesHandler)

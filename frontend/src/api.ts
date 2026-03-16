@@ -32,6 +32,14 @@ export async function removeContainer(id: string) {
   await fetch(`/api/containers/remove?id=${id}`)
 }
 
+export async function composeStart(project: string) {
+  await fetch(`/api/compose/start?project=${encodeURIComponent(project)}`)
+}
+
+export async function composeStop(project: string) {
+  await fetch(`/api/compose/stop?project=${encodeURIComponent(project)}`)
+}
+
 export async function removeImage(id: string): Promise<true | string> {
   const res = await fetch(`/api/images/remove?id=${id}`)
   const data = await res.json()

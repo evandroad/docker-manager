@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ContainerInfo } from '../types'
-import { fetchContainers, startContainer, stopContainer, removeContainer } from '../api'
+import { fetchContainers, startContainer, stopContainer, removeContainer, composeStart, composeStop } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
 
 function groupByProject(list: ContainerInfo[]) {
@@ -19,8 +19,12 @@ function statusColor(state: string) {
   return 'bg-gray-500'
 }
 
+const btn = "px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600"
+const btnDanger = "ml-2 px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600"
+
 export default function ContainersPage() {
   const [containers, setContainers] = useState<ContainerInfo[]>([])
+  const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
     JSON.parse(localStorage.getItem('groupState') || '{}')
   )
@@ -40,6 +44,7 @@ export default function ContainersPage() {
             : c
         )
       )
+      setLoading(prev => ({ ...prev, [id]: false }))
     }
     if (action === 'destroy') {
       setContainers(prev => prev.filter(c => c.ID !== id))
@@ -55,11 +60,13 @@ export default function ContainersPage() {
   }
 
   async function handleStart(id: string) {
+    setLoading(prev => ({ ...prev, [id]: true }))
     await startContainer(id)
   }
 
   async function handleStop(id: string) {
     if (!confirm('Stop container?')) return
+    setLoading(prev => ({ ...prev, [id]: true }))
     await stopContainer(id)
   }
 
@@ -71,7 +78,7 @@ export default function ContainersPage() {
   const groups = groupByProject(containers)
 
   return (
-    <table className="w-full border-collapse mt-4 bg-slate-800 text-sm">
+    <table className="w-full border-collapse bg-slate-800 text-sm">
       <thead>
         <tr>
           <th className="bg-slate-700 p-2.5 text-left">ID</th>
@@ -93,6 +100,7 @@ export default function ContainersPage() {
               project={project}
               list={list}
               open={open}
+              loading={loading}
               onToggle={() => toggleGroup(key)}
               onStart={handleStart}
               onStop={handleStop}
@@ -105,38 +113,80 @@ export default function ContainersPage() {
   )
 }
 
-function GroupRows({ project, list, open, onToggle, onStart, onStop, onRemove }: {
+function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, onRemove }: {
   project: string
   list: ContainerInfo[]
   open: boolean
+  loading: Record<string, boolean>
   onToggle: () => void
   onStart: (id: string) => void
   onStop: (id: string) => void
   onRemove: (id: string) => void
 }) {
+  const [groupTarget, setGroupTarget] = useState<'running' | 'stopped' | null>(null)
+  const allRunning = list.every(c => c.State === 'running')
+  const allStopped = list.every(c => c.State !== 'running')
+  const isCompose = project !== 'standalone'
+
+  useEffect(() => {
+    if (groupTarget === 'running' && allRunning) setGroupTarget(null)
+    if (groupTarget === 'stopped' && allStopped) setGroupTarget(null)
+  }, [allRunning, allStopped, groupTarget])
+
+  async function startAll() {
+    setGroupTarget('running')
+    if (isCompose) await composeStart(project)
+    else list.filter(c => c.State !== 'running').forEach(c => onStart(c.ID))
+  }
+  async function stopAll() {
+    if (!confirm('Stop all containers in ' + project + '?')) return
+    setGroupTarget('stopped')
+    if (isCompose) await composeStop(project)
+    else list.filter(c => c.State === 'running').forEach(c => onStop(c.ID))
+  }
+
+  const groupColor = allRunning ? 'bg-green-500' : allStopped ? 'bg-red-500' : 'bg-yellow-500'
+
   return (
     <>
-      <tr className="cursor-pointer" onClick={onToggle}>
+      <tr>
         <td colSpan={5} className="p-2.5 border-t border-slate-600">
-          <span className="mr-2 text-slate-400">{open ? '▾' : '▸'}</span>
-          <b>{project}</b> ({list.length})
+          <div className="flex items-center justify-between">
+          <span className="cursor-pointer" onClick={onToggle}>
+            <span className="mr-2 text-slate-400">{open ? '▾' : '▸'}</span>
+            <span className={`inline-block w-3 h-3 rounded-full mr-2 ${groupColor}`} />
+            <b>{project}</b> ({list.length})
+          </span>
+          {groupTarget
+            ? <span className="text-slate-400"><i className="fa-solid fa-spinner fa-spin" /></span>
+            : <span>
+                <button className={btn} disabled={allRunning} style={{opacity: allRunning ? 0.3 : 1}} onClick={startAll}><i className="fa-solid fa-play" /> All</button>
+                <button className={"ml-2 " + btn} disabled={allStopped} style={{opacity: allStopped ? 0.3 : 1}} onClick={stopAll}><i className="fa-solid fa-stop" /> All</button>
+              </span>
+          }
+          </div>
         </td>
       </tr>
-      {open && list.map(c => (
-        <tr key={c.ID}>
-          <td className="p-2.5 border-t border-slate-600">{c.ID}</td>
-          <td className="p-2.5 border-t border-slate-600">{c.Name.replace('/', '')}</td>
-          <td className="p-2.5 border-t border-slate-600">{c.Image}</td>
-          <td className="p-2.5 border-t border-slate-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
-          <td className="p-2.5 border-t border-slate-600">
-            {c.State === 'running'
-              ? <button className="px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600" onClick={() => onStop(c.ID)}><i className="fa-solid fa-stop" /></button>
-              : <button className="px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600" onClick={() => onStart(c.ID)}><i className="fa-solid fa-play" /></button>
-            }
-            {c.State !== 'running' && <button className="ml-2 px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => onRemove(c.ID)}><i className="fa-solid fa-trash" /></button>}
-          </td>
-        </tr>
-      ))}
+      {open && list.map(c => {
+        const busy = loading[c.ID]
+        return (
+          <tr key={c.ID}>
+            <td className="p-2.5 border-t border-slate-600">{c.ID}</td>
+            <td className="p-2.5 border-t border-slate-600">{c.Name.replace('/', '')}</td>
+            <td className="p-2.5 border-t border-slate-600">{c.Image}</td>
+            <td className="p-2.5 border-t border-slate-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
+            <td className="p-2.5 border-t border-slate-600">
+              {busy
+                ? <i className="fa-solid fa-spinner fa-spin text-slate-400" />
+                : c.State === 'running'
+                  ? <button className={btn} onClick={() => onStop(c.ID)}><i className="fa-solid fa-stop" /></button>
+                  : <><button className={btn} onClick={() => onStart(c.ID)}><i className="fa-solid fa-play" /></button>
+                    <button className={btnDanger} onClick={() => onRemove(c.ID)}><i className="fa-solid fa-trash" /></button></>
+              }
+            </td>
+          </tr>
+        )
+      })}
     </>
   )
 }

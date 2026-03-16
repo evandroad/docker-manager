@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"docker-manager/internal"
+	"docker-manager/internal/respond"
 
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/client"
@@ -31,10 +32,6 @@ func main() {
 	w.SetTitle("Docker Manager")
 	w.SetSize(1100, 700, webview.HintNone)
 
-	w.Bind("containers", internal.Containers)
-	w.Bind("startContainer", internal.StartContainer)
-	w.Bind("stopContainer", internal.StopContainer)
-
 	w.Navigate(url)
 	w.Run()
 }
@@ -44,8 +41,10 @@ func startServer() string {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.FS(sub)))
 	mux.HandleFunc("/events", EventsHandler)
+	mux.HandleFunc("/api/containers", ContainersHandler)
+	mux.HandleFunc("/api/containers/start", StartHandler)
+	mux.HandleFunc("/api/containers/stop", StopHandler)
 	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
-	http.HandleFunc("/events", EventsHandler)
 
 	go http.Serve(listener, mux)
 
@@ -91,4 +90,20 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+func ContainersHandler(w http.ResponseWriter, r *http.Request) {
+	respond.JSON(w, http.StatusOK, internal.Containers())
+}
+
+func StartHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	result := internal.StartContainer(id)
+	respond.JSON(w, http.StatusOK, respond.H{"result": result})
+}
+
+func StopHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	result := internal.StopContainer(id)
+	respond.JSON(w, http.StatusOK, respond.H{"result": result})
 }

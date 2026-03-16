@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ContainersPage from './pages/ContainersPage'
+import ImagesPage from './pages/ImagesPage'
 
 type Page = 'containers' | 'images' | 'volumes' | 'networks'
 
@@ -35,6 +36,7 @@ function App() {
 
       <div className="p-5">
         {page === 'containers' && <ContainersPage />}
+        {page === 'images' && <ImagesPage />}
       </div>
     </div>
   )

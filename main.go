@@ -39,11 +39,14 @@ func main() {
 func startServer() string {
 	sub, _ := fs.Sub(webFiles, "web")
 	mux := http.NewServeMux()
+	
 	mux.Handle("/", http.FileServer(http.FS(sub)))
 	mux.HandleFunc("/events", EventsHandler)
 	mux.HandleFunc("/api/containers", ContainersHandler)
 	mux.HandleFunc("/api/containers/start", StartHandler)
 	mux.HandleFunc("/api/containers/stop", StopHandler)
+	mux.HandleFunc("/api/images", ImagesHandler)
+
 	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
 
 	go http.Serve(listener, mux)
@@ -94,6 +97,10 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
 
 func ContainersHandler(w http.ResponseWriter, r *http.Request) {
 	respond.JSON(w, http.StatusOK, internal.Containers())
+}
+
+func ImagesHandler(w http.ResponseWriter, r *http.Request) {
+	respond.JSON(w, http.StatusOK, internal.Images())
 }
 
 func StartHandler(w http.ResponseWriter, r *http.Request) {

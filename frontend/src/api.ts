@@ -1,7 +1,12 @@
-import type { ContainerInfo } from './types'
+import type { ContainerInfo, ImageInfo } from './types'
 
 export async function fetchContainers(): Promise<ContainerInfo[]> {
   const res = await fetch('/api/containers')
+  return res.json()
+}
+
+export async function fetchImages(): Promise<ImageInfo[]> {
+  const res = await fetch('/api/images')
   return res.json()
 }
 

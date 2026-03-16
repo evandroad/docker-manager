@@ -8,6 +8,13 @@ export interface ContainerInfo {
   Service: string
 }
 
+export interface ImageInfo {
+  ID: string
+  Tags: string[]
+  Size: string
+  Created: number
+}
+
 export interface DockerEvent {
   Type: string
   Action: string

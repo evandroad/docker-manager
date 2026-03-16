@@ -20,6 +20,7 @@ export interface VolumeInfo {
   Name: string
   Driver: string
   Mountpoint: string
+  Size: string
   UsedBy: string[] | null
 }
 

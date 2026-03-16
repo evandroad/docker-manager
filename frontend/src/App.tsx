@@ -19,15 +19,15 @@ function App() {
   const pages: Page[] = ['containers', 'images', 'volumes', 'networks']
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans flex">
-      <aside className="w-52 bg-slate-950 flex flex-col shrink-0">
+    <div className="min-h-screen bg-zinc-900 text-white font-sans flex">
+      <aside className="w-52 bg-zinc-950 flex flex-col shrink-0">
         <div className="p-4 text-xl font-bold">Docker Manager</div>
         <nav className="flex flex-col gap-1 px-2">
           {pages.map(p => (
             <button
               key={p}
               className={`text-left text-sm px-3 py-2 rounded-md border-none cursor-pointer ${
-                p === page ? 'bg-slate-700 text-white font-bold' : 'bg-transparent text-slate-400 hover:bg-slate-800'
+                p === page ? 'bg-zinc-700 text-white font-bold' : 'bg-transparent text-zinc-400 hover:bg-zinc-800'
               }`}
               onClick={() => navigate(p)}
             >

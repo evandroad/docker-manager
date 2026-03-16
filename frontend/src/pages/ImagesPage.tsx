@@ -18,10 +18,10 @@ export default function ImagesPage() {
     else alert('Error: ' + res)
   }
 
-  const th = "bg-slate-700 p-2.5 text-left cursor-pointer select-none hover:bg-slate-600"
+  const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
-    <table className="w-full border-collapse bg-slate-800 text-sm">
+    <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('ID')}>ID{icon('ID')}</th>
@@ -29,24 +29,24 @@ export default function ImagesPage() {
           <th className={th} onClick={() => toggleSort('Size')}>Size{icon('Size')}</th>
           <th className={th} onClick={() => toggleSort('Created')}>Created{icon('Created')}</th>
           <th className={th} onClick={() => toggleSort('UsedBy')}>Containers{icon('UsedBy')}</th>
-          <th className="bg-slate-700 p-2.5 text-left">Actions</th>
+          <th className="bg-zinc-700 p-2 text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
         {sorted.map(img => (
           <tr key={img.ID}>
-            <td className="p-2.5 border-t border-slate-600">{img.ID}</td>
-            <td className="p-2.5 border-t border-slate-600">
+            <td className="p-2 border-t border-zinc-600">{img.ID}</td>
+            <td className="p-2 border-t border-zinc-600">
               {img.Tags?.length ? img.Tags.join(', ') : '<none>'}
             </td>
-            <td className="p-2.5 border-t border-slate-600">{img.Size}</td>
-            <td className="p-2.5 border-t border-slate-600">
+            <td className="p-2 border-t border-zinc-600">{img.Size}</td>
+            <td className="p-2 border-t border-zinc-600">
               {new Date(img.Created * 1000).toLocaleDateString()}
             </td>
-            <td className="p-2.5 border-t border-slate-600 text-xs">
+            <td className="p-2 border-t border-zinc-600 text-xs">
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
-            <td className="p-2.5 border-t border-slate-600">
+            <td className="p-2 border-t border-zinc-600">
               <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>

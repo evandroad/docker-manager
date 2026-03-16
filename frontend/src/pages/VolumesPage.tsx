@@ -18,29 +18,31 @@ export default function VolumesPage() {
     else alert('Error: ' + res)
   }
 
-  const th = "bg-slate-700 p-2.5 text-left cursor-pointer select-none hover:bg-slate-600"
+  const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
-    <table className="w-full border-collapse mt-4 bg-slate-800 text-sm">
+    <table className="w-full border-collapse mt-4 bg-zinc-800 text-sm">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('Name')}>Name{icon('Name')}</th>
           <th className={th} onClick={() => toggleSort('Driver')}>Driver{icon('Driver')}</th>
           <th className={th} onClick={() => toggleSort('Mountpoint')}>Mountpoint{icon('Mountpoint')}</th>
+          <th className={th} onClick={() => toggleSort('Size')}>Size{icon('Size')}</th>
           <th className={th} onClick={() => toggleSort('UsedBy')}>Containers{icon('UsedBy')}</th>
-          <th className="bg-slate-700 p-2.5 text-left">Actions</th>
+          <th className="bg-zinc-700 p-2 text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
         {sorted.map(v => (
-          <tr key={v.Name} className="hover:bg-slate-700">
-            <td className="p-2.5 border-t border-slate-600">{v.Name}</td>
-            <td className="p-2.5 border-t border-slate-600">{v.Driver}</td>
-            <td className="p-2.5 border-t border-slate-600 text-xs text-slate-400 break-all">{v.Mountpoint}</td>
-            <td className="p-2.5 border-t border-slate-600 text-xs">
+          <tr key={v.Name} className="hover:bg-zinc-700">
+            <td className="p-2 border-t border-zinc-600">{v.Name}</td>
+            <td className="p-2 border-t border-zinc-600">{v.Driver}</td>
+            <td className="p-2 border-t border-zinc-600 text-xs text-zinc-400 break-all">{v.Mountpoint}</td>
+            <td className="p-2 border-t border-zinc-600">{v.Size}</td>
+            <td className="p-2 border-t border-zinc-600 text-xs">
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
-            <td className="p-2.5 border-t border-slate-600">
+            <td className="p-2 border-t border-zinc-600">
               <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>

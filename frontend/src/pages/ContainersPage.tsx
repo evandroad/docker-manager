@@ -19,7 +19,7 @@ function statusColor(state: string) {
   return 'bg-gray-500'
 }
 
-const btn = "px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600"
+const btn = "px-3 py-1.5 bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
 const btnDanger = "ml-2 px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600"
 
 export default function ContainersPage() {
@@ -78,14 +78,14 @@ export default function ContainersPage() {
   const groups = groupByProject(containers)
 
   return (
-    <table className="w-full border-collapse bg-slate-800 text-sm">
+    <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
-          <th className="bg-slate-700 p-2.5 text-left">ID</th>
-          <th className="bg-slate-700 p-2.5 text-left">Name</th>
-          <th className="bg-slate-700 p-2.5 text-left">Image</th>
-          <th className="bg-slate-700 p-2.5 text-left">Status</th>
-          <th className="bg-slate-700 p-2.5 text-left">Actions</th>
+          <th className="bg-zinc-700 p-2 text-left">ID</th>
+          <th className="bg-zinc-700 p-2 text-left">Name</th>
+          <th className="bg-zinc-700 p-2 text-left">Image</th>
+          <th className="bg-zinc-700 p-2 text-left">Status</th>
+          <th className="bg-zinc-700 p-2 text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -150,15 +150,15 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
   return (
     <>
       <tr>
-        <td colSpan={5} className="p-2.5 border-t border-slate-600">
+        <td colSpan={5} className="p-2 border-t border-zinc-600">
           <div className="flex items-center justify-between">
           <span className="cursor-pointer" onClick={onToggle}>
-            <span className="mr-2 text-slate-400">{open ? '▾' : '▸'}</span>
+            <span className="mr-2 text-zinc-400">{open ? '▾' : '▸'}</span>
             <span className={`inline-block w-3 h-3 rounded-full mr-2 ${groupColor}`} />
             <b>{project}</b> ({list.length})
           </span>
           {groupTarget
-            ? <span className="text-slate-400"><i className="fa-solid fa-spinner fa-spin" /></span>
+            ? <span className="text-zinc-400"><i className="fa-solid fa-spinner fa-spin" /></span>
             : <span>
                 <button className={btn} disabled={allRunning} style={{opacity: allRunning ? 0.3 : 1}} onClick={startAll}><i className="fa-solid fa-play" /> All</button>
                 <button className={"ml-2 " + btn} disabled={allStopped} style={{opacity: allStopped ? 0.3 : 1}} onClick={stopAll}><i className="fa-solid fa-stop" /> All</button>
@@ -171,13 +171,13 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
         const busy = loading[c.ID]
         return (
           <tr key={c.ID}>
-            <td className="p-2.5 border-t border-slate-600">{c.ID}</td>
-            <td className="p-2.5 border-t border-slate-600">{c.Name.replace('/', '')}</td>
-            <td className="p-2.5 border-t border-slate-600">{c.Image}</td>
-            <td className="p-2.5 border-t border-slate-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
-            <td className="p-2.5 border-t border-slate-600">
+            <td className="p-2 border-t border-zinc-600">{c.ID}</td>
+            <td className="p-2 border-t border-zinc-600">{c.Name.replace('/', '')}</td>
+            <td className="p-2 border-t border-zinc-600">{c.Image}</td>
+            <td className="p-2 border-t border-zinc-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
+            <td className="p-2 border-t border-zinc-600">
               {busy
-                ? <i className="fa-solid fa-spinner fa-spin text-slate-400" />
+                ? <i className="fa-solid fa-spinner fa-spin text-zinc-400" />
                 : c.State === 'running'
                   ? <button className={btn} onClick={() => onStop(c.ID)}><i className="fa-solid fa-stop" /></button>
                   : <><button className={btn} onClick={() => onStart(c.ID)}><i className="fa-solid fa-play" /></button>

@@ -26,7 +26,7 @@ function App() {
           {pages.map(p => (
             <button
               key={p}
-              className={`text-left text-sm px-3 py-2 rounded-md border-none cursor-pointer ${
+              className={`text-left text-base px-3 py-2 rounded-md border-none cursor-pointer ${
                 p === page ? 'bg-zinc-700 text-white font-bold' : 'bg-transparent text-zinc-400 hover:bg-zinc-800'
               }`}
               onClick={() => navigate(p)}

@@ -35,19 +35,19 @@ export default function ImagesPage() {
       <tbody>
         {sorted.map(img => (
           <tr key={img.ID}>
-            <td className="p-2 border-t border-zinc-600">{img.ID}</td>
-            <td className="p-2 border-t border-zinc-600">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{img.ID}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
               {img.Tags?.length ? img.Tags.join(', ') : '<none>'}
             </td>
-            <td className="p-2 border-t border-zinc-600">{img.Size}</td>
-            <td className="p-2 border-t border-zinc-600">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{img.Size}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
               {new Date(img.Created * 1000).toLocaleDateString()}
             </td>
-            <td className="p-2 border-t border-zinc-600 text-xs">
+            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
-            <td className="p-2 border-t border-zinc-600">
-              <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID)}><i className="fa-solid fa-trash" /></button>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
+              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

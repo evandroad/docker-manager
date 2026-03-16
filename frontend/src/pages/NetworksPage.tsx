@@ -35,15 +35,15 @@ export default function NetworksPage() {
       <tbody>
         {sorted.map(n => (
           <tr key={n.ID} className="hover:bg-zinc-700">
-            <td className="p-2 border-t border-zinc-600">{n.ID}</td>
-            <td className="p-2 border-t border-zinc-600">{n.Name}</td>
-            <td className="p-2 border-t border-zinc-600">{n.Driver}</td>
-            <td className="p-2 border-t border-zinc-600">{n.Scope}</td>
-            <td className="p-2 border-t border-zinc-600 text-xs">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{n.ID}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Name}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Driver}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Scope}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
               {n.UsedBy?.length ? n.UsedBy.map(name => name.replace('/', '')).join(', ') : '—'}
             </td>
-            <td className="p-2 border-t border-zinc-600">
-              <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(n.ID)}><i className="fa-solid fa-trash" /></button>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
+              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(n.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

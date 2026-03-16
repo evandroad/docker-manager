@@ -19,8 +19,8 @@ function statusColor(state: string) {
   return 'bg-gray-500'
 }
 
-const btn = "px-3 py-1.5 bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
-const btnDanger = "ml-2 px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600"
+const btn = "px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
+const btnDanger = "ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600"
 
 export default function ContainersPage() {
   const [containers, setContainers] = useState<ContainerInfo[]>([])
@@ -89,11 +89,11 @@ export default function ContainersPage() {
     <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
-          <th className="bg-zinc-700 p-2 text-left">ID</th>
-          <th className="bg-zinc-700 p-2 text-left">Name</th>
-          <th className="bg-zinc-700 p-2 text-left">Image</th>
-          <th className="bg-zinc-700 p-2 text-left">Status</th>
-          <th className="bg-zinc-700 p-2 text-left">Actions</th>
+          <th className="bg-zinc-700 p-1.5 text-left">ID</th>
+          <th className="bg-zinc-700 p-1.5 text-left">Name</th>
+          <th className="bg-zinc-700 p-1.5 text-left">Image</th>
+          <th className="bg-zinc-700 p-1.5 text-left">Status</th>
+          <th className="bg-zinc-700 p-1.5 text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -163,12 +163,12 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
   return (
     <>
       <tr>
-        <td colSpan={5} className="p-2 border-t border-zinc-600">
+        <td colSpan={5} className="p-1.5 border-t border-zinc-600">
           <div className="flex items-center justify-between">
           <span className="cursor-pointer" onClick={onToggle}>
             <span className="mr-2 text-zinc-400">{open ? '▾' : '▸'}</span>
             <span className={`inline-block w-3 h-3 rounded-full mr-2 ${groupColor}`} />
-            <b>{project}</b> ({list.length})
+            <b className='text-lg font-light'>{project}</b> ({list.length})
           </span>
           {groupTarget
             ? <span className="text-zinc-400"><i className="fa-solid fa-spinner fa-spin" /></span>
@@ -184,11 +184,11 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
         const busy = loading[c.ID]
         return (
           <tr key={c.ID}>
-            <td className="p-2 border-t border-zinc-600">{c.ID}</td>
-            <td className="p-2 border-t border-zinc-600">{c.Name.replace('/', '')}</td>
-            <td className="p-2 border-t border-zinc-600">{c.Image}</td>
-            <td className="p-2 border-t border-zinc-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
-            <td className="p-2 border-t border-zinc-600">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{c.ID}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Name.replace('/', '')}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Image}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
               {busy
                 ? <i className="fa-solid fa-spinner fa-spin text-zinc-400" />
                 : c.State === 'running'

@@ -35,15 +35,15 @@ export default function VolumesPage() {
       <tbody>
         {sorted.map(v => (
           <tr key={v.Name} className="hover:bg-zinc-700">
-            <td className="p-2 border-t border-zinc-600">{v.Name}</td>
-            <td className="p-2 border-t border-zinc-600">{v.Driver}</td>
-            <td className="p-2 border-t border-zinc-600 text-xs text-zinc-400 break-all">{v.Mountpoint}</td>
-            <td className="p-2 border-t border-zinc-600">{v.Size}</td>
-            <td className="p-2 border-t border-zinc-600 text-xs">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Name}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Driver}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs text-zinc-400 break-all">{v.Mountpoint}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Size}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
-            <td className="p-2 border-t border-zinc-600">
-              <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
+              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

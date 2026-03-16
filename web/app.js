@@ -46,7 +46,7 @@ function setActiveNav(page) {
 }
 
 function handleContainerEvent(e) {
-	let id = e.Actor.ID
+	let id = e.ID.substring(0, 12)
 	let action = e.Action
 
 	console.log("Docker event:", action, id)
@@ -68,6 +68,13 @@ function updateContainerState(id, action) {
 
 	row.children[0].innerHTML = statusDot(state)
 	row.children[4].innerHTML = state
+
+	id = row.id.replace("container-", "")
+	if (state === "running") {
+		row.children[5].innerHTML = `<button onclick="stop(event, '${id}')">Stop</button>`
+	} else {
+		row.children[5].innerHTML = `<button onclick="start(event, '${id}')">Start</button>`
+	}
 }
 
 function renderTable(containers) {
@@ -114,7 +121,7 @@ function renderTable(containers) {
 
 		list.forEach(c => {
 			html += `
-			<tr class="group-${key}" style="display:${display}">
+			<tr id="container-${c.ID}" class="group-${key}" style="display:${display}">
 				<td>${statusDot(c.State)}</td>
 				<td>${c.ID}</td>
 				<td>${c.Name.replace("/", "")}</td>
@@ -186,14 +193,12 @@ async function loadContainers() {
 async function start(event, id) {
 	event.stopPropagation()
 	startContainer(id)
-	loadContainers()
 }
 
 async function stop(event, id) {
 	event.stopPropagation()
 	if (!confirm("Stop container?")) return
 	stopContainer(id)
-	setTimeout(loadContainers, 3000)
 }
 
 function statusDot(state) {

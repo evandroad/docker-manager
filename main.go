@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	// "time"
 
 	"docker-manager/internal"
 
@@ -64,19 +65,60 @@ func EventsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-	cli, _ := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		fmt.Println("Error creating docker client:", err)
+		return
+	}
+
 	msgs, errs := cli.Events(ctx, events.ListOptions{})
+
+	// for {
+	// 	// Exemplo de evento
+	// 	event := map[string]string{
+	// 		"Type": "container",
+	// 		"ID":   "abc123",
+	// 	}
+	// 	data, _ := json.Marshal(event)
+
+	// 	// ⚡ cada evento deve terminar com \n\n
+	// 	fmt.Fprintf(w, "data: %s\n\n", data)
+	// 	flusher.Flush()
+
+	// 	time.Sleep(2 * time.Second) // só pra teste
+	// }
 
 	for {
 		select {
 		case msg := <-msgs:
-			data, _ := json.Marshal(msg)
-			fmt.Fprintf(w, "data: %s\n\n", data)
-			flusher.Flush()
-
+			// aqui você filtra só containers, se quiser
+			if msg.Type == "container" {
+				event := map[string]interface{}{
+					"Type":   msg.Type,
+					"Action": msg.Action,
+					"ID":     msg.Actor.ID,
+					"Time":   msg.Time,
+				}
+				data, _ := json.Marshal(event)
+				fmt.Fprintf(w, "data: %s\n\n", data)
+				flusher.Flush()
+			}
 		case err := <-errs:
 			fmt.Println("docker events error:", err)
 			return
 		}
 	}
+
+	// for {
+	// 	select {
+	// 	case msg := <-msgs:
+	// 		data, _ := json.Marshal(msg)
+	// 		fmt.Fprintf(w, "data: %s\n\n", data)
+	// 		flusher.Flush()
+
+	// 	case err := <-errs:
+	// 		fmt.Println("docker events error:", err)
+	// 		return
+	// 	}
+	// }
 }

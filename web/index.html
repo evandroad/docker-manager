@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Docker Manager</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+    <header>
+      Docker Manager
+    </header>
+
+    <nav>
+      <button class="link-nav" data-page="containers" onclick="openPage('containers')">Containers</button>
+      <button class="link-nav" data-page="images" onclick="openPage('images')">Images</button>
+      <button class="link-nav" data-page="volumes" onclick="openPage('volumes')">Volumes</button>
+      <button class="link-nav" data-page="networks" onclick="openPage('networks')">Networks</button>
+    </nav>
+
+    <div class="container">
+      <table id="table"></table>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

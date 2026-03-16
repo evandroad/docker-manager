@@ -17,27 +17,28 @@ function App() {
   const pages: Page[] = ['containers', 'images', 'volumes', 'networks']
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-sans">
-      <header className="bg-slate-950 p-4 text-xl">Docker Manager</header>
+    <div className="min-h-screen bg-slate-900 text-white font-sans flex">
+      <aside className="w-52 bg-slate-950 flex flex-col shrink-0">
+        <div className="p-4 text-xl font-bold">Docker Manager</div>
+        <nav className="flex flex-col gap-1 px-2">
+          {pages.map(p => (
+            <button
+              key={p}
+              className={`text-left text-sm px-3 py-2 rounded-md border-none cursor-pointer ${
+                p === page ? 'bg-slate-700 text-white font-bold' : 'bg-transparent text-slate-400 hover:bg-slate-800'
+              }`}
+              onClick={() => navigate(p)}
+            >
+              {p.charAt(0).toUpperCase() + p.slice(1)}
+            </button>
+          ))}
+        </nav>
+      </aside>
 
-      <nav className="bg-slate-800 px-4 py-2 flex gap-4">
-        {pages.map(p => (
-          <button
-            key={p}
-            className={`bg-transparent border-none text-sm cursor-pointer px-0 py-1 ${
-              p === page ? 'text-white font-bold underline' : 'text-slate-400 hover:underline'
-            }`}
-            onClick={() => navigate(p)}
-          >
-            {p.charAt(0).toUpperCase() + p.slice(1)}
-          </button>
-        ))}
-      </nav>
-
-      <div className="p-5">
+      <main className="flex-1 p-5 overflow-auto">
         {page === 'containers' && <ContainersPage />}
         {page === 'images' && <ImagesPage />}
-      </div>
+      </main>
     </div>
   )
 }

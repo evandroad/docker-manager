@@ -21,7 +21,7 @@ export default function ImagesPage() {
       </thead>
       <tbody>
         {images.map(img => (
-          <tr key={img.ID} className="hover:bg-slate-700">
+          <tr key={img.ID}>
             <td className="p-2.5 border-t border-slate-600">{img.ID}</td>
             <td className="p-2.5 border-t border-slate-600">
               {img.Tags?.length ? img.Tags.join(', ') : '<none>'}

@@ -107,14 +107,14 @@ function GroupRows({ project, list, open, onToggle, onStart, onStop }: {
 }) {
   return (
     <>
-      <tr className="cursor-pointer hover:bg-slate-700" onClick={onToggle}>
+      <tr className="cursor-pointer" onClick={onToggle}>
         <td colSpan={6} className="p-2.5 border-t border-slate-600">
           <span className="mr-2 text-slate-400">{open ? '▾' : '▸'}</span>
           <b>{project}</b> ({list.length})
         </td>
       </tr>
       {open && list.map(c => (
-        <tr key={c.ID} className="hover:bg-slate-700">
+        <tr key={c.ID}>
           <td className="p-2.5 border-t border-slate-600">
             <span className={`inline-block w-3 h-3 rounded-full ${statusColor(c.State)}`} />
           </td>

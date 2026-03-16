@@ -52,3 +52,16 @@ func Images() []ImageInfo {
 
 	return out
 }
+
+func RemoveImage(id string) string {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err.Error()
+	}
+	_, err = cli.ImageRemove(ctx, id, image.RemoveOptions{Force: true, PruneChildren: true})
+	if err != nil {
+		return err.Error()
+	}
+	return "ok"
+}

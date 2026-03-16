@@ -1,20 +1,21 @@
 package main
 
+/*
+#cgo linux pkg-config: gtk+-3.0
+#include <gtk/gtk.h>
+*/
+import "C"
+
 import (
-	"context"
 	"embed"
-	"encoding/json"
-	"fmt"
 	"io/fs"
 	"net"
 	"net/http"
 	"os"
+	"unsafe"
 
 	"docker-manager/internal"
-	"docker-manager/internal/respond"
 
-	"github.com/docker/docker/api/types/events"
-	"github.com/docker/docker/client"
 	webview "github.com/webview/webview_go"
 )
 
@@ -32,6 +33,10 @@ func main() {
 	w.SetTitle("Docker Manager")
 	w.SetSize(1100, 700, webview.HintNone)
 
+	w.Dispatch(func() {
+		C.gtk_window_maximize((*C.GtkWindow)(unsafe.Pointer(w.Window())))
+	})
+
 	w.Navigate(url)
 	w.Run()
 }
@@ -41,86 +46,19 @@ func startServer() string {
 	mux := http.NewServeMux()
 	
 	mux.Handle("/", http.FileServer(http.FS(sub)))
-	mux.HandleFunc("/events", EventsHandler)
-	mux.HandleFunc("/api/containers", ContainersHandler)
-	mux.HandleFunc("/api/containers/start", StartHandler)
-	mux.HandleFunc("/api/containers/stop", StopHandler)
-	mux.HandleFunc("/api/images", ImagesHandler)
-	mux.HandleFunc("/api/volumes", VolumesHandler)
-	mux.HandleFunc("/api/networks", NetworksHandler)
+	mux.HandleFunc("/events", internal.EventsHandler)
+	mux.HandleFunc("/api/containers", internal.ContainersHandler)
+	mux.HandleFunc("/api/containers/start", internal.StartContainerHandler)
+	mux.HandleFunc("/api/containers/stop", internal.StopContainerHandler)
+	mux.HandleFunc("/api/containers/remove", internal.RemoveContainerHandler)
+	mux.HandleFunc("/api/images", internal.ImagesHandler)
+	mux.HandleFunc("/api/images/remove", internal.RemoveImageHandler)
+	mux.HandleFunc("/api/volumes", internal.VolumesHandler)
+	mux.HandleFunc("/api/networks", internal.NetworksHandler)
 
 	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
 
 	go http.Serve(listener, mux)
 
 	return "http://" + listener.Addr().String()
-}
-
-func EventsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
-		return
-	}
-
-	ctx := context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	if err != nil {
-		fmt.Println("Error creating docker client:", err)
-		return
-	}
-
-	msgs, errs := cli.Events(ctx, events.ListOptions{})
-
-	for {
-		select {
-		case msg := <-msgs:
-			if msg.Type == "container" {
-				event := map[string]any{
-					"Type":   msg.Type,
-					"Action": msg.Action,
-					"ID":     msg.Actor.ID,
-					"Time":   msg.Time,
-				}
-				data, _ := json.Marshal(event)
-				fmt.Fprintf(w, "data: %s\n\n", data)
-				flusher.Flush()
-			}
-		case err := <-errs:
-			fmt.Println("docker events error:", err)
-			return
-		}
-	}
-}
-
-func ContainersHandler(w http.ResponseWriter, r *http.Request) {
-	respond.JSON(w, http.StatusOK, internal.Containers())
-}
-
-func ImagesHandler(w http.ResponseWriter, r *http.Request) {
-	respond.JSON(w, http.StatusOK, internal.Images())
-}
-
-func VolumesHandler(w http.ResponseWriter, r *http.Request) {
-	respond.JSON(w, http.StatusOK, internal.Volumes())
-}
-
-func NetworksHandler(w http.ResponseWriter, r *http.Request) {
-	respond.JSON(w, http.StatusOK, internal.Networks())
-}
-
-func StartHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	result := internal.StartContainer(id)
-	respond.JSON(w, http.StatusOK, respond.H{"result": result})
-}
-
-func StopHandler(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	result := internal.StopContainer(id)
-	respond.JSON(w, http.StatusOK, respond.H{"result": result})
 }

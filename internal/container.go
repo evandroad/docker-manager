@@ -67,6 +67,19 @@ func StartContainer(id string) string {
 	return "ok"
 }
 
+func RemoveContainer(id string) string {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err.Error()
+	}
+	err = cli.ContainerRemove(ctx, id, container.RemoveOptions{Force: true})
+	if err != nil {
+		return err.Error()
+	}
+	return "ok"
+}
+
 func StopContainer(id string) string {
 	go func() {
 		ctx := context.Background()

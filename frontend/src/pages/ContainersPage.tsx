@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ContainerInfo } from '../types'
-import { fetchContainers, startContainer, stopContainer } from '../api'
+import { fetchContainers, startContainer, stopContainer, removeContainer } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
 
 function groupByProject(list: ContainerInfo[]) {
@@ -41,6 +41,9 @@ export default function ContainersPage() {
         )
       )
     }
+    if (action === 'destroy') {
+      setContainers(prev => prev.filter(c => c.ID !== id))
+    }
   }, []))
 
   function toggleGroup(key: string) {
@@ -60,13 +63,17 @@ export default function ContainersPage() {
     await stopContainer(id)
   }
 
+  async function handleRemove(id: string) {
+    if (!confirm('Remove container?')) return
+    await removeContainer(id)
+  }
+
   const groups = groupByProject(containers)
 
   return (
     <table className="w-full border-collapse mt-4 bg-slate-800 text-sm">
       <thead>
         <tr>
-          <th className="bg-slate-700 p-2.5 text-left w-8"></th>
           <th className="bg-slate-700 p-2.5 text-left">ID</th>
           <th className="bg-slate-700 p-2.5 text-left">Name</th>
           <th className="bg-slate-700 p-2.5 text-left">Image</th>
@@ -89,6 +96,7 @@ export default function ContainersPage() {
               onToggle={() => toggleGroup(key)}
               onStart={handleStart}
               onStop={handleStop}
+              onRemove={handleRemove}
             />
           )
         })}
@@ -97,36 +105,35 @@ export default function ContainersPage() {
   )
 }
 
-function GroupRows({ project, list, open, onToggle, onStart, onStop }: {
+function GroupRows({ project, list, open, onToggle, onStart, onStop, onRemove }: {
   project: string
   list: ContainerInfo[]
   open: boolean
   onToggle: () => void
   onStart: (id: string) => void
   onStop: (id: string) => void
+  onRemove: (id: string) => void
 }) {
   return (
     <>
       <tr className="cursor-pointer" onClick={onToggle}>
-        <td colSpan={6} className="p-2.5 border-t border-slate-600">
+        <td colSpan={5} className="p-2.5 border-t border-slate-600">
           <span className="mr-2 text-slate-400">{open ? '▾' : '▸'}</span>
           <b>{project}</b> ({list.length})
         </td>
       </tr>
       {open && list.map(c => (
         <tr key={c.ID}>
-          <td className="p-2.5 border-t border-slate-600">
-            <span className={`inline-block w-3 h-3 rounded-full ${statusColor(c.State)}`} />
-          </td>
           <td className="p-2.5 border-t border-slate-600">{c.ID}</td>
           <td className="p-2.5 border-t border-slate-600">{c.Name.replace('/', '')}</td>
           <td className="p-2.5 border-t border-slate-600">{c.Image}</td>
-          <td className="p-2.5 border-t border-slate-600" title={c.Status}>{c.State}</td>
+          <td className="p-2.5 border-t border-slate-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
           <td className="p-2.5 border-t border-slate-600">
             {c.State === 'running'
-              ? <button className="px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600" onClick={() => onStop(c.ID)}>Stop</button>
-              : <button className="px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600" onClick={() => onStart(c.ID)}>Start</button>
+              ? <button className="px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600" onClick={() => onStop(c.ID)}><i className="fa-solid fa-stop" /></button>
+              : <button className="px-3 py-1.5 bg-slate-700 border-none rounded-md text-white cursor-pointer hover:bg-slate-600" onClick={() => onStart(c.ID)}><i className="fa-solid fa-play" /></button>
             }
+            {c.State !== 'running' && <button className="ml-2 px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => onRemove(c.ID)}><i className="fa-solid fa-trash" /></button>}
           </td>
         </tr>
       ))}

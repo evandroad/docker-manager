@@ -27,3 +27,13 @@ export async function startContainer(id: string) {
 export async function stopContainer(id: string) {
   await fetch(`/api/containers/stop?id=${id}`)
 }
+
+export async function removeContainer(id: string) {
+  await fetch(`/api/containers/remove?id=${id}`)
+}
+
+export async function removeImage(id: string): Promise<true | string> {
+  const res = await fetch(`/api/images/remove?id=${id}`)
+  const data = await res.json()
+  return data.result === 'ok' ? true : data.result
+}

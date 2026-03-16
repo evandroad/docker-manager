@@ -46,6 +46,8 @@ func startServer() string {
 	mux.HandleFunc("/api/containers/start", StartHandler)
 	mux.HandleFunc("/api/containers/stop", StopHandler)
 	mux.HandleFunc("/api/images", ImagesHandler)
+	mux.HandleFunc("/api/volumes", VolumesHandler)
+	mux.HandleFunc("/api/networks", NetworksHandler)
 
 	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
 
@@ -101,6 +103,14 @@ func ContainersHandler(w http.ResponseWriter, r *http.Request) {
 
 func ImagesHandler(w http.ResponseWriter, r *http.Request) {
 	respond.JSON(w, http.StatusOK, internal.Images())
+}
+
+func VolumesHandler(w http.ResponseWriter, r *http.Request) {
+	respond.JSON(w, http.StatusOK, internal.Volumes())
+}
+
+func NetworksHandler(w http.ResponseWriter, r *http.Request) {
+	respond.JSON(w, http.StatusOK, internal.Networks())
 }
 
 func StartHandler(w http.ResponseWriter, r *http.Request) {

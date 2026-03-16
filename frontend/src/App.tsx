@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import ContainersPage from './pages/ContainersPage'
 import ImagesPage from './pages/ImagesPage'
+import VolumesPage from './pages/VolumesPage'
+import NetworksPage from './pages/NetworksPage'
 
 type Page = 'containers' | 'images' | 'volumes' | 'networks'
 
@@ -38,6 +40,8 @@ function App() {
       <main className="flex-1 p-5 overflow-auto">
         {page === 'containers' && <ContainersPage />}
         {page === 'images' && <ImagesPage />}
+        {page === 'volumes' && <VolumesPage />}
+        {page === 'networks' && <NetworksPage />}
       </main>
     </div>
   )

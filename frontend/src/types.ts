@@ -15,6 +15,19 @@ export interface ImageInfo {
   Created: number
 }
 
+export interface VolumeInfo {
+  Name: string
+  Driver: string
+  Mountpoint: string
+}
+
+export interface NetworkInfo {
+  ID: string
+  Name: string
+  Driver: string
+  Scope: string
+}
+
 export interface DockerEvent {
   Type: string
   Action: string

@@ -1,27 +1,14 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="pt-BR">
   <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Docker Manager</title>
-    <link rel="stylesheet" href="style.css">
+    <script type="module" crossorigin src="/assets/index-Bh3dGu99.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DkWX1yEh.css">
   </head>
-
   <body>
-    <header>
-      Docker Manager
-    </header>
-
-    <nav>
-      <button class="link-nav" data-page="containers" onclick="openPage('containers')">Containers</button>
-      <button class="link-nav" data-page="images" onclick="openPage('images')">Images</button>
-      <button class="link-nav" data-page="volumes" onclick="openPage('volumes')">Volumes</button>
-      <button class="link-nav" data-page="networks" onclick="openPage('networks')">Networks</button>
-    </nav>
-
-    <div class="container">
-      <table id="table"></table>
-    </div>
-
-    <script src="app.js"></script>
+    <div id="root"></div>
   </body>
 </html>

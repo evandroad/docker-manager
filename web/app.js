@@ -1,10 +1,25 @@
 let groupState = {}
 
 window.onload = () => {
+	connectEvents()
 	groupState = JSON.parse(localStorage.getItem("groupState") || "{}")
 
 	let page = localStorage.getItem("activePage") || "containers"
 	openPage(page)
+}
+
+function connectEvents() {
+	console.log('connect SSE')
+	let es = new EventSource("/events")
+
+	es.onmessage = event => {
+		console.log(event.data)
+		let e = JSON.parse(event.data)
+
+		if (e.Type === "container") {
+			handleContainerEvent(e)
+		}
+	}
 }
 
 const pages = {
@@ -28,6 +43,31 @@ function setActiveNav(page) {
 			btn.classList.add("active")
 		}
 	})
+}
+
+function handleContainerEvent(e) {
+	let id = e.Actor.ID
+	let action = e.Action
+
+	console.log("Docker event:", action, id)
+
+	if (action === "start" || action === "die" || action === "stop") {
+		updateContainerState(id, action)
+	}
+}
+
+function updateContainerState(id, action) {
+	let row = document.getElementById("container-"+id)
+
+	if (!row) return
+
+	let state = "unknown"
+
+	if (action === "start") state = "running"
+	if (action === "die" || action === "stop") state = "exited"
+
+	row.children[0].innerHTML = statusDot(state)
+	row.children[4].innerHTML = state
 }
 
 function renderTable(containers) {

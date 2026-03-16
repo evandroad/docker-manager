@@ -14,7 +14,7 @@ import (
 	"os"
 	"unsafe"
 
-	"docker-manager/internal"
+	"docker-manager/internal/handlers"
 
 	webview "github.com/webview/webview_go"
 )
@@ -46,21 +46,21 @@ func startServer() string {
 	mux := http.NewServeMux()
 	
 	mux.Handle("/", http.FileServer(http.FS(sub)))
-	mux.HandleFunc("/events", internal.EventsHandler)
-	mux.HandleFunc("/api/containers", internal.ContainersHandler)
-	mux.HandleFunc("/api/containers/start", internal.StartContainerHandler)
-	mux.HandleFunc("/api/containers/stop", internal.StopContainerHandler)
-	mux.HandleFunc("/api/containers/logs", internal.ContainerLogsHandler)
-	mux.HandleFunc("/api/containers/restart", internal.RestartContainerHandler)
-	mux.HandleFunc("/api/containers/remove", internal.RemoveContainerHandler)
-	mux.HandleFunc("/api/compose/start", internal.ComposeStartHandler)
-	mux.HandleFunc("/api/compose/stop", internal.ComposeStopHandler)
-	mux.HandleFunc("/api/images", internal.ImagesHandler)
-	mux.HandleFunc("/api/images/remove", internal.RemoveImageHandler)
-	mux.HandleFunc("/api/volumes", internal.VolumesHandler)
-	mux.HandleFunc("/api/volumes/remove", internal.RemoveVolumeHandler)
-	mux.HandleFunc("/api/networks", internal.NetworksHandler)
-	mux.HandleFunc("/api/networks/remove", internal.RemoveNetworkHandler)
+	mux.HandleFunc("/events", handlers.Events)
+	mux.HandleFunc("/api/containers", handlers.ContainersList)
+	mux.HandleFunc("/api/containers/start", handlers.ContainerStart)
+	mux.HandleFunc("/api/containers/stop", handlers.ContainerStop)
+	mux.HandleFunc("/api/containers/logs", handlers.ContainerLogs)
+	mux.HandleFunc("/api/containers/restart", handlers.ContainerRestart)
+	mux.HandleFunc("/api/containers/remove", handlers.ContainerRemove)
+	mux.HandleFunc("/api/compose/start", handlers.ComposeStart)
+	mux.HandleFunc("/api/compose/stop", handlers.ComposeStop)
+	mux.HandleFunc("/api/images", handlers.ImagesList)
+	mux.HandleFunc("/api/images/remove", handlers.ImageRemove)
+	mux.HandleFunc("/api/volumes", handlers.VolumesList)
+	mux.HandleFunc("/api/volumes/remove", handlers.VolumeRemove)
+	mux.HandleFunc("/api/networks", handlers.NetworksList)
+	mux.HandleFunc("/api/networks/remove", handlers.NetworkRemove)
 
 	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
 

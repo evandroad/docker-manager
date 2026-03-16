@@ -28,6 +28,7 @@ export default function ImagesPage() {
           <th className={th} onClick={() => toggleSort('Tags')}>Tags{icon('Tags')}</th>
           <th className={th} onClick={() => toggleSort('Size')}>Size{icon('Size')}</th>
           <th className={th} onClick={() => toggleSort('Created')}>Created{icon('Created')}</th>
+          <th className={th} onClick={() => toggleSort('UsedBy')}>Containers{icon('UsedBy')}</th>
           <th className="bg-slate-700 p-2.5 text-left">Actions</th>
         </tr>
       </thead>
@@ -41,6 +42,9 @@ export default function ImagesPage() {
             <td className="p-2.5 border-t border-slate-600">{img.Size}</td>
             <td className="p-2.5 border-t border-slate-600">
               {new Date(img.Created * 1000).toLocaleDateString()}
+            </td>
+            <td className="p-2.5 border-t border-slate-600 text-xs">
+              {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2.5 border-t border-slate-600">
               <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID)}><i className="fa-solid fa-trash" /></button>

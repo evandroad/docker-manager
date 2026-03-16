@@ -70,6 +70,29 @@ docker-manager/
 3. O frontend chama funções Go diretamente via bindings do WebView (`containers`, `startContainer`, `stopContainer`).
 4. Eventos do Docker são transmitidos em tempo real pelo endpoint SSE, atualizando o estado dos containers na interface sem polling.
 
+## Pacote .deb
+
+Para gerar o instalador:
+
+```bash
+go build -ldflags="-s -w" -o deb-pkg/usr/local/bin/docker-manager
+dpkg-deb --build deb-pkg docker-manager_1.0.0_amd64.deb
+```
+
+Para instalar/atualizar:
+
+```bash
+sudo dpkg -i docker-manager_1.0.0_amd64.deb
+```
+
+Para desinstalar:
+
+```bash
+sudo apt remove docker-manager
+```
+
+Ao atualizar, incrementar a versão em `deb-pkg/DEBIAN/control` antes de rebuildar.
+
 ## Licença
 
 Este projeto é de uso pessoal/educacional. Adicione uma licença conforme necessário.

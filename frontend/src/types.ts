@@ -13,6 +13,7 @@ export interface ImageInfo {
   Tags: string[]
   Size: string
   Created: number
+  UsedBy: string[] | null
 }
 
 export interface VolumeInfo {

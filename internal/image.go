@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
@@ -13,6 +14,7 @@ type ImageInfo struct {
 	Tags    []string
 	Size    string
 	Created int64
+	UsedBy  []string
 }
 
 func formatSize(bytes int64) string {
@@ -37,6 +39,12 @@ func Images() []ImageInfo {
 		return out
 	}
 
+	containers, _ := cli.ContainerList(ctx, container.ListOptions{All: true})
+	imageContainers := map[string][]string{}
+	for _, c := range containers {
+		imageContainers[c.ImageID] = append(imageContainers[c.ImageID], c.Names[0])
+	}
+
 	for _, img := range list {
 		id := img.ID
 		if len(id) > 19 {
@@ -47,6 +55,7 @@ func Images() []ImageInfo {
 			Tags:    img.RepoTags,
 			Size:    formatSize(img.Size),
 			Created: img.Created,
+			UsedBy:  imageContainers[img.ID],
 		})
 	}
 

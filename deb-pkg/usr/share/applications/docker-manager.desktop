@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Docker Manager
+Comment=Gerenciador de containers Docker
+Exec=docker-manager
+Icon=docker-manager
+Terminal=false
+Type=Application
+Categories=Development;Utility;
+StartupNotify=true

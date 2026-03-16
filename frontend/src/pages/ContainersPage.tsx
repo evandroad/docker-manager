@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { ContainerInfo } from '../types'
-import { fetchContainers, startContainer, stopContainer, removeContainer, composeStart, composeStop } from '../api'
+import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, composeStart, composeStop } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
 
 function groupByProject(list: ContainerInfo[]) {
@@ -28,6 +28,7 @@ export default function ContainersPage() {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
     JSON.parse(localStorage.getItem('groupState') || '{}')
   )
+  const [logTarget, setLogTarget] = useState<{ id: string; name: string } | null>(null)
 
   useEffect(() => {
     fetchContainers().then(setContainers)
@@ -70,6 +71,11 @@ export default function ContainersPage() {
     await stopContainer(id)
   }
 
+  async function handleRestart(id: string) {
+    setLoading(prev => ({ ...prev, [id]: true }))
+    await restartContainer(id)
+  }
+
   async function handleRemove(id: string) {
     if (!confirm('Remove container?')) return
     await removeContainer(id)
@@ -78,6 +84,8 @@ export default function ContainersPage() {
   const groups = groupByProject(containers)
 
   return (
+    <>
+    {logTarget && <LogModal id={logTarget.id} name={logTarget.name} onClose={() => setLogTarget(null)} />}
     <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
@@ -104,16 +112,19 @@ export default function ContainersPage() {
               onToggle={() => toggleGroup(key)}
               onStart={handleStart}
               onStop={handleStop}
+              onRestart={handleRestart}
               onRemove={handleRemove}
+              onLogs={(id, name) => setLogTarget({ id, name })}
             />
           )
         })}
       </tbody>
     </table>
+    </>
   )
 }
 
-function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, onRemove }: {
+function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, onRestart, onRemove, onLogs }: {
   project: string
   list: ContainerInfo[]
   open: boolean
@@ -121,7 +132,9 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
   onToggle: () => void
   onStart: (id: string) => void
   onStop: (id: string) => void
+  onRestart: (id: string) => void
   onRemove: (id: string) => void
+  onLogs: (id: string, name: string) => void
 }) {
   const [groupTarget, setGroupTarget] = useState<'running' | 'stopped' | null>(null)
   const allRunning = list.every(c => c.State === 'running')
@@ -179,14 +192,54 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
               {busy
                 ? <i className="fa-solid fa-spinner fa-spin text-zinc-400" />
                 : c.State === 'running'
-                  ? <button className={btn} onClick={() => onStop(c.ID)}><i className="fa-solid fa-stop" /></button>
+                  ? <><button className={btn} onClick={() => onStop(c.ID)}><i className="fa-solid fa-stop" /></button>
+                    <button className={"ml-2 " + btn} onClick={() => onRestart(c.ID)}><i className="fa-solid fa-rotate-right" /></button></>
                   : <><button className={btn} onClick={() => onStart(c.ID)}><i className="fa-solid fa-play" /></button>
                     <button className={btnDanger} onClick={() => onRemove(c.ID)}><i className="fa-solid fa-trash" /></button></>
               }
+              <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)}><i className="fa-solid fa-file-lines" /></button>
             </td>
           </tr>
         )
       })}
     </>
+  )
+}
+
+function LogModal({ id, name, onClose }: { id: string; name: string; onClose: () => void }) {
+  const [lines, setLines] = useState<string[]>([])
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const [autoScroll, setAutoScroll] = useState(true)
+
+  useEffect(() => {
+    const es = new EventSource(`/api/containers/logs?id=${id}`)
+    es.onmessage = (e) => {
+      setLines(prev => [...prev, JSON.parse(e.data)])
+    }
+    return () => es.close()
+  }, [id])
+
+  useEffect(() => {
+    if (autoScroll) bottomRef.current?.scrollIntoView()
+  }, [lines, autoScroll])
+
+  function handleScroll(e: React.UIEvent<HTMLPreElement>) {
+    const el = e.currentTarget
+    setAutoScroll(el.scrollHeight - el.scrollTop - el.clientHeight < 40)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-zinc-900 rounded-lg w-[80vw] h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-3 border-b border-zinc-700">
+          <span className="font-bold">Logs — {name.replace('/', '')}</span>
+          <button className={btn} onClick={onClose}><i className="fa-solid fa-xmark" /></button>
+        </div>
+        <pre className="flex-1 overflow-auto p-3 m-0 text-xs text-zinc-300 whitespace-pre-wrap" onScroll={handleScroll}>
+          {lines.join('')}
+          <div ref={bottomRef} />
+        </pre>
+      </div>
+    </div>
   )
 }

@@ -28,6 +28,10 @@ export async function stopContainer(id: string) {
   await fetch(`/api/containers/stop?id=${id}`)
 }
 
+export async function restartContainer(id: string) {
+  await fetch(`/api/containers/restart?id=${id}`)
+}
+
 export async function removeContainer(id: string) {
   await fetch(`/api/containers/remove?id=${id}`)
 }

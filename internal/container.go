@@ -104,6 +104,19 @@ func StopContainer(id string) string {
 	return "ok"
 }
 
+func RestartContainer(id string) string {
+	go func() {
+		ctx := context.Background()
+		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+		if err != nil {
+			return
+		}
+		timeout := 2
+		cli.ContainerRestart(ctx, id, container.StopOptions{Timeout: &timeout})
+	}()
+	return "ok"
+}
+
 func ComposeStart(project string) string {
 	go exec.Command("docker", "compose", "-p", project, "start").Run()
 	return "ok"

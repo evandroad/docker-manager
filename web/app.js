@@ -1,7 +1,8 @@
-let groupState = JSON.parse(localStorage.getItem("groupState") || "{}")
-console.log(groupState)
+let groupState = {}
 
 window.onload = () => {
+	groupState = JSON.parse(localStorage.getItem("groupState") || "{}")
+
 	let page = localStorage.getItem("activePage") || "containers"
 	openPage(page)
 }
@@ -13,7 +14,7 @@ const pages = {
 	networks: loadNetworks
 }
 
-function openPage(page){
+function openPage(page) {
 	localStorage.setItem("activePage", page)
 	setActiveNav(page)
 	pages[page]()
@@ -23,7 +24,7 @@ function setActiveNav(page) {
 	document.querySelectorAll(".link-nav").forEach(btn => {
 		btn.classList.remove("active")
 
-		if(btn.dataset.page === page){
+		if (btn.dataset.page === page){
 			btn.classList.add("active")
 		}
 	})
@@ -33,7 +34,11 @@ function renderTable(containers) {
 	let groups = groupByProject(containers)
 
 	Object.keys(groupState).forEach(k => {
-		if (!groups[k]) {
+		let exists = Object.keys(groups).some(g =>
+			g.replace(/[^a-zA-Z0-9]/g,"") === k
+		)
+
+		if (!exists) {
 			delete groupState[k]
 		}
 	})

@@ -20,6 +20,7 @@ export interface VolumeInfo {
   Name: string
   Driver: string
   Mountpoint: string
+  UsedBy: string[] | null
 }
 
 export interface NetworkInfo {
@@ -27,6 +28,7 @@ export interface NetworkInfo {
   Name: string
   Driver: string
   Scope: string
+  UsedBy: string[] | null
 }
 
 export interface DockerEvent {

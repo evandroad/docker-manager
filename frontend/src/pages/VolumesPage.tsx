@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { VolumeInfo } from '../types'
-import { fetchVolumes } from '../api'
+import { fetchVolumes, removeVolume } from '../api'
 import { useSort } from '../useSort'
 
 export default function VolumesPage() {
@@ -11,15 +11,24 @@ export default function VolumesPage() {
     fetchVolumes().then(setVolumes)
   }, [])
 
+  async function handleRemove(name: string) {
+    if (!confirm('Remove volume?')) return
+    const res = await removeVolume(name)
+    if (res === true) setVolumes(prev => prev.filter(v => v.Name !== name))
+    else alert('Error: ' + res)
+  }
+
   const th = "bg-slate-700 p-2.5 text-left cursor-pointer select-none hover:bg-slate-600"
 
   return (
-    <table className="w-full border-collapse bg-slate-800 text-sm">
+    <table className="w-full border-collapse mt-4 bg-slate-800 text-sm">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('Name')}>Name{icon('Name')}</th>
           <th className={th} onClick={() => toggleSort('Driver')}>Driver{icon('Driver')}</th>
           <th className={th} onClick={() => toggleSort('Mountpoint')}>Mountpoint{icon('Mountpoint')}</th>
+          <th className={th} onClick={() => toggleSort('UsedBy')}>Containers{icon('UsedBy')}</th>
+          <th className="bg-slate-700 p-2.5 text-left">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +37,12 @@ export default function VolumesPage() {
             <td className="p-2.5 border-t border-slate-600">{v.Name}</td>
             <td className="p-2.5 border-t border-slate-600">{v.Driver}</td>
             <td className="p-2.5 border-t border-slate-600 text-xs text-slate-400 break-all">{v.Mountpoint}</td>
+            <td className="p-2.5 border-t border-slate-600 text-xs">
+              {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
+            </td>
+            <td className="p-2.5 border-t border-slate-600">
+              <button className="px-3 py-1.5 bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
+            </td>
           </tr>
         ))}
       </tbody>

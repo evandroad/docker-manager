@@ -56,7 +56,9 @@ func startServer() string {
 	mux.HandleFunc("/api/images", internal.ImagesHandler)
 	mux.HandleFunc("/api/images/remove", internal.RemoveImageHandler)
 	mux.HandleFunc("/api/volumes", internal.VolumesHandler)
+	mux.HandleFunc("/api/volumes/remove", internal.RemoveVolumeHandler)
 	mux.HandleFunc("/api/networks", internal.NetworksHandler)
+	mux.HandleFunc("/api/networks/remove", internal.RemoveNetworkHandler)
 
 	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
 

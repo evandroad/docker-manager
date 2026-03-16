@@ -93,6 +93,31 @@ sudo apt remove docker-manager
 
 Ao atualizar, incrementar a versão em `deb-pkg/DEBIAN/control` antes de rebuildar.
 
+## Roadmap
+
+Funcionalidades planejadas, ordenadas da mais simples à mais complexa:
+
+1. **Busca/filtro de containers, imagens, volumes e networks** — campo de texto para filtrar as tabelas em tempo real
+2. **Copiar ID/nome com um clique** — botão de copiar ao lado do ID e nome dos recursos
+3. **Prune de recursos** — botões para executar `docker system prune`, `docker volume prune`, `docker image prune`
+4. **Renomear containers** — editar o nome de um container diretamente na tabela
+5. **Restart de containers** — botão de restart individual e por grupo compose
+6. **Detalhes do container em painel lateral** — exibir portas, variáveis de ambiente, mounts, redes e labels
+7. **Inspeção de imagens** — exibir layers, histórico de build e configuração
+8. **Pull de imagens** — campo para digitar o nome da imagem e fazer pull com barra de progresso
+9. **Criação de volumes e networks** — formulários para criar novos recursos
+10. **Logs de containers** — visualizar logs em tempo real com tail e busca
+11. **Exec/terminal no container** — abrir um shell interativo dentro de um container
+12. **Estatísticas de recursos (CPU/memória/rede)** — gráficos em tempo real por container usando `docker stats`
+13. **Gerenciamento de Docker Compose** — up, down, pull, build e restart de stacks inteiras a partir do compose file
+14. **Notificações de eventos** — toasts/alertas visuais quando containers caem, reiniciam ou dão erro
+15. **Gerenciamento de registries** — login/logout em registries privados, listar imagens remotas
+16. **Dashboard com visão geral** — painel inicial com resumo de recursos, uso de disco, containers por estado
+17. **Gerenciamento multi-host** — conectar a Docker daemons remotos via TCP/SSH
+18. **Backup e restore de volumes** — exportar/importar dados de volumes como arquivos tar
+19. **Templates de stacks** — biblioteca de docker-compose templates prontos para deploy rápido
+20. **RBAC e autenticação** — controle de acesso por usuário com permissões granulares
+
 ## Licença
 
 Este projeto é de uso pessoal/educacional. Adicione uma licença conforme necessário.

@@ -103,3 +103,15 @@ func ComposeStopHandler(w http.ResponseWriter, r *http.Request) {
 	result := ComposeStop(project)
 	respond.JSON(w, http.StatusOK, respond.H{"result": result})
 }
+
+func RemoveVolumeHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	result := RemoveVolume(name)
+	respond.JSON(w, http.StatusOK, respond.H{"result": result})
+}
+
+func RemoveNetworkHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	result := RemoveNetwork(id)
+	respond.JSON(w, http.StatusOK, respond.H{"result": result})
+}

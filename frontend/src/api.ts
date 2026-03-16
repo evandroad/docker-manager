@@ -45,3 +45,15 @@ export async function removeImage(id: string): Promise<true | string> {
   const data = await res.json()
   return data.result === 'ok' ? true : data.result
 }
+
+export async function removeVolume(name: string): Promise<true | string> {
+  const res = await fetch(`/api/volumes/remove?name=${encodeURIComponent(name)}`)
+  const data = await res.json()
+  return data.result === 'ok' ? true : data.result
+}
+
+export async function removeNetwork(id: string): Promise<true | string> {
+  const res = await fetch(`/api/networks/remove?id=${encodeURIComponent(id)}`)
+  const data = await res.json()
+  return data.result === 'ok' ? true : data.result
+}

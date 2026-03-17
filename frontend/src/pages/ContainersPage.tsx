@@ -168,7 +168,7 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
           <span className="cursor-pointer" onClick={onToggle}>
             <span className="mr-2 text-zinc-400">{open ? '▾' : '▸'}</span>
             <span className={`inline-block w-3 h-3 rounded-full mr-2 ${groupColor}`} />
-            <b className='text-lg font-light'>{project}</b> ({list.length})
+            ({list.length}) <b className='text-lg font-light'>{project}</b>
           </span>
           {groupTarget
             ? <span className="text-zinc-400"><i className="fa-solid fa-spinner fa-spin" /></span>

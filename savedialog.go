@@ -39,9 +39,6 @@ static void idle_add(int id) {
 import "C"
 
 import (
-	"encoding/json"
-	"net/http"
-	"os"
 	"sync"
 	"unsafe"
 )
@@ -72,20 +69,9 @@ func goGtkCallback(id C.int) {
 	}
 }
 
-func saveFileHandler(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Filename string `json:"filename"`
-		Content  string `json:"content"`
-	}
-	if json.NewDecoder(r.Body).Decode(&req) != nil || req.Content == "" {
-		http.Error(w, "bad request", 400)
-		return
-	}
-	if req.Filename == "" {
-		req.Filename = "logs.log"
-	}
-
-	cname := C.CString(req.Filename)
+// saveFileDialog opens a native GTK save dialog and returns the chosen path.
+func saveFileDialog(filename string) (string, bool) {
+	cname := C.CString(filename)
 	defer C.free(unsafe.Pointer(cname))
 
 	done := make(chan *C.char, 1)
@@ -95,16 +81,9 @@ func saveFileHandler(w http.ResponseWriter, r *http.Request) {
 	cpath := <-done
 
 	if cpath == nil {
-		json.NewEncoder(w).Encode(map[string]string{"status": "cancelled"})
-		return
+		return "", false
 	}
 	path := C.GoString(cpath)
 	C.g_free(C.gpointer(unsafe.Pointer(cpath)))
-
-	if err := os.WriteFile(path, []byte(req.Content), 0644); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "path": path})
+	return path, true
 }

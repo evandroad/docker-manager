@@ -15,4 +15,5 @@ go:
 	cp docker-manager deb-pkg/usr/local/bin/
 
 deb: build
+	rm -f docker-manager*.deb
 	dpkg-deb --build deb-pkg docker-manager_$(VERSION)_amd64.deb

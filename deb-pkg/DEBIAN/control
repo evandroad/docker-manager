@@ -1,5 +1,5 @@
 Package: docker-manager
-Version: 0.1.0-5-gf020c4d
+Version: 0.1.1
 Section: utils
 Priority: optional
 Architecture: amd64

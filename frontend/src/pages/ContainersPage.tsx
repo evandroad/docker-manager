@@ -233,7 +233,16 @@ function LogModal({ id, name, onClose }: { id: string; name: string; onClose: ()
       <div className="bg-zinc-900 rounded-lg w-[80vw] h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-3 border-b border-zinc-700">
           <span className="font-bold">Logs — {name.replace('/', '')}</span>
-          <button className={btn} onClick={onClose}><i className="fa-solid fa-xmark" /></button>
+          <span>
+            <button className={btn} onClick={async () => {
+              await fetch('/api/save-file', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: name.replace('/', '') + '.log', content: lines.join('') })
+              })
+            }}><i className="fa-solid fa-download" /> Save</button>
+            <button className={"ml-2 " + btn} onClick={onClose}><i className="fa-solid fa-xmark" /></button>
+          </span>
         </div>
         <pre className="flex-1 overflow-auto p-3 m-0 text-xs text-zinc-300 whitespace-pre-wrap" onScroll={handleScroll}>
           {lines.join('')}

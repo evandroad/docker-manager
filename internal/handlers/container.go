@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"docker-manager/internal/service"
 	"docker-manager/internal/respond"
+	"docker-manager/internal/service"
 	"encoding/json"
 	"fmt"
 	"net/http"

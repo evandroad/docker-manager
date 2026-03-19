@@ -62,7 +62,10 @@ func startServer() string {
 	mux.HandleFunc("/api/networks", handlers.NetworksList)
 	mux.HandleFunc("/api/networks/remove", handlers.NetworkRemove)
 
-	listener, _ := net.Listen("tcp", "127.0.0.1:1234")
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		panic(err)
+	}
 
 	go http.Serve(listener, mux)
 

@@ -1,9 +1,0 @@
-Package: docker-manager
-Version: 0.1.1-3-g7420a6d
-Section: utils
-Priority: optional
-Architecture: amd64
-Depends: docker.io | docker-ce
-Maintainer: Digicon <digicon@digicon.com.br>
-Description: Gerenciador de containers Docker
- Interface gráfica para gerenciar containers Docker.

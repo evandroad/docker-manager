@@ -64,6 +64,9 @@ func startServer() string {
 	mux.HandleFunc("/api/volumes/remove", handlers.VolumeRemove)
 	mux.HandleFunc("/api/networks", handlers.NetworksList)
 	mux.HandleFunc("/api/networks/remove", handlers.NetworkRemove)
+	mux.HandleFunc("/api/hosts", handlers.HostsList)
+	mux.HandleFunc("/api/hosts/save", handlers.HostsSave)
+	mux.HandleFunc("/api/hosts/connect", handlers.HostConnect)
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

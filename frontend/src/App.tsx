@@ -1,19 +1,65 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ContainersPage from './pages/ContainersPage'
 import ImagesPage from './pages/ImagesPage'
 import VolumesPage from './pages/VolumesPage'
 import NetworksPage from './pages/NetworksPage'
+import { fetchHosts, saveHosts, connectHost } from './api'
+import type { HostConfig } from './api'
+import PasswordModal from './components/PasswordModal'
+import HostEditor from './components/HostEditor'
 
 type Page = 'containers' | 'images' | 'volumes' | 'networks'
+
+const btn = "px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
 
 function App() {
   const [page, setPage] = useState<Page>(() =>
     (localStorage.getItem('activePage') as Page) || 'containers'
   )
+  const [hosts, setHosts] = useState<HostConfig[]>([])
+  const [active, setActive] = useState('')
+  const [connecting, setConnecting] = useState(false)
+  const [showHostEditor, setShowHostEditor] = useState(false)
+  const [showHostMenu, setShowHostMenu] = useState(false)
+
+  useEffect(() => {
+    fetchHosts().then(data => {
+      setHosts(data.hosts || [])
+      setActive(data.active)
+    })
+  }, [])
 
   function navigate(p: Page) {
     localStorage.setItem('activePage', p)
     setPage(p)
+  }
+
+  const [pendingHost, setPendingHost] = useState<string | null>(null)
+
+  async function handleConnect(name: string) {
+    if (name === '') {
+      setConnecting(true)
+      try {
+        const res = await connectHost('')
+        if (res.error) alert(res.error)
+        else setActive('')
+      } catch { alert('Connection failed') }
+      finally { setConnecting(false) }
+      return
+    }
+    setPendingHost(name)
+  }
+
+  async function doConnect(password: string) {
+    const name = pendingHost!
+    setPendingHost(null)
+    setConnecting(true)
+    try {
+      const res = await connectHost(name, password)
+      if (res.error) alert(res.error)
+      else setActive(name)
+    } catch { alert('Connection failed') }
+    finally { setConnecting(false) }
   }
 
   const pages: Page[] = ['containers', 'images', 'volumes', 'networks']
@@ -35,14 +81,60 @@ function App() {
             </button>
           ))}
         </nav>
+
+        <div className="mt-auto p-3 border-t border-zinc-800">
+          <div className="text-xs text-zinc-500 mb-2 flex items-center justify-between">
+            Host
+            <button className={btn} onClick={() => setShowHostEditor(true)}>
+              <i className="fa-solid fa-gear" />
+            </button>
+          </div>
+          <div className="relative">
+            <button
+              className="w-full bg-zinc-800 text-white text-sm border border-zinc-700 rounded-md p-1.5 cursor-pointer text-left flex items-center justify-between hover:bg-zinc-700"
+              disabled={connecting}
+              onClick={() => setShowHostMenu(v => !v)}
+            >
+              <span>{active || 'Local'}</span>
+              <i className={`fa-solid fa-chevron-${showHostMenu ? 'up' : 'down'} text-zinc-400 text-xs`} />
+            </button>
+            {showHostMenu && (
+              <div className="absolute bottom-full left-0 w-full mb-1 bg-zinc-800 border border-zinc-700 rounded-md overflow-hidden z-50">
+                <button className={`w-full text-left px-3 py-1.5 text-sm border-none cursor-pointer ${active === '' ? 'bg-zinc-600 text-white' : 'bg-transparent text-zinc-300 hover:bg-zinc-700'}`}
+                  onClick={() => { handleConnect(''); setShowHostMenu(false) }}>Local</button>
+                {hosts.map(h => (
+                  <button key={h.name} className={`w-full text-left px-3 py-1.5 text-sm border-none cursor-pointer ${active === h.name ? 'bg-zinc-600 text-white' : 'bg-transparent text-zinc-300 hover:bg-zinc-700'}`}
+                    onClick={() => { handleConnect(h.name); setShowHostMenu(false) }}>{h.name}</button>
+                ))}
+              </div>
+            )}
+          </div>
+          {connecting && <div className="text-xs text-zinc-400 mt-1"><i className="fa-solid fa-spinner fa-spin" /> Connecting...</div>}
+        </div>
       </aside>
 
       <main className="flex-1 p-5 overflow-auto">
-        {page === 'containers' && <ContainersPage />}
-        {page === 'images' && <ImagesPage />}
-        {page === 'volumes' && <VolumesPage />}
-        {page === 'networks' && <NetworksPage />}
+        {page === 'containers' && <ContainersPage key={active} />}
+        {page === 'images' && <ImagesPage key={active} />}
+        {page === 'volumes' && <VolumesPage key={active} />}
+        {page === 'networks' && <NetworksPage key={active} />}
       </main>
+
+      {pendingHost && (
+        <PasswordModal
+          host={pendingHost}
+          onConfirm={doConnect}
+          onCancel={() => setPendingHost(null)}
+        />
+      )}
+
+      {showHostEditor && (
+        <HostEditor
+          hosts={hosts}
+          onSave={async (h) => { await saveHosts(h); setHosts(h); setShowHostEditor(false) }}
+          onClose={() => setShowHostEditor(false)}
+        />
+      )}
     </div>
   )
 }

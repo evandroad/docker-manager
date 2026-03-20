@@ -2,20 +2,24 @@ import { useState, useEffect } from 'react'
 import type { NetworkInfo } from '../types'
 import { fetchNetworks, removeNetwork } from '../api'
 import { useSort } from '../useSort'
+import { useConfirm, useAlert } from '../components/ConfirmModal'
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState<NetworkInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(networks)
+  const confirm = useConfirm()
+  const showAlert = useAlert()
 
   useEffect(() => {
     fetchNetworks().then(setNetworks)
   }, [])
 
-  async function handleRemove(id: string) {
-    if (!confirm('Remove network?')) return
-    const res = await removeNetwork(id)
-    if (res === true) setNetworks(prev => prev.filter(n => n.ID !== id))
-    else alert('Error: ' + res)
+  function handleRemove(id: string) {
+    confirm({ message: `Remove network "${id}"?`, onConfirm: async () => {
+      const res = await removeNetwork(id)
+      if (res === true) setNetworks(prev => prev.filter(n => n.ID !== id))
+      else showAlert('Error: ' + res)
+    }})
   }
 
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"

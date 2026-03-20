@@ -4,9 +4,12 @@ import './index.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import '@fontsource-variable/inter'
 import App from './App.tsx'
+import { ConfirmProvider } from './components/ConfirmModal.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ConfirmProvider>
+      <App />
+    </ConfirmProvider>
   </StrictMode>,
 )

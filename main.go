@@ -43,6 +43,7 @@ func main() {
 
 func startServer() string {
 	handlers.SaveDialogFunc = saveFileDialog
+	handlers.OpenFileDialogFunc = openFileDialog
 
 	sub, _ := fs.Sub(webFiles, "web")
 	mux := http.NewServeMux()
@@ -58,6 +59,8 @@ func startServer() string {
 	mux.HandleFunc("/api/containers/remove", handlers.ContainerRemove)
 	mux.HandleFunc("/api/compose/start", handlers.ComposeStart)
 	mux.HandleFunc("/api/compose/stop", handlers.ComposeStop)
+	mux.HandleFunc("/api/compose/up", handlers.ComposeUp)
+	mux.HandleFunc("/api/compose/open-file", handlers.ComposeOpenFile)
 	mux.HandleFunc("/api/images", handlers.ImagesList)
 	mux.HandleFunc("/api/images/remove", handlers.ImageRemove)
 	mux.HandleFunc("/api/volumes", handlers.VolumesList)

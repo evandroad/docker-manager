@@ -2,20 +2,24 @@ import { useState, useEffect } from 'react'
 import type { ImageInfo } from '../types'
 import { fetchImages, removeImage } from '../api'
 import { useSort } from '../useSort'
+import { useConfirm, useAlert } from '../components/ConfirmModal'
 
 export default function ImagesPage() {
   const [images, setImages] = useState<ImageInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(images)
+  const confirm = useConfirm()
+  const showAlert = useAlert()
 
   useEffect(() => {
     fetchImages().then(setImages)
   }, [])
 
-  async function handleRemove(id: string) {
-    if (!confirm('Remove image?')) return
-    const res = await removeImage(id)
-    if (res === true) setImages(prev => prev.filter(img => img.ID !== id))
-    else alert('Error: ' + res)
+  function handleRemove(id: string) {
+    confirm({ message: `Remove image "${id}"?`, onConfirm: async () => {
+      const res = await removeImage(id)
+      if (res === true) setImages(prev => prev.filter(img => img.ID !== id))
+      else showAlert('Error: ' + res)
+    }})
   }
 
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"

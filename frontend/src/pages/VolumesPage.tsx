@@ -2,20 +2,24 @@ import { useState, useEffect } from 'react'
 import type { VolumeInfo } from '../types'
 import { fetchVolumes, removeVolume } from '../api'
 import { useSort } from '../useSort'
+import { useConfirm, useAlert } from '../components/ConfirmModal'
 
 export default function VolumesPage() {
   const [volumes, setVolumes] = useState<VolumeInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(volumes)
+  const confirm = useConfirm()
+  const showAlert = useAlert()
 
   useEffect(() => {
     fetchVolumes().then(setVolumes)
   }, [])
 
-  async function handleRemove(name: string) {
-    if (!confirm('Remove volume?')) return
-    const res = await removeVolume(name)
-    if (res === true) setVolumes(prev => prev.filter(v => v.Name !== name))
-    else alert('Error: ' + res)
+  function handleRemove(name: string) {
+    confirm({ message: `Remove volume "${name}"?`, onConfirm: async () => {
+      const res = await removeVolume(name)
+      if (res === true) setVolumes(prev => prev.filter(v => v.Name !== name))
+      else showAlert('Error: ' + res)
+    }})
   }
 
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"

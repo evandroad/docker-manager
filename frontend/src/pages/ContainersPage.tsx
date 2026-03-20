@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { ContainerInfo } from '../types'
 import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, composeStart, composeStop } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
+import { useConfirm } from '../components/ConfirmModal'
+import ComposeModal from '../components/ComposeModal'
 
 function groupByProject(list: ContainerInfo[]) {
   const groups: Record<string, ContainerInfo[]> = {}
@@ -29,6 +31,8 @@ export default function ContainersPage() {
     JSON.parse(localStorage.getItem('groupState') || '{}')
   )
   const [logTarget, setLogTarget] = useState<{ id: string; name: string } | null>(null)
+  const [showCompose, setShowCompose] = useState(false)
+  const confirm = useConfirm()
 
   useEffect(() => {
     fetchContainers().then(setContainers)
@@ -66,9 +70,10 @@ export default function ContainersPage() {
   }
 
   async function handleStop(id: string) {
-    if (!confirm('Stop container?')) return
-    setLoading(prev => ({ ...prev, [id]: true }))
-    await stopContainer(id)
+    confirm({ message: 'Stop container?', onConfirm: async () => {
+      setLoading(prev => ({ ...prev, [id]: true }))
+      await stopContainer(id)
+    }})
   }
 
   async function handleRestart(id: string) {
@@ -77,8 +82,7 @@ export default function ContainersPage() {
   }
 
   async function handleRemove(id: string) {
-    if (!confirm('Remove container?')) return
-    await removeContainer(id)
+    confirm({ message: 'Remove container?', onConfirm: () => removeContainer(id) })
   }
 
   const groups = groupByProject(containers)
@@ -86,6 +90,12 @@ export default function ContainersPage() {
   return (
     <>
     {logTarget && <LogModal id={logTarget.id} name={logTarget.name} onClose={() => setLogTarget(null)} />}
+    {showCompose && <ComposeModal onClose={() => setShowCompose(false)} onDone={() => { setShowCompose(false); fetchContainers().then(setContainers) }} />}
+    <div className="mb-3">
+      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCompose(true)}>
+        <i className="fa-solid fa-upload mr-1" /> Compose Up
+      </button>
+    </div>
     <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
@@ -141,6 +151,7 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
   const allRunning = list.every(c => c.State === 'running')
   const allStopped = list.every(c => c.State !== 'running')
   const isCompose = project !== 'standalone'
+  const confirm = useConfirm()
 
   useEffect(() => {
     if (groupTarget === 'running' && allRunning) setGroupTarget(null)
@@ -152,11 +163,12 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
     if (isCompose) await composeStart(project)
     else list.filter(c => c.State !== 'running').forEach(c => onStart(c.ID))
   }
-  async function stopAll() {
-    if (!confirm('Stop all containers in ' + project + '?')) return
-    setGroupTarget('stopped')
-    if (isCompose) await composeStop(project)
-    else list.filter(c => c.State === 'running').forEach(c => onStop(c.ID))
+  function stopAll() {
+    confirm({ message: `Stop all containers in ${project}?`, onConfirm: async () => {
+      setGroupTarget('stopped')
+      if (isCompose) await composeStop(project)
+      else list.filter(c => c.State === 'running').forEach(c => onStop(c.ID))
+    }})
   }
 
   const groupColor = allRunning ? 'bg-green-500' : allStopped ? 'bg-red-500' : 'bg-yellow-500'

@@ -44,6 +44,42 @@ export async function composeStop(project: string) {
   await fetch(`/api/compose/stop?project=${encodeURIComponent(project)}`)
 }
 
+export async function composeUpStream(yaml: string, path?: string, onLine?: (line: string) => void): Promise<string> {
+  const res = await fetch('/api/compose/up', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(path ? { Path: path } : { Yaml: yaml }),
+  })
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buf = ''
+  let result = 'ok'
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += decoder.decode(value, { stream: true })
+    const lines = buf.split('\n')
+    buf = lines.pop()!
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.slice(6))
+        onLine?.(data)
+      }
+      if (line.startsWith('event: error')) {
+        result = 'error'
+      }
+    }
+  }
+  return result
+}
+
+export async function composeOpenFile(): Promise<string> {
+  const res = await fetch('/api/compose/open-file')
+  const data = await res.json()
+  return data.path || ''
+}
+
 export async function removeImage(id: string): Promise<true | string> {
   const res = await fetch(`/api/images/remove?id=${id}`)
   const data = await res.json()

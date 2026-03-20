@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -15,6 +16,7 @@ type VolumeInfo struct {
 	Driver     string
 	Mountpoint string
 	Size       string
+	Created    int64
 	UsedBy     []string
 }
 
@@ -51,11 +53,16 @@ func Volumes() []VolumeInfo {
 	}
 
 	for _, v := range list.Volumes {
+		created := int64(0)
+		if t, err := time.Parse(time.RFC3339, v.CreatedAt); err == nil {
+			created = t.Unix()
+		}
 		out = append(out, VolumeInfo{
 			Name:       v.Name,
 			Driver:     v.Driver,
 			Mountpoint: v.Mountpoint,
 			Size:       formatVolSize(volSizes[v.Name]),
+			Created:    created,
 			UsedBy:     volContainers[v.Name],
 		})
 	}

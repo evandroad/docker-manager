@@ -9,13 +9,14 @@ import (
 )
 
 type ContainerInfo struct {
-	ID     string
-	Name   string
-	Image  string
-	Status string
-	State  string
+	ID      string
+	Name    string
+	Image   string
+	Status  string
+	State   string
 	Project string
 	Service string
+	Created int64
 }
 
 func Containers() []ContainerInfo {
@@ -35,13 +36,14 @@ func Containers() []ContainerInfo {
 
 	for _, c := range list {
 		out = append(out, ContainerInfo{
-			ID:     c.ID[:12],
-			Name:   c.Names[0],
-			Image:  c.Image,
-			Status: c.Status,
-			State:  c.State,
+			ID:      c.ID[:12],
+			Name:    c.Names[0],
+			Image:   c.Image,
+			Status:  c.Status,
+			State:   c.State,
 			Project: c.Labels["com.docker.compose.project"],
 			Service: c.Labels["com.docker.compose.service"],
+			Created: c.Created,
 		})
 	}
 

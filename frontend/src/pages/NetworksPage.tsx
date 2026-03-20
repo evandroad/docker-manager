@@ -28,6 +28,7 @@ export default function NetworksPage() {
           <th className={th} onClick={() => toggleSort('Name')}>Name{icon('Name')}</th>
           <th className={th} onClick={() => toggleSort('Driver')}>Driver{icon('Driver')}</th>
           <th className={th} onClick={() => toggleSort('Scope')}>Scope{icon('Scope')}</th>
+          <th className={th} onClick={() => toggleSort('Created')}>Created{icon('Created')}</th>
           <th className={th} onClick={() => toggleSort('UsedBy')}>Containers{icon('UsedBy')}</th>
           <th className="bg-zinc-700 p-2 text-left">Actions</th>
         </tr>
@@ -39,6 +40,7 @@ export default function NetworksPage() {
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Name}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Driver}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Scope}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(n.Created * 1000).toLocaleDateString()}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
               {n.UsedBy?.length ? n.UsedBy.map(name => name.replace('/', '')).join(', ') : '—'}
             </td>

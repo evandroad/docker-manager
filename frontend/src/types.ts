@@ -6,6 +6,7 @@ export interface ContainerInfo {
   State: string
   Project: string
   Service: string
+  Created: number
 }
 
 export interface ImageInfo {
@@ -21,6 +22,7 @@ export interface VolumeInfo {
   Driver: string
   Mountpoint: string
   Size: string
+  Created: number
   UsedBy: string[] | null
 }
 
@@ -29,6 +31,7 @@ export interface NetworkInfo {
   Name: string
   Driver: string
   Scope: string
+  Created: number
   UsedBy: string[] | null
 }
 

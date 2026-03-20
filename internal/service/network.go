@@ -9,11 +9,12 @@ import (
 )
 
 type NetworkInfo struct {
-	ID     string
-	Name   string
-	Driver string
-	Scope  string
-	UsedBy []string
+	ID      string
+	Name    string
+	Driver  string
+	Scope   string
+	Created int64
+	UsedBy  []string
 }
 
 func Networks() []NetworkInfo {
@@ -46,11 +47,12 @@ func Networks() []NetworkInfo {
 			id = id[:12]
 		}
 		out = append(out, NetworkInfo{
-			ID:     id,
-			Name:   n.Name,
-			Driver: n.Driver,
-			Scope:  n.Scope,
-			UsedBy: netContainers[n.Name],
+			ID:      id,
+			Name:    n.Name,
+			Driver:  n.Driver,
+			Scope:   n.Scope,
+			Created: n.Created.Unix(),
+			UsedBy:  netContainers[n.Name],
 		})
 	}
 

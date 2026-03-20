@@ -28,6 +28,7 @@ export default function VolumesPage() {
           <th className={th} onClick={() => toggleSort('Driver')}>Driver{icon('Driver')}</th>
           <th className={th} onClick={() => toggleSort('Mountpoint')}>Mountpoint{icon('Mountpoint')}</th>
           <th className={th} onClick={() => toggleSort('Size')}>Size{icon('Size')}</th>
+          <th className={th} onClick={() => toggleSort('Created')}>Created{icon('Created')}</th>
           <th className={th} onClick={() => toggleSort('UsedBy')}>Containers{icon('UsedBy')}</th>
           <th className="bg-zinc-700 p-2 text-left">Actions</th>
         </tr>
@@ -39,6 +40,7 @@ export default function VolumesPage() {
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Driver}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs text-zinc-400 break-all">{v.Mountpoint}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Size}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(v.Created * 1000).toLocaleDateString()}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>

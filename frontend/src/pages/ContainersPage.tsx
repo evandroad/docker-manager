@@ -92,6 +92,7 @@ export default function ContainersPage() {
           <th className="bg-zinc-700 p-1.5 text-left">ID</th>
           <th className="bg-zinc-700 p-1.5 text-left">Name</th>
           <th className="bg-zinc-700 p-1.5 text-left">Image</th>
+          <th className="bg-zinc-700 p-1.5 text-left">Created</th>
           <th className="bg-zinc-700 p-1.5 text-left">Status</th>
           <th className="bg-zinc-700 p-1.5 text-left">Actions</th>
         </tr>
@@ -163,7 +164,7 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
   return (
     <>
       <tr>
-        <td colSpan={5} className="p-1.5 border-t border-zinc-600">
+        <td colSpan={6} className="p-1.5 border-t border-zinc-600">
           <div className="flex items-center justify-between">
           <span className="cursor-pointer" onClick={onToggle}>
             <span className="mr-2 text-zinc-400">{open ? '▾' : '▸'}</span>
@@ -184,9 +185,10 @@ function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, on
         const busy = loading[c.ID]
         return (
           <tr key={c.ID}>
-            <td className="p-2 text-lg font-light border-t border-zinc-600">{c.ID}</td>
+            <td className={`p-2 text-lg font-light border-t border-zinc-600${isCompose ? ' pl-12' : ''}`}>{c.ID}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Name.replace('/', '')}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Image}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(c.Created * 1000).toLocaleDateString()}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {busy

@@ -14,8 +14,8 @@ export default function ImagesPage() {
     fetchImages().then(setImages)
   }, [])
 
-  function handleRemove(id: string) {
-    confirm({ message: `Remove image "${id}"?`, onConfirm: async () => {
+  function handleRemove(id: string, name: string) {
+    confirm({ message: `Remove image "${name}"?`, onConfirm: async () => {
       const res = await removeImage(id)
       if (res === true) setImages(prev => prev.filter(img => img.ID !== id))
       else showAlert('Error: ' + res)
@@ -51,7 +51,7 @@ export default function ImagesPage() {
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

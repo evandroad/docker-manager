@@ -33,17 +33,20 @@ func Events(w http.ResponseWriter, r *http.Request) {
 	for {
 		select {
 		case msg := <-msgs:
-			if msg.Type == "container" {
-				event := map[string]any{
-					"Type":   msg.Type,
-					"Action": msg.Action,
-					"ID":     msg.Actor.ID,
-					"Time":   msg.Time,
-				}
-				data, _ := json.Marshal(event)
-				fmt.Fprintf(w, "data: %s\n\n", data)
-				flusher.Flush()
+			name := msg.Actor.Attributes["name"]
+			if name == "" {
+				name = msg.Actor.ID
 			}
+			event := map[string]any{
+				"Type":   string(msg.Type),
+				"Action": string(msg.Action),
+				"ID":     msg.Actor.ID,
+				"Name":   name,
+				"Time":   msg.Time,
+			}
+			data, _ := json.Marshal(event)
+			fmt.Fprintf(w, "data: %s\n\n", data)
+			flusher.Flush()
 		case err := <-errs:
 			fmt.Println("docker events error:", err)
 			return

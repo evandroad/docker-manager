@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { composeUpStream, composeOpenFile } from '../api'
 
-export default function ComposeModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
+type ComposeModalProps = {
+  onClose: () => void
+  onDone: () => void
+}
+
+export default function ComposeModal({ onClose, onDone }: ComposeModalProps) {
   const [yaml, setYaml] = useState('')
   const [filePath, setFilePath] = useState('')
   const [running, setRunning] = useState(false)

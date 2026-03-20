@@ -14,8 +14,8 @@ export default function NetworksPage() {
     fetchNetworks().then(setNetworks)
   }, [])
 
-  function handleRemove(id: string) {
-    confirm({ message: `Remove network "${id}"?`, onConfirm: async () => {
+  function handleRemove(id: string, name: string) {
+    confirm({ message: `Remove network "${name}"?`, onConfirm: async () => {
       const res = await removeNetwork(id)
       if (res === true) setNetworks(prev => prev.filter(n => n.ID !== id))
       else showAlert('Error: ' + res)
@@ -49,7 +49,7 @@ export default function NetworksPage() {
               {n.UsedBy?.length ? n.UsedBy.map(name => name.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(n.ID)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(n.ID, n.Name)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

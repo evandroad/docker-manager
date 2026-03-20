@@ -39,5 +39,6 @@ export interface DockerEvent {
   Type: string
   Action: string
   ID: string
+  Name: string
   Time: number
 }

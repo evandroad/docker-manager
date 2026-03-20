@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import ContainersPage from './pages/ContainersPage'
 import ImagesPage from './pages/ImagesPage'
 import VolumesPage from './pages/VolumesPage'
 import NetworksPage from './pages/NetworksPage'
+import EventsPage from './pages/EventsPage'
 import { fetchHosts, saveHosts, connectHost } from './api'
 import type { HostConfig } from './api'
+import type { DockerEvent } from './types'
 import PasswordModal from './components/PasswordModal'
 import HostEditor from './components/HostEditor'
 
-type Page = 'containers' | 'images' | 'volumes' | 'networks'
+type Page = 'containers' | 'images' | 'volumes' | 'networks' | 'events'
 
 const btn = "px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
 
@@ -21,6 +23,18 @@ function App() {
   const [connecting, setConnecting] = useState(false)
   const [showHostEditor, setShowHostEditor] = useState(false)
   const [showHostMenu, setShowHostMenu] = useState(false)
+  const [dockerEvents, setDockerEvents] = useState<DockerEvent[]>([])
+  const eventsRef = useRef(dockerEvents)
+  eventsRef.current = dockerEvents
+
+  useEffect(() => {
+    const es = new EventSource('/events')
+    es.onmessage = (msg) => {
+      const e: DockerEvent = JSON.parse(msg.data)
+      setDockerEvents(prev => [...prev, e])
+    }
+    return () => es.close()
+  }, [active])
 
   useEffect(() => {
     fetchHosts().then(data => {
@@ -62,7 +76,7 @@ function App() {
     finally { setConnecting(false) }
   }
 
-  const pages: Page[] = ['containers', 'images', 'volumes', 'networks']
+  const pages: Page[] = ['containers', 'images', 'volumes', 'networks', 'events']
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white font-sans flex">
@@ -118,6 +132,7 @@ function App() {
         {page === 'images' && <ImagesPage key={active} />}
         {page === 'volumes' && <VolumesPage key={active} />}
         {page === 'networks' && <NetworksPage key={active} />}
+        {page === 'events' && <EventsPage events={dockerEvents} onClear={() => setDockerEvents([])} />}
       </main>
 
       {pendingHost && (

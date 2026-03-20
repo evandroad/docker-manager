@@ -17,7 +17,7 @@ func HostsList(w http.ResponseWriter, r *http.Request) {
 func HostsSave(w http.ResponseWriter, r *http.Request) {
 	var hosts []service.HostConfig
 	if json.NewDecoder(r.Body).Decode(&hosts) != nil {
-		http.Error(w, "bad request", 400)
+		respond.JSON(w, http.StatusBadRequest, respond.H{"error": "bad request"})
 		return
 	}
 	if err := service.SaveHosts(hosts); err != nil {

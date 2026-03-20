@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"docker-manager/internal/respond"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -15,7 +16,7 @@ func SaveFile(w http.ResponseWriter, r *http.Request) {
 		Content  string `json:"content"`
 	}
 	if json.NewDecoder(r.Body).Decode(&req) != nil || req.Content == "" {
-		http.Error(w, "bad request", 400)
+		respond.JSON(w, http.StatusBadRequest, respond.H{"error": "bad request"})
 		return
 	}
 	if req.Filename == "" {
@@ -24,14 +25,14 @@ func SaveFile(w http.ResponseWriter, r *http.Request) {
 
 	path, ok := SaveDialogFunc(req.Filename)
 	if !ok {
-		json.NewEncoder(w).Encode(map[string]string{"status": "cancelled"})
+		respond.JSON(w, http.StatusOK, respond.H{"status": "cancelled"})
 		return
 	}
 
 	if err := os.WriteFile(path, []byte(req.Content), 0644); err != nil {
-		http.Error(w, err.Error(), 500)
+		respond.JSON(w, http.StatusInternalServerError, respond.H{"error": err.Error()})
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "path": path})
+	respond.JSON(w, http.StatusOK, respond.H{"status": "ok", "path": path})
 }

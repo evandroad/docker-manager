@@ -50,6 +50,7 @@ func startServer() string {
 	
 	mux.Handle("/", http.FileServer(http.FS(sub)))
 	mux.HandleFunc("/events", handlers.Events)
+	mux.HandleFunc("/api/dashboard", handlers.DashboardInfo)
 	mux.HandleFunc("/api/containers", handlers.ContainersList)
 	mux.HandleFunc("/api/containers/start", handlers.ContainerStart)
 	mux.HandleFunc("/api/containers/stop", handlers.ContainerStop)
@@ -70,6 +71,8 @@ func startServer() string {
 	mux.HandleFunc("/api/hosts", handlers.HostsList)
 	mux.HandleFunc("/api/hosts/save", handlers.HostsSave)
 	mux.HandleFunc("/api/hosts/connect", handlers.HostConnect)
+	mux.HandleFunc("/api/prefs", handlers.PrefsLoad)
+	mux.HandleFunc("/api/prefs/save", handlers.PrefsSave)
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

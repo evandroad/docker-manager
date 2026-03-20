@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ContainerInfo } from '../types'
-import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer } from '../api'
+import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, loadPrefs, savePrefs } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
 import { useConfirm } from '../components/ConfirmModal'
 import ComposeModal from '../components/ComposeModal'
@@ -20,15 +20,16 @@ function groupByProject(list: ContainerInfo[]) {
 export default function ContainersPage() {
   const [containers, setContainers] = useState<ContainerInfo[]>([])
   const [loading, setLoading] = useState<Record<string, boolean>>({})
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
-    JSON.parse(localStorage.getItem('groupState') || '{}')
-  )
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const [logTarget, setLogTarget] = useState<{ id: string; name: string } | null>(null)
   const [showCompose, setShowCompose] = useState(false)
   const confirm = useConfirm()
 
   useEffect(() => {
     fetchContainers().then(setContainers)
+    loadPrefs().then(p => {
+      if (p.groupState) setCollapsed(p.groupState)
+    })
   }, [])
 
   useDockerEvents(useCallback((e) => {
@@ -52,7 +53,7 @@ export default function ContainersPage() {
   function toggleGroup(key: string) {
     setCollapsed(prev => {
       const next = { ...prev, [key]: !prev[key] }
-      localStorage.setItem('groupState', JSON.stringify(next))
+      savePrefs({ groupState: next })
       return next
     })
   }

@@ -32,7 +32,7 @@ func ComposeUp(w http.ResponseWriter, r *http.Request) {
 		Yaml string
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "bad request", 400)
+		respond.JSON(w, http.StatusBadRequest, respond.H{"error": "bad request"})
 		return
 	}
 
@@ -45,7 +45,7 @@ func ComposeUp(w http.ResponseWriter, r *http.Request) {
 	} else if body.Yaml != "" {
 		f, err := os.CreateTemp("", "compose-*.yml")
 		if err != nil {
-			http.Error(w, err.Error(), 500)
+			respond.JSON(w, http.StatusInternalServerError, respond.H{"error": err.Error()})
 			return
 		}
 		tmpFile = f.Name()
@@ -53,7 +53,7 @@ func ComposeUp(w http.ResponseWriter, r *http.Request) {
 		f.Close()
 		cmd = exec.Command("docker", "compose", "-f", tmpFile, "up", "-d")
 	} else {
-		http.Error(w, "path or yaml required", 400)
+		respond.JSON(w, http.StatusBadRequest, respond.H{"error": "path or yaml required"})
 		return
 	}
 

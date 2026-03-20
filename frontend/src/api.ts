@@ -1,4 +1,9 @@
-import type { ContainerInfo, ImageInfo, VolumeInfo, NetworkInfo } from './types'
+import type { ContainerInfo, ImageInfo, VolumeInfo, NetworkInfo, DashboardInfo } from './types'
+
+export async function fetchDashboard(): Promise<DashboardInfo> {
+  const res = await fetch('/api/dashboard')
+  return res.json()
+}
 
 export async function fetchContainers(): Promise<ContainerInfo[]> {
   const res = await fetch('/api/containers')
@@ -122,4 +127,17 @@ export async function connectHost(name: string, password?: string) {
   if (password) url += `&password=${encodeURIComponent(password)}`
   const res = await fetch(url)
   return res.json()
+}
+
+export async function loadPrefs(): Promise<Record<string, any>> {
+  const res = await fetch('/api/prefs')
+  return res.json()
+}
+
+export async function savePrefs(prefs: Record<string, any>) {
+  await fetch('/api/prefs/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(prefs),
+  })
 }

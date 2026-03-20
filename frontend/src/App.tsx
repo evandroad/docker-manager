@@ -4,20 +4,21 @@ import ImagesPage from './pages/ImagesPage'
 import VolumesPage from './pages/VolumesPage'
 import NetworksPage from './pages/NetworksPage'
 import EventsPage from './pages/EventsPage'
+import DashboardPage from './pages/DashboardPage'
 import { fetchHosts, saveHosts, connectHost } from './api'
 import type { HostConfig } from './api'
 import type { DockerEvent } from './types'
 import PasswordModal from './components/PasswordModal'
 import HostEditor from './components/HostEditor'
 
-type Page = 'containers' | 'images' | 'volumes' | 'networks' | 'events'
+type Page = 'dashboard' | 'containers' | 'images' | 'volumes' | 'networks' | 'events'
 
 const btn = "px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
 
 function App() {
-  const [page, setPage] = useState<Page>(() =>
-    (localStorage.getItem('activePage') as Page) || 'containers'
-  )
+  const pages: Page[] = ['dashboard', 'containers', 'images', 'volumes', 'networks', 'events']
+
+  const [page, setPage] = useState<Page>('dashboard')
   const [hosts, setHosts] = useState<HostConfig[]>([])
   const [active, setActive] = useState('')
   const [connecting, setConnecting] = useState(false)
@@ -44,7 +45,6 @@ function App() {
   }, [])
 
   function navigate(p: Page) {
-    localStorage.setItem('activePage', p)
     setPage(p)
   }
 
@@ -75,8 +75,6 @@ function App() {
     } catch { alert('Connection failed') }
     finally { setConnecting(false) }
   }
-
-  const pages: Page[] = ['containers', 'images', 'volumes', 'networks', 'events']
 
   return (
     <div className="min-h-screen bg-zinc-900 text-white font-sans flex">
@@ -128,6 +126,7 @@ function App() {
       </aside>
 
       <main className="flex-1 p-5 overflow-auto">
+        {page === 'dashboard' && <DashboardPage key={active} />}
         {page === 'containers' && <ContainersPage key={active} />}
         {page === 'images' && <ImagesPage key={active} />}
         {page === 'volumes' && <VolumesPage key={active} />}

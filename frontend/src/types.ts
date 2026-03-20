@@ -42,3 +42,15 @@ export interface DockerEvent {
   Name: string
   Time: number
 }
+
+export interface DashboardInfo {
+  Containers: number
+  Running: number
+  Stopped: number
+  Images: number
+  Volumes: number
+  Networks: number
+  DockerVersion: string
+  OS: string
+  Architecture: string
+}

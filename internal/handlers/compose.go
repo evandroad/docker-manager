@@ -26,6 +26,11 @@ func ComposeStop(w http.ResponseWriter, r *http.Request) {
 	respond.JSON(w, http.StatusOK, respond.H{"result": service.ComposeStop(project)})
 }
 
+func ComposeDown(w http.ResponseWriter, r *http.Request) {
+	project := r.URL.Query().Get("project")
+	respond.JSON(w, http.StatusOK, respond.H{"result": service.ComposeDown(project)})
+}
+
 func ComposeUp(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Path string

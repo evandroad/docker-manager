@@ -45,9 +45,9 @@ export default function ImagesPage() {
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{img.Size}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              {new Date(img.Created * 1000).toLocaleDateString()}
+              {new Date(img.Created * 1000).toLocaleDateString('pt-BR')}
             </td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">

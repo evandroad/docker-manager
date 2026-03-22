@@ -29,7 +29,7 @@ function App() {
   eventsRef.current = dockerEvents
 
   useEffect(() => {
-    const es = new EventSource('/events')
+    const es = new EventSource('/api/events')
     es.onmessage = (msg) => {
       const e: DockerEvent = JSON.parse(msg.data)
       setDockerEvents(prev => [...prev, e])

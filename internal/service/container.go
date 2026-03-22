@@ -128,3 +128,8 @@ func ComposeStop(project string) string {
 	go exec.Command("docker", "compose", "-p", project, "stop").Run()
 	return "ok"
 }
+
+func ComposeDown(project string) string {
+	go exec.Command("docker", "compose", "-p", project, "down").Run()
+	return "ok"
+}

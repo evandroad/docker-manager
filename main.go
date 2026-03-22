@@ -49,7 +49,7 @@ func startServer() string {
 	mux := http.NewServeMux()
 	
 	mux.Handle("/", http.FileServer(http.FS(sub)))
-	mux.HandleFunc("/events", handlers.Events)
+	mux.HandleFunc("/api/events", handlers.Events)
 	mux.HandleFunc("/api/dashboard", handlers.DashboardInfo)
 	mux.HandleFunc("/api/containers", handlers.ContainersList)
 	mux.HandleFunc("/api/containers/start", handlers.ContainerStart)
@@ -61,6 +61,7 @@ func startServer() string {
 	mux.HandleFunc("/api/compose/start", handlers.ComposeStart)
 	mux.HandleFunc("/api/compose/stop", handlers.ComposeStop)
 	mux.HandleFunc("/api/compose/up", handlers.ComposeUp)
+	mux.HandleFunc("/api/compose/down", handlers.ComposeDown)
 	mux.HandleFunc("/api/compose/open-file", handlers.ComposeOpenFile)
 	mux.HandleFunc("/api/images", handlers.ImagesList)
 	mux.HandleFunc("/api/images/remove", handlers.ImageRemove)

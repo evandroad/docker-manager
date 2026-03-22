@@ -49,6 +49,10 @@ export async function composeStop(project: string) {
   await fetch(`/api/compose/stop?project=${encodeURIComponent(project)}`)
 }
 
+export async function composeDown(project: string) {
+  await fetch(`/api/compose/down?project=${encodeURIComponent(project)}`)
+}
+
 export async function composeUpStream(yaml: string, path?: string, onLine?: (line: string) => void): Promise<string> {
   const res = await fetch('/api/compose/up', {
     method: 'POST',

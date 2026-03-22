@@ -42,10 +42,10 @@ export default function VolumesPage() {
           <tr key={v.Name} className="hover:bg-zinc-700">
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Name}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Driver}</td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs text-zinc-400 break-all">{v.Mountpoint}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 break-all">{v.Mountpoint}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Size}</td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(v.Created * 1000).toLocaleDateString()}</td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600 text-xs">
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(v.Created * 1000).toLocaleDateString('pt-BR')}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">

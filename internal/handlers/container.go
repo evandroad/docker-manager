@@ -3,12 +3,15 @@ package handlers
 import (
 	"docker-manager/internal/respond"
 	"docker-manager/internal/service"
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 )
 
 func ContainersList(w http.ResponseWriter, r *http.Request) {
@@ -72,31 +75,17 @@ func ContainerLogs(w http.ResponseWriter, r *http.Request) {
 	}
 	defer reader.Close()
 
-	buf := make([]byte, 8192)
-	for {
-		n, err := reader.Read(buf)
-		if n > 0 {
-			data := buf[:n]
-			for len(data) > 0 {
-				if len(data) >= 8 {
-					size := int(data[4])<<24 | int(data[5])<<16 | int(data[6])<<8 | int(data[7])
-					data = data[8:]
-					end := size
-					if end > len(data) {
-						end = len(data)
-					}
-					line := data[:end]
-					data = data[end:]
-					encoded, _ := json.Marshal(string(line))
-					fmt.Fprintf(w, "data: %s\n\n", encoded)
-					flusher.Flush()
-				} else {
-					break
-				}
-			}
-		}
-		if err != nil {
-			return
-		}
+	pr, pw := io.Pipe()
+	go func() {
+		stdcopy.StdCopy(pw, pw, reader)
+		pw.Close()
+	}()
+
+	scanner := bufio.NewScanner(pr)
+	scanner.Buffer(make([]byte, 64*1024), 64*1024)
+	for scanner.Scan() {
+		encoded, _ := json.Marshal(scanner.Text() + "\n")
+		fmt.Fprintf(w, "data: %s\n\n", encoded)
+		flusher.Flush()
 	}
 }

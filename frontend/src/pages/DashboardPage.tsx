@@ -27,15 +27,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-zinc-500">Docker</span>
-            <div className="text-lg font-light">{info.DockerVersion}</div>
+            <div className="text-3xl font-light">{info.DockerVersion}</div>
           </div>
           <div>
             <span className="text-zinc-500">OS</span>
-            <div className="text-lg font-light">{info.OS}</div>
+            <div className="text-3xl font-light">{info.OS}</div>
           </div>
           <div>
             <span className="text-zinc-500">Arch</span>
-            <div className="text-lg font-light">{info.Architecture}</div>
+            <div className="text-3xl font-light">{info.Architecture}</div>
           </div>
         </div>
       </div>
@@ -48,15 +48,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <span className="text-zinc-500">Total</span>
-            <div className="text-lg font-light">{info.Containers}</div>
+            <div className="text-3xl font-light">{info.Containers}</div>
           </div>
           <div>
             <span className="text-green-400">Running</span>
-            <div className="text-lg font-light">{info.Running}</div>
+            <div className="text-3xl font-light">{info.Running}</div>
           </div>
           <div>
             <span className="text-red-400">Stopped</span>
-            <div className="text-lg font-light">{info.Stopped}</div>
+            <div className="text-3xl font-light">{info.Stopped}</div>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function DashboardPage() {
           <div key={c.label} className={`bg-zinc-800 rounded-lg p-4 border-l-4 ${c.color}`}>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-zinc-400 text-xs mb-1">{c.label}</div>
+                <div className="text-zinc-400 text-xs mb-1 pt-10">{c.label}</div>
                 <div className="text-3xl font-light">{c.value}</div>
               </div>
               <i className={`fa-solid ${c.icon} text-2xl text-zinc-600`} />

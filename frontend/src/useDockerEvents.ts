@@ -6,7 +6,7 @@ export function useDockerEvents(onEvent: (e: DockerEvent) => void) {
   callbackRef.current = onEvent
 
   useEffect(() => {
-    const es = new EventSource('/events')
+    const es = new EventSource('/api/events')
     es.onmessage = (msg) => {
       const e: DockerEvent = JSON.parse(msg.data)
       if (e.Type === 'container') {

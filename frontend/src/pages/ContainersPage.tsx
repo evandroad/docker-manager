@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { ContainerInfo } from '../types'
-import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, loadPrefs, savePrefs } from '../api'
+import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, renameContainer, loadPrefs, savePrefs } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
 import { useContainerStats } from '../useContainerStats'
-import { useConfirm } from '../components/ConfirmModal'
+import { useConfirm, useAlert } from '../components/ConfirmModal'
 import ComposeModal from '../components/ComposeModal'
 import LogModal from '../components/LogModal'
+import RenameModal from '../components/RenameModal'
 import GroupRows from '../components/GroupRows'
 
 function groupByProject(list: ContainerInfo[]) {
@@ -24,7 +25,9 @@ export default function ContainersPage() {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   const [logTarget, setLogTarget] = useState<{ id: string; name: string } | null>(null)
   const [showCompose, setShowCompose] = useState(false)
+  const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null)
   const confirm = useConfirm()
+  const showAlert = useAlert()
   const stats = useContainerStats()
 
   useEffect(() => {
@@ -81,12 +84,26 @@ export default function ContainersPage() {
     confirm({ message: `Remove container "${name}"?`, onConfirm: () => removeContainer(id) })
   }
 
+  function handleRename(id: string, name: string) {
+    setRenameTarget({ id, name: name.replace('/', '') })
+  }
+
+  async function doRename(newName: string) {
+    const { id, name } = renameTarget!
+    setRenameTarget(null)
+    if (newName === name) return
+    const res = await renameContainer(id, newName)
+    if (res === true) fetchContainers().then(setContainers)
+    else showAlert('Error: ' + res)
+  }
+
   const groups = groupByProject(containers)
 
   return (
     <>
     {logTarget && <LogModal id={logTarget.id} name={logTarget.name} onClose={() => setLogTarget(null)} />}
     {showCompose && <ComposeModal onClose={() => setShowCompose(false)} onDone={() => { setShowCompose(false); fetchContainers().then(setContainers) }} />}
+    {renameTarget && <RenameModal currentName={renameTarget.name} onConfirm={doRename} onCancel={() => setRenameTarget(null)} />}
     <div className="mb-3">
       <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCompose(true)}>
         <i className="fa-solid fa-upload mr-1" /> Compose Up
@@ -124,6 +141,7 @@ export default function ContainersPage() {
               onStop={handleStop}
               onRestart={handleRestart}
               onRemove={handleRemove}
+              onRename={handleRename}
               onLogs={(id, name) => setLogTarget({ id, name })}
             />
           )

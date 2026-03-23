@@ -24,10 +24,11 @@ type GroupRowsProps = {
   onStop: (id: string, name: string) => void
   onRestart: (id: string) => void
   onRemove: (id: string, name: string) => void
+  onRename: (id: string, name: string) => void
   onLogs: (id: string, name: string) => void
 }
 
-export default function GroupRows({ project, list, open, loading, stats, onToggle, onStart, onStop, onRestart, onRemove, onLogs }: GroupRowsProps) {
+export default function GroupRows({ project, list, open, loading, stats, onToggle, onStart, onStop, onRestart, onRemove, onRename, onLogs }: GroupRowsProps) {
   const [groupTarget, setGroupTarget] = useState<'running' | 'stopped' | null>(null)
   const allRunning = list.every(c => c.State === 'running')
   const allStopped = list.every(c => c.State !== 'running')
@@ -115,6 +116,7 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
                     </>
               }
               <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)}><i className="fa-solid fa-file-lines" /></button>
+              <button className={"ml-2 " + btn} onClick={() => onRename(c.ID, c.Name)}><i className="fa-solid fa-pen" /></button>
             </td>
           </tr>
         )

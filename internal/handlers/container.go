@@ -35,6 +35,12 @@ func ContainerRemove(w http.ResponseWriter, r *http.Request) {
 	respond.JSON(w, http.StatusOK, respond.H{"result": service.RemoveContainer(id)})
 }
 
+func ContainerRename(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	name := r.URL.Query().Get("name")
+	respond.JSON(w, http.StatusOK, respond.H{"result": service.RenameContainer(id, name)})
+}
+
 func ContainerLogs(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	w.Header().Set("Content-Type", "text/event-stream")

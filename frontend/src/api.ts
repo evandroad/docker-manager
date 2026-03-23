@@ -41,6 +41,12 @@ export async function removeContainer(id: string) {
   await fetch(`/api/containers/remove?id=${id}`)
 }
 
+export async function renameContainer(id: string, name: string): Promise<true | string> {
+  const res = await fetch(`/api/containers/rename?id=${id}&name=${encodeURIComponent(name)}`)
+  const data = await res.json()
+  return data.result === 'ok' ? true : data.result
+}
+
 export async function composeStart(project: string) {
   await fetch(`/api/compose/start?project=${encodeURIComponent(project)}`)
 }

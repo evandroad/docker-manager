@@ -10,12 +10,14 @@ import type { HostConfig } from './api'
 import type { DockerEvent } from './types'
 import PasswordModal from './components/PasswordModal'
 import HostEditor from './components/HostEditor'
+import { useAlert } from './components/ConfirmModal'
 
 type Page = 'dashboard' | 'containers' | 'images' | 'volumes' | 'networks' | 'events'
 
 const btn = "px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
 
 function App() {
+  const showAlert = useAlert()
   const pages: Page[] = ['dashboard', 'containers', 'images', 'volumes', 'networks', 'events']
 
   const [page, setPage] = useState<Page>('dashboard')
@@ -24,9 +26,18 @@ function App() {
   const [connecting, setConnecting] = useState(false)
   const [showHostEditor, setShowHostEditor] = useState(false)
   const [showHostMenu, setShowHostMenu] = useState(false)
+  const hostMenuRef = useRef<HTMLDivElement>(null)
   const [dockerEvents, setDockerEvents] = useState<DockerEvent[]>([])
   const eventsRef = useRef(dockerEvents)
   eventsRef.current = dockerEvents
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (hostMenuRef.current && !hostMenuRef.current.contains(e.target as Node)) setShowHostMenu(false)
+    }
+    if (showHostMenu) document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showHostMenu])
 
   useEffect(() => {
     const es = new EventSource('/api/events')
@@ -55,9 +66,9 @@ function App() {
       setConnecting(true)
       try {
         const res = await connectHost('')
-        if (res.error) alert(res.error)
+        if (res.error) showAlert(res.error)
         else setActive('')
-      } catch { alert('Connection failed') }
+      } catch { showAlert('Connection failed') }
       finally { setConnecting(false) }
       return
     }
@@ -70,9 +81,9 @@ function App() {
     setConnecting(true)
     try {
       const res = await connectHost(name, password)
-      if (res.error) alert(res.error)
+      if (res.error) showAlert(res.error)
       else setActive(name)
-    } catch { alert('Connection failed') }
+    } catch { showAlert('Connection failed') }
     finally { setConnecting(false) }
   }
 
@@ -101,7 +112,7 @@ function App() {
               <i className="fa-solid fa-gear" />
             </button>
           </div>
-          <div className="relative">
+          <div className="relative" ref={hostMenuRef}>
             <button
               className="w-full bg-zinc-800 text-white text-sm border border-zinc-700 rounded-md p-1.5 cursor-pointer text-left flex items-center justify-between hover:bg-zinc-700"
               disabled={connecting}

@@ -17,7 +17,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!alertMsg) return
-    const t = setTimeout(() => setAlertMsg(''), 4000)
+    const t = setTimeout(() => setAlertMsg(''), 5000)
     return () => clearTimeout(t)
   }, [alertMsg])
 
@@ -37,7 +37,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           </div>
         )}
         {alertMsg && (
-          <div className="fixed top-4 right-4 z-50 bg-red-900/90 text-white text-sm px-4 py-3 rounded-lg border border-red-700 shadow-lg max-w-md">
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-900/90 text-white text-sm px-4 py-3 rounded-lg border border-red-700 shadow-lg max-w-md">
             {alertMsg}
           </div>
         )}

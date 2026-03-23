@@ -12,3 +12,11 @@ func JSON(w http.ResponseWriter, status int, data any) {
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }
+
+func Result(w http.ResponseWriter, err error) {
+	if err != nil {
+		JSON(w, http.StatusOK, H{"ok": false, "error": err.Error()})
+	} else {
+		JSON(w, http.StatusOK, H{"ok": true})
+	}
+}

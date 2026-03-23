@@ -50,7 +50,7 @@ func Containers() []ContainerInfo {
 	return out
 }
 
-func StartContainer(id string) string {
+func StartContainer(id string) error {
 	ctx := context.Background()
 
 	cli, err := client.NewClientWithOpts(
@@ -59,31 +59,22 @@ func StartContainer(id string) string {
 	)
 
 	if err != nil {
-		return err.Error()
+		return err
 	}
 
-	err = cli.ContainerStart(ctx, id, container.StartOptions{})
-	if err != nil {
-		return err.Error()
-	}
-
-	return "ok"
+	return cli.ContainerStart(ctx, id, container.StartOptions{})
 }
 
-func RemoveContainer(id string) string {
+func RemoveContainer(id string) error {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err.Error()
+		return err
 	}
-	err = cli.ContainerRemove(ctx, id, container.RemoveOptions{Force: true})
-	if err != nil {
-		return err.Error()
-	}
-	return "ok"
+	return cli.ContainerRemove(ctx, id, container.RemoveOptions{Force: true})
 }
 
-func StopContainer(id string) string {
+func StopContainer(id string) {
 	go func() {
 		ctx := context.Background()
 
@@ -102,11 +93,9 @@ func StopContainer(id string) string {
 			Timeout: &timeout,
 		})
 	}()
-
-	return "ok"
 }
 
-func RestartContainer(id string) string {
+func RestartContainer(id string) {
 	go func() {
 		ctx := context.Background()
 		cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -116,32 +105,25 @@ func RestartContainer(id string) string {
 		timeout := 2
 		cli.ContainerRestart(ctx, id, container.StopOptions{Timeout: &timeout})
 	}()
-	return "ok"
 }
 
-func RenameContainer(id, newName string) string {
+func RenameContainer(id, newName string) error {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err.Error()
+		return err
 	}
-	if err := cli.ContainerRename(ctx, id, newName); err != nil {
-		return err.Error()
-	}
-	return "ok"
+	return cli.ContainerRename(ctx, id, newName)
 }
 
-func ComposeStart(project string) string {
+func ComposeStart(project string) {
 	go exec.Command("docker", "compose", "-p", project, "start").Run()
-	return "ok"
 }
 
-func ComposeStop(project string) string {
+func ComposeStop(project string) {
 	go exec.Command("docker", "compose", "-p", project, "stop").Run()
-	return "ok"
 }
 
-func ComposeDown(project string) string {
+func ComposeDown(project string) {
 	go exec.Command("docker", "compose", "-p", project, "down").Run()
-	return "ok"
 }

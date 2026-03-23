@@ -12,5 +12,5 @@ func NetworksList(w http.ResponseWriter, r *http.Request) {
 
 func NetworkRemove(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.RemoveNetwork(id)})
+	respond.Result(w, service.RemoveNetwork(id))
 }

@@ -12,5 +12,5 @@ func ImagesList(w http.ResponseWriter, r *http.Request) {
 
 func ImageRemove(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.RemoveImage(id)})
+	respond.Result(w, service.RemoveImage(id))
 }

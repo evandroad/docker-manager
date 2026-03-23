@@ -17,28 +17,30 @@ func ContainersList(w http.ResponseWriter, r *http.Request) {
 
 func ContainerStart(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.StartContainer(id)})
+	respond.Result(w, service.StartContainer(id))
 }
 
 func ContainerStop(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.StopContainer(id)})
+	service.StopContainer(id)
+	respond.Result(w, nil)
 }
 
 func ContainerRestart(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.RestartContainer(id)})
+	service.RestartContainer(id)
+	respond.Result(w, nil)
 }
 
 func ContainerRemove(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.RemoveContainer(id)})
+	respond.Result(w, service.RemoveContainer(id))
 }
 
 func ContainerRename(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
 	name := r.URL.Query().Get("name")
-	respond.JSON(w, http.StatusOK, respond.H{"result": service.RenameContainer(id, name)})
+	respond.Result(w, service.RenameContainer(id, name))
 }
 
 func ContainerLogs(w http.ResponseWriter, r *http.Request) {

@@ -59,14 +59,11 @@ func Networks() []NetworkInfo {
 	return out
 }
 
-func RemoveNetwork(id string) string {
+func RemoveNetwork(id string) error {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err.Error()
+		return err
 	}
-	if err = cli.NetworkRemove(ctx, id); err != nil {
-		return err.Error()
-	}
-	return "ok"
+	return cli.NetworkRemove(ctx, id)
 }

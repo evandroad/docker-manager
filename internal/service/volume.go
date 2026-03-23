@@ -84,14 +84,11 @@ func formatVolSize(bytes int64) string {
 	return fmt.Sprintf("%.1f KB", float64(bytes)/1024)
 }
 
-func RemoveVolume(name string) string {
+func RemoveVolume(name string) error {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return err.Error()
+		return err
 	}
-	if err = cli.VolumeRemove(ctx, name, true); err != nil {
-		return err.Error()
-	}
-	return "ok"
+	return cli.VolumeRemove(ctx, name, true)
 }

@@ -3,28 +3,36 @@
 Aplicativo desktop para Linux que permite gerenciar containers Docker através de uma interface gráfica leve, construída com Go e WebView.
 
 ![Go](https://img.shields.io/badge/Go-1.25-00ADD8?logo=go&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![Docker](https://img.shields.io/badge/Docker-API-2496ED?logo=docker&logoColor=white)
 ![Platform](https://img.shields.io/badge/Linux-Desktop-FCC624?logo=linux&logoColor=black)
 
 ## Funcionalidades
 
-- Listar todos os containers (rodando e parados), agrupados por projeto Docker Compose
-- Iniciar e parar containers pela interface
-- Atualização em tempo real via Server-Sent Events (SSE) — o estado dos containers reflete mudanças automaticamente
-- Navegação por abas: Containers, Images, Volumes, Networks
-- Grupos colapsáveis com estado persistido no localStorage
+- **Dashboard** — painel inicial com resumo de recursos (containers, imagens, volumes, networks), versão do Docker, OS e arquitetura
+- **Containers** — listar, iniciar, parar, reiniciar e remover containers, agrupados por projeto Docker Compose com estado colapsável persistido
+- **Compose** — start, stop e down de stacks inteiras; Compose Up com streaming de output via modal (aceita arquivo YAML ou cole direto)
+- **Imagens** — listar e remover imagens, com exibição de containers que as utilizam
+- **Volumes** — listar e remover volumes, com tamanho em disco e containers vinculados
+- **Networks** — listar e remover redes, com containers conectados
+- **Logs** — visualizar logs de containers em tempo real com auto-scroll e exportação para arquivo via diálogo nativo GTK
+- **Eventos** — página de eventos Docker em tempo real via SSE, com salvar e limpar
+- **Hosts remotos** — conectar a Docker daemons remotos via túnel SSH (com suporte a senha via sshpass ou chave)
+- **Preferências** — estado de grupos e configurações persistidos no servidor
 
 ## Tecnologias
 
 | Camada    | Tecnologia                                                                 |
 |-----------|---------------------------------------------------------------------------|
 | Backend   | Go + [Docker Engine SDK](https://pkg.go.dev/github.com/docker/docker)    |
-| Frontend  | HTML/CSS/JS puro (embarcado no binário via `embed`)                       |
+| Frontend  | [React 19](https://react.dev) + [Tailwind CSS 4](https://tailwindcss.com) + [Vite 8](https://vite.dev) |
 | GUI       | [webview/webview_go](https://github.com/webview/webview_go) (WebKitGTK)  |
+| Build     | [Bun](https://bun.sh) (frontend) + Make                                  |
 
 ## Pré-requisitos
 
 - Go 1.25+
+- Bun (para build do frontend)
 - Docker instalado e rodando
 - Usuário no grupo `docker` (ou acesso ao socket)
 - Dependências do WebKitGTK:
@@ -32,57 +40,36 @@ Aplicativo desktop para Linux que permite gerenciar containers Docker através d
   # Debian/Ubuntu/Mint
   sudo apt install libwebkit2gtk-4.1-dev
   ```
+- Para conexão com hosts remotos via senha: `sshpass`
 
 ## Como rodar
 
 ```bash
 git clone https://github.com/<seu-usuario>/docker-manager.git
 cd docker-manager
+cd frontend && bun install && bun run build && cd ..
 go run .
 ```
 
-Para gerar o binário:
+## Build
 
 ```bash
-go build -o docker-manager .
+make build
 ./docker-manager
 ```
 
-## Estrutura do projeto
-
-```
-docker-manager/
-├── main.go              # Entrypoint: servidor HTTP embutido + janela WebView
-├── internal/
-│   └── container.go     # Operações Docker (listar, iniciar, parar)
-├── web/
-│   ├── index.html       # Interface principal
-│   ├── style.css        # Tema escuro
-│   └── app.js           # Lógica do frontend (tabela, SSE, navegação)
-├── go.mod
-└── go.sum
-```
-
-## Como funciona
-
-1. O `main.go` inicia um servidor HTTP local (`127.0.0.1:1234`) que serve os arquivos estáticos embarcados e um endpoint `/events` (SSE).
-2. Uma janela nativa é aberta via WebView apontando para o servidor local.
-3. O frontend chama funções Go diretamente via bindings do WebView (`containers`, `startContainer`, `stopContainer`).
-4. Eventos do Docker são transmitidos em tempo real pelo endpoint SSE, atualizando o estado dos containers na interface sem polling.
+O Makefile executa: atualiza versão do pacote via `git describe`, builda o frontend com Bun e compila o binário Go com flags de otimização.
 
 ## Pacote .deb
 
-Para gerar o instalador:
-
 ```bash
-go build -ldflags="-s -w" -o deb-pkg/usr/local/bin/docker-manager
-dpkg-deb --build deb-pkg docker-manager_1.0.0_amd64.deb
+make deb
 ```
 
 Para instalar/atualizar:
 
 ```bash
-sudo dpkg -i docker-manager_1.0.0_amd64.deb
+sudo dpkg -i docker-manager_*_amd64.deb
 ```
 
 Para desinstalar:
@@ -91,32 +78,87 @@ Para desinstalar:
 sudo apt remove docker-manager
 ```
 
-Ao atualizar, incrementar a versão em `deb-pkg/DEBIAN/control` antes de rebuildar.
+## Estrutura do projeto
+
+```
+docker-manager/
+├── main.go                          # Servidor HTTP embutido + janela WebView
+├── savedialog.go                    # Diálogos nativos GTK (salvar/abrir arquivo)
+├── Makefile                         # Build: frontend + Go + .deb
+├── internal/
+│   ├── respond/respond.go           # Helper de resposta JSON
+│   ├── handlers/
+│   │   ├── container.go             # CRUD de containers
+│   │   ├── compose.go               # Compose start/stop/down/up + open-file
+│   │   ├── image.go                 # Listar/remover imagens
+│   │   ├── volume.go                # Listar/remover volumes
+│   │   ├── network.go               # Listar/remover redes
+│   │   ├── events.go                # SSE de eventos Docker
+│   │   ├── dashboard.go             # Info do dashboard
+│   │   ├── hosts.go                 # CRUD de hosts remotos
+│   │   ├── prefs.go                 # Preferências do usuário
+│   │   └── savefile.go              # Salvar arquivo via diálogo nativo
+│   └── service/
+│       ├── container.go             # Lógica Docker: containers + compose
+│       ├── image.go                 # Lógica Docker: imagens
+│       ├── volume.go                # Lógica Docker: volumes
+│       ├── network.go               # Lógica Docker: redes
+│       ├── dashboard.go             # Coleta de métricas do Docker
+│       └── tunnel.go                # Túnel SSH para hosts remotos
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx                  # Layout principal com sidebar e navegação
+│   │   ├── api.ts                   # Cliente HTTP para a API Go
+│   │   ├── types.ts                 # Tipos TypeScript
+│   │   ├── useDockerEvents.ts       # Hook SSE de eventos
+│   │   ├── useSort.ts               # Hook de ordenação de tabelas
+│   │   ├── pages/
+│   │   │   ├── DashboardPage.tsx    # Dashboard com cards de resumo
+│   │   │   ├── ContainersPage.tsx   # Listagem agrupada de containers
+│   │   │   ├── ImagesPage.tsx       # Listagem de imagens
+│   │   │   ├── VolumesPage.tsx      # Listagem de volumes
+│   │   │   ├── NetworksPage.tsx     # Listagem de redes
+│   │   │   └── EventsPage.tsx       # Feed de eventos em tempo real
+│   │   └── components/
+│   │       ├── GroupRows.tsx         # Linhas agrupadas por projeto Compose
+│   │       ├── ComposeModal.tsx      # Modal de Compose Up
+│   │       ├── LogModal.tsx          # Modal de logs em streaming
+│   │       ├── ConfirmModal.tsx      # Diálogo de confirmação
+│   │       ├── HostEditor.tsx        # Editor de hosts remotos
+│   │       └── PasswordModal.tsx     # Modal de senha SSH
+│   └── vite.config.ts
+├── deb-pkg/                         # Estrutura do pacote Debian
+├── go.mod
+└── go.sum
+```
+
+## Como funciona
+
+1. O `main.go` inicia um servidor HTTP local em porta efêmera (`127.0.0.1:0`) que serve os arquivos estáticos do frontend (embarcados via `embed`) e a API REST.
+2. Uma janela nativa é aberta via WebView apontando para o servidor local.
+3. O frontend React se comunica com o backend via chamadas HTTP à API.
+4. Eventos do Docker são transmitidos em tempo real pelo endpoint SSE `/api/events`, atualizando o estado na interface sem polling.
+5. Para hosts remotos, um túnel SSH é criado encaminhando o socket Docker remoto para um socket local temporário.
 
 ## Roadmap
 
-Funcionalidades planejadas, ordenadas da mais simples à mais complexa:
+Funcionalidades planejadas:
 
-1. **Busca/filtro de containers, imagens, volumes e networks** — campo de texto para filtrar as tabelas em tempo real
-2. **Copiar ID/nome com um clique** — botão de copiar ao lado do ID e nome dos recursos
-3. **Prune de recursos** — botões para executar `docker system prune`, `docker volume prune`, `docker image prune`
-4. **Renomear containers** — editar o nome de um container diretamente na tabela
-5. **Restart de containers** — botão de restart individual e por grupo compose
-6. **Detalhes do container em painel lateral** — exibir portas, variáveis de ambiente, mounts, redes e labels
-7. **Inspeção de imagens** — exibir layers, histórico de build e configuração
-8. **Pull de imagens** — campo para digitar o nome da imagem e fazer pull com barra de progresso
-9. **Criação de volumes e networks** — formulários para criar novos recursos
-10. **Logs de containers** — visualizar logs em tempo real com tail e busca
-11. **Exec/terminal no container** — abrir um shell interativo dentro de um container
-12. **Estatísticas de recursos (CPU/memória/rede)** — gráficos em tempo real por container usando `docker stats`
-13. **Gerenciamento de Docker Compose** — up, down, pull, build e restart de stacks inteiras a partir do compose file
-14. **Notificações de eventos** — toasts/alertas visuais quando containers caem, reiniciam ou dão erro
-15. **Gerenciamento de registries** — login/logout em registries privados, listar imagens remotas
-16. **Dashboard com visão geral** — painel inicial com resumo de recursos, uso de disco, containers por estado
-17. **Gerenciamento multi-host** — conectar a Docker daemons remotos via TCP/SSH
-18. **Backup e restore de volumes** — exportar/importar dados de volumes como arquivos tar
-19. **Templates de stacks** — biblioteca de docker-compose templates prontos para deploy rápido
-20. **RBAC e autenticação** — controle de acesso por usuário com permissões granulares
+1. **Busca/filtro** — campo de texto para filtrar tabelas em tempo real
+2. **Copiar ID/nome com um clique**
+3. **Prune de recursos** — botões para `docker system/volume/image prune`
+4. **Renomear containers**
+5. **Detalhes do container em painel lateral** — portas, variáveis de ambiente, mounts, redes e labels
+6. **Inspeção de imagens** — layers, histórico de build e configuração
+7. **Pull de imagens** — com barra de progresso
+8. **Criação de volumes e networks**
+9. **Exec/terminal no container** — shell interativo
+10. **Estatísticas de recursos (CPU/memória/rede)** — gráficos em tempo real via `docker stats`
+11. **Notificações de eventos** — toasts/alertas visuais
+12. **Gerenciamento de registries** — login/logout em registries privados
+13. **Backup e restore de volumes** — exportar/importar como tar
+14. **Templates de stacks** — biblioteca de docker-compose templates
+15. **RBAC e autenticação** — controle de acesso por usuário
 
 ## Licença
 

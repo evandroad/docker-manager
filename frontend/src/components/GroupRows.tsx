@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { ContainerInfo } from '../types'
+import type { StatsMap } from '../useContainerStats'
 import { composeDown, composeStart, composeStop } from '../api'
 import { useConfirm } from './ConfirmModal'
 
@@ -17,6 +18,7 @@ type GroupRowsProps = {
   list: ContainerInfo[]
   open: boolean
   loading: Record<string, boolean>
+  stats: StatsMap
   onToggle: () => void
   onStart: (id: string) => void
   onStop: (id: string, name: string) => void
@@ -25,7 +27,7 @@ type GroupRowsProps = {
   onLogs: (id: string, name: string) => void
 }
 
-export default function GroupRows({ project, list, open, loading, onToggle, onStart, onStop, onRestart, onRemove, onLogs }: GroupRowsProps) {
+export default function GroupRows({ project, list, open, loading, stats, onToggle, onStart, onStop, onRestart, onRemove, onLogs }: GroupRowsProps) {
   const [groupTarget, setGroupTarget] = useState<'running' | 'stopped' | null>(null)
   const allRunning = list.every(c => c.State === 'running')
   const allStopped = list.every(c => c.State !== 'running')
@@ -64,7 +66,7 @@ export default function GroupRows({ project, list, open, loading, onToggle, onSt
   return (
     <>
       <tr>
-        <td colSpan={6} className="p-1.5 border-t border-zinc-600">
+        <td colSpan={8} className="p-1.5 border-t border-zinc-600">
           <div className="flex items-center justify-between">
           <span className="cursor-pointer" onClick={onToggle}>
             <span className="mr-2 text-zinc-400">{open ? '▾' : '▸'}</span>
@@ -97,6 +99,8 @@ export default function GroupRows({ project, list, open, loading, onToggle, onSt
             <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Image}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(c.Created * 1000).toLocaleDateString('pt-BR')}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 text-right">{stats[c.ID] ? stats[c.ID].cpu.toFixed(1) + '%' : '-'}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 text-right">{stats[c.ID]?.mem || '-'}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {busy
                 ? <i className="fa-solid fa-spinner fa-spin text-zinc-400" />

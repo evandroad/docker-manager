@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { ContainerInfo } from '../types'
 import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, loadPrefs, savePrefs } from '../api'
 import { useDockerEvents } from '../useDockerEvents'
+import { useContainerStats } from '../useContainerStats'
 import { useConfirm } from '../components/ConfirmModal'
 import ComposeModal from '../components/ComposeModal'
 import LogModal from '../components/LogModal'
@@ -24,6 +25,7 @@ export default function ContainersPage() {
   const [logTarget, setLogTarget] = useState<{ id: string; name: string } | null>(null)
   const [showCompose, setShowCompose] = useState(false)
   const confirm = useConfirm()
+  const stats = useContainerStats()
 
   useEffect(() => {
     fetchContainers().then(setContainers)
@@ -98,6 +100,8 @@ export default function ContainersPage() {
           <th className="bg-zinc-700 p-1.5 text-left">Image</th>
           <th className="bg-zinc-700 p-1.5 text-left">Created</th>
           <th className="bg-zinc-700 p-1.5 text-left">Status</th>
+          <th className="bg-zinc-700 p-1.5 text-left">CPU</th>
+          <th className="bg-zinc-700 p-1.5 text-left">MEM</th>
           <th className="bg-zinc-700 p-1.5 text-left">Actions</th>
         </tr>
       </thead>
@@ -114,6 +118,7 @@ export default function ContainersPage() {
               list={list}
               open={open}
               loading={loading}
+              stats={stats}
               onToggle={() => toggleGroup(key)}
               onStart={handleStart}
               onStop={handleStop}

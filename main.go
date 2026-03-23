@@ -74,6 +74,7 @@ func startServer() string {
 	mux.HandleFunc("/api/hosts/connect", handlers.HostConnect)
 	mux.HandleFunc("/api/prefs", handlers.PrefsLoad)
 	mux.HandleFunc("/api/prefs/save", handlers.PrefsSave)
+	mux.HandleFunc("/api/containers/stats", handlers.ContainerStatsStream)
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

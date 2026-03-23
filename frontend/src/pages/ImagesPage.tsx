@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import type { ImageInfo } from '../types'
-import { fetchImages, removeImage } from '../api'
+import { fetchImages, removeImage, tagImage } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
+import TagModal from '../components/TagModal'
 
 export default function ImagesPage() {
   const [images, setImages] = useState<ImageInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(images)
   const confirm = useConfirm()
   const showAlert = useAlert()
+  const [tagTarget, setTagTarget] = useState<string[] | null>(null)
 
   useEffect(() => {
     fetchImages().then(setImages)
@@ -22,9 +24,26 @@ export default function ImagesPage() {
     }})
   }
 
+  async function doTag(source: string, newTag: string, keep: boolean) {
+    setTagTarget(null)
+    if (source === newTag && !keep) return
+    const res = await tagImage(source, newTag, keep)
+    if (res === true) fetchImages().then(setImages)
+    else showAlert('Error: ' + res)
+  }
+
+  async function doDeleteTag(tag: string) {
+    setTagTarget(null)
+    const res = await removeImage(tag)
+    if (res === true) fetchImages().then(setImages)
+    else showAlert('Error: ' + res)
+  }
+
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
+    <>
+    {tagTarget && <TagModal tags={tagTarget} onConfirm={doTag} onDelete={doDeleteTag} onCancel={() => setTagTarget(null)} />}
     <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
@@ -51,11 +70,13 @@ export default function ImagesPage() {
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="fa-solid fa-pen" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+    </>
   )
 }

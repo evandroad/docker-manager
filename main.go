@@ -66,6 +66,7 @@ func startServer() string {
 	mux.HandleFunc("/api/compose/open-file", handlers.ComposeOpenFile)
 	mux.HandleFunc("/api/images", handlers.ImagesList)
 	mux.HandleFunc("/api/images/remove", handlers.ImageRemove)
+	mux.HandleFunc("/api/images/tag", handlers.ImageTag)
 	mux.HandleFunc("/api/volumes", handlers.VolumesList)
 	mux.HandleFunc("/api/volumes/remove", handlers.VolumeRemove)
 	mux.HandleFunc("/api/networks", handlers.NetworksList)

@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"os/exec"
+	"strings"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
 
@@ -34,11 +36,29 @@ func Containers() []ContainerInfo {
 		return out
 	}
 
+	// Build imageID -> tag map for resolving sha256 references
+	var idToTag map[string]string
+	imgs, imgErr := cli.ImageList(ctx, image.ListOptions{})
+	if imgErr == nil {
+		idToTag = make(map[string]string, len(imgs))
+		for _, img := range imgs {
+			if len(img.RepoTags) > 0 {
+				idToTag[img.ID] = img.RepoTags[0]
+			}
+		}
+	}
+
 	for _, c := range list {
+		img := c.Image
+		if idToTag != nil && strings.HasPrefix(img, "sha256:") {
+			if tag, ok := idToTag[c.ImageID]; ok {
+				img = tag
+			}
+		}
 		out = append(out, ContainerInfo{
 			ID:      c.ID[:12],
 			Name:    c.Names[0],
-			Image:   c.Image,
+			Image:   img,
 			Status:  c.Status,
 			State:   c.State,
 			Project: c.Labels["com.docker.compose.project"],

@@ -71,3 +71,18 @@ func RemoveImage(id string) error {
 	_, err = cli.ImageRemove(ctx, id, image.RemoveOptions{Force: true, PruneChildren: true})
 	return err
 }
+
+func TagImage(source, newTag string, keep bool) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	if err := cli.ImageTag(ctx, source, newTag); err != nil {
+		return err
+	}
+	if !keep && source != newTag {
+		cli.ImageRemove(ctx, source, image.RemoveOptions{})
+	}
+	return nil
+}

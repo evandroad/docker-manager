@@ -103,7 +103,7 @@ export default function ContainersPage() {
     <>
     {logTarget && <LogModal id={logTarget.id} name={logTarget.name} onClose={() => setLogTarget(null)} />}
     {showCompose && <ComposeModal onClose={() => setShowCompose(false)} onDone={() => { setShowCompose(false); fetchContainers().then(setContainers) }} />}
-    {renameTarget && <RenameModal currentName={renameTarget.name} onConfirm={doRename} onCancel={() => setRenameTarget(null)} />}
+    {renameTarget && <RenameModal title="Rename Container" currentName={renameTarget.name} onConfirm={doRename} onCancel={() => setRenameTarget(null)} />}
     <div className="mb-3">
       <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCompose(true)}>
         <i className="fa-solid fa-upload mr-1" /> Compose Up

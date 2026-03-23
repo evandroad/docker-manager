@@ -101,6 +101,12 @@ export async function removeImage(id: string): Promise<true | string> {
   return data.ok ? true : data.error
 }
 
+export async function tagImage(id: string, tag: string, keep = false): Promise<true | string> {
+  const res = await fetch(`/api/images/tag?id=${encodeURIComponent(id)}&tag=${encodeURIComponent(tag)}${keep ? '&keep=1' : ''}`)
+  const data = await res.json()
+  return data.ok ? true : data.error
+}
+
 export async function removeVolume(name: string): Promise<true | string> {
   const res = await fetch(`/api/volumes/remove?name=${encodeURIComponent(name)}`)
   const data = await res.json()

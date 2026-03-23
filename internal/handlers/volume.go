@@ -11,6 +11,6 @@ func VolumesList(w http.ResponseWriter, r *http.Request) {
 }
 
 func VolumeRemove(w http.ResponseWriter, r *http.Request) {
-	name := r.URL.Query().Get("name")
+	name := r.PathValue("name")
 	respond.Result(w, service.RemoveVolume(name))
 }

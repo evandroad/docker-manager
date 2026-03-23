@@ -14,7 +14,7 @@ export default function LogModal({ id, name, onClose }: LogModalProps) {
   const [autoScroll, setAutoScroll] = useState(true)
 
   useEffect(() => {
-    const es = new EventSource(`/api/containers/logs?id=${id}`)
+    const es = new EventSource(`/api/containers/logs/${id}`)
     es.onmessage = (e) => {
       setLines(prev => [...prev, JSON.parse(e.data)])
     }

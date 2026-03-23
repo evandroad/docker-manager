@@ -15,6 +15,7 @@ import (
 	"unsafe"
 
 	"docker-manager/internal/handlers"
+	"docker-manager/internal/router"
 
 	webview "github.com/webview/webview_go"
 )
@@ -46,44 +47,53 @@ func startServer() string {
 	handlers.OpenFileDialogFunc = openFileDialog
 
 	sub, _ := fs.Sub(webFiles, "web")
-	mux := http.NewServeMux()
-	
-	mux.Handle("/", http.FileServer(http.FS(sub)))
-	mux.HandleFunc("/api/events", handlers.Events)
-	mux.HandleFunc("/api/dashboard", handlers.DashboardInfo)
-	mux.HandleFunc("/api/containers", handlers.ContainersList)
-	mux.HandleFunc("/api/containers/start", handlers.ContainerStart)
-	mux.HandleFunc("/api/containers/stop", handlers.ContainerStop)
-	mux.HandleFunc("/api/containers/logs", handlers.ContainerLogs)
-	mux.HandleFunc("/api/save-file", handlers.SaveFile)
-	mux.HandleFunc("/api/containers/restart", handlers.ContainerRestart)
-	mux.HandleFunc("/api/containers/remove", handlers.ContainerRemove)
-	mux.HandleFunc("/api/containers/rename", handlers.ContainerRename)
-	mux.HandleFunc("/api/compose/start", handlers.ComposeStart)
-	mux.HandleFunc("/api/compose/stop", handlers.ComposeStop)
-	mux.HandleFunc("/api/compose/up", handlers.ComposeUp)
-	mux.HandleFunc("/api/compose/down", handlers.ComposeDown)
-	mux.HandleFunc("/api/compose/open-file", handlers.ComposeOpenFile)
-	mux.HandleFunc("/api/images", handlers.ImagesList)
-	mux.HandleFunc("/api/images/remove", handlers.ImageRemove)
-	mux.HandleFunc("/api/images/tag", handlers.ImageTag)
-	mux.HandleFunc("/api/volumes", handlers.VolumesList)
-	mux.HandleFunc("/api/volumes/remove", handlers.VolumeRemove)
-	mux.HandleFunc("/api/networks", handlers.NetworksList)
-	mux.HandleFunc("/api/networks/remove", handlers.NetworkRemove)
-	mux.HandleFunc("/api/hosts", handlers.HostsList)
-	mux.HandleFunc("/api/hosts/save", handlers.HostsSave)
-	mux.HandleFunc("/api/hosts/connect", handlers.HostConnect)
-	mux.HandleFunc("/api/prefs", handlers.PrefsLoad)
-	mux.HandleFunc("/api/prefs/save", handlers.PrefsSave)
-	mux.HandleFunc("/api/containers/stats", handlers.ContainerStatsStream)
+	r := router.New()
+
+	r.Handle("/", http.FileServer(http.FS(sub)))
+
+	r.Get("/api/events", handlers.Events)
+	r.Get("/api/dashboard", handlers.DashboardInfo)
+
+	r.Get("/api/containers", handlers.ContainersList)
+	r.Get("/api/containers/stats", handlers.ContainerStatsStream)
+	r.Get("/api/containers/start/{id}", handlers.ContainerStart)
+	r.Get("/api/containers/stop/{id}", handlers.ContainerStop)
+	r.Get("/api/containers/restart/{id}", handlers.ContainerRestart)
+	r.Get("/api/containers/remove/{id}", handlers.ContainerRemove)
+	r.Get("/api/containers/rename/{id}", handlers.ContainerRename)
+	r.Get("/api/containers/logs/{id}", handlers.ContainerLogs)
+
+	r.Get("/api/compose/start/{project}", handlers.ComposeStart)
+	r.Get("/api/compose/stop/{project}", handlers.ComposeStop)
+	r.Post("/api/compose/up", handlers.ComposeUp)
+	r.Get("/api/compose/down/{project}", handlers.ComposeDown)
+	r.Get("/api/compose/open-file", handlers.ComposeOpenFile)
+
+	r.Get("/api/images", handlers.ImagesList)
+	r.Get("/api/images/remove/{id}", handlers.ImageRemove)
+	r.Get("/api/images/tag/{id}/{tag}/{keep}", handlers.ImageTag)
+
+	r.Get("/api/volumes", handlers.VolumesList)
+	r.Get("/api/volumes/remove/{name}", handlers.VolumeRemove)
+
+	r.Get("/api/networks", handlers.NetworksList)
+	r.Get("/api/networks/remove/{id}", handlers.NetworkRemove)
+
+	r.Get("/api/hosts", handlers.HostsList)
+	r.Post("/api/hosts/save", handlers.HostsSave)
+	r.Get("/api/hosts/connect", handlers.HostConnect)
+
+	r.Get("/api/prefs", handlers.PrefsLoad)
+	r.Post("/api/prefs/save", handlers.PrefsSave)
+
+	r.Post("/api/save-file", handlers.SaveFile)
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		panic(err)
 	}
 
-	go http.Serve(listener, mux)
+	go http.Serve(listener, r.Mux)
 
 	return "http://" + listener.Addr().String()
 }

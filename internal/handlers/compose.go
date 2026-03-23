@@ -17,19 +17,19 @@ import (
 var OpenFileDialogFunc func() (path string, ok bool)
 
 func ComposeStart(w http.ResponseWriter, r *http.Request) {
-	project := r.URL.Query().Get("project")
+	project := r.PathValue("project")
 	service.ComposeStart(project)
 	respond.Result(w, nil)
 }
 
 func ComposeStop(w http.ResponseWriter, r *http.Request) {
-	project := r.URL.Query().Get("project")
+	project := r.PathValue("project")
 	service.ComposeStop(project)
 	respond.Result(w, nil)
 }
 
 func ComposeDown(w http.ResponseWriter, r *http.Request) {
-	project := r.URL.Query().Get("project")
+	project := r.PathValue("project")
 	service.ComposeDown(project)
 	respond.Result(w, nil)
 }

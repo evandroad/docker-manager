@@ -16,35 +16,35 @@ func ContainersList(w http.ResponseWriter, r *http.Request) {
 }
 
 func ContainerStart(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	respond.Result(w, service.StartContainer(id))
 }
 
 func ContainerStop(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	service.StopContainer(id)
 	respond.Result(w, nil)
 }
 
 func ContainerRestart(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	service.RestartContainer(id)
 	respond.Result(w, nil)
 }
 
 func ContainerRemove(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	respond.Result(w, service.RemoveContainer(id))
 }
 
 func ContainerRename(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	name := r.URL.Query().Get("name")
 	respond.Result(w, service.RenameContainer(id, name))
 }
 
 func ContainerLogs(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")

@@ -11,13 +11,13 @@ func ImagesList(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImageRemove(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.PathValue("id")
 	respond.Result(w, service.RemoveImage(id))
 }
 
 func ImageTag(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
-	tag := r.URL.Query().Get("tag")
-	keep := r.URL.Query().Get("keep") == "1"
+	id := r.PathValue("id")
+	tag := r.PathValue("tag")
+	keep := r.PathValue("keep") == "1"
 	respond.Result(w, service.TagImage(id, tag, keep))
 }

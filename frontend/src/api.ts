@@ -26,37 +26,37 @@ export async function fetchNetworks(): Promise<NetworkInfo[]> {
 }
 
 export async function startContainer(id: string) {
-  await fetch(`/api/containers/start?id=${id}`)
+  await fetch(`/api/containers/start/${id}`)
 }
 
 export async function stopContainer(id: string) {
-  await fetch(`/api/containers/stop?id=${id}`)
+  await fetch(`/api/containers/stop/${id}`)
 }
 
 export async function restartContainer(id: string) {
-  await fetch(`/api/containers/restart?id=${id}`)
+  await fetch(`/api/containers/restart/${id}`)
 }
 
 export async function removeContainer(id: string) {
-  await fetch(`/api/containers/remove?id=${id}`)
+  await fetch(`/api/containers/remove/${id}`)
 }
 
 export async function renameContainer(id: string, name: string): Promise<true | string> {
-  const res = await fetch(`/api/containers/rename?id=${id}&name=${encodeURIComponent(name)}`)
+  const res = await fetch(`/api/containers/rename/${id}?name=${encodeURIComponent(name)}`)
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function composeStart(project: string) {
-  await fetch(`/api/compose/start?project=${encodeURIComponent(project)}`)
+  await fetch(`/api/compose/start/${encodeURIComponent(project)}`)
 }
 
 export async function composeStop(project: string) {
-  await fetch(`/api/compose/stop?project=${encodeURIComponent(project)}`)
+  await fetch(`/api/compose/stop/${encodeURIComponent(project)}`)
 }
 
 export async function composeDown(project: string) {
-  await fetch(`/api/compose/down?project=${encodeURIComponent(project)}`)
+  await fetch(`/api/compose/down/${encodeURIComponent(project)}`)
 }
 
 export async function composeUpStream(yaml: string, path?: string, onLine?: (line: string) => void): Promise<string> {
@@ -96,25 +96,25 @@ export async function composeOpenFile(): Promise<string> {
 }
 
 export async function removeImage(id: string): Promise<true | string> {
-  const res = await fetch(`/api/images/remove?id=${id}`)
+  const res = await fetch(`/api/images/remove/${encodeURIComponent(id)}`)
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function tagImage(id: string, tag: string, keep = false): Promise<true | string> {
-  const res = await fetch(`/api/images/tag?id=${encodeURIComponent(id)}&tag=${encodeURIComponent(tag)}${keep ? '&keep=1' : ''}`)
+  const res = await fetch(`/api/images/tag/${encodeURIComponent(id)}/${encodeURIComponent(tag)}/${keep ? '1' : '0'}`)
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function removeVolume(name: string): Promise<true | string> {
-  const res = await fetch(`/api/volumes/remove?name=${encodeURIComponent(name)}`)
+  const res = await fetch(`/api/volumes/remove/${encodeURIComponent(name)}`)
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function removeNetwork(id: string): Promise<true | string> {
-  const res = await fetch(`/api/networks/remove?id=${encodeURIComponent(id)}`)
+  const res = await fetch(`/api/networks/remove/${encodeURIComponent(id)}`)
   const data = await res.json()
   return data.ok ? true : data.error
 }

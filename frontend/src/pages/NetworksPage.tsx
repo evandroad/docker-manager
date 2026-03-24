@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import type { NetworkInfo } from '../types'
-import { fetchNetworks, removeNetwork } from '../api'
+import { fetchNetworks, removeNetwork, createNetwork } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
+import CreateNetworkModal from '../components/CreateNetworkModal'
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState<NetworkInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(networks)
   const confirm = useConfirm()
   const showAlert = useAlert()
+  const [showCreate, setShowCreate] = useState(false)
 
   useEffect(() => {
     fetchNetworks().then(setNetworks)
@@ -22,10 +24,24 @@ export default function NetworksPage() {
     }})
   }
 
+  async function handleCreate(name: string, driver: string) {
+    setShowCreate(false)
+    const res = await createNetwork(name, driver)
+    if (res === true) fetchNetworks().then(setNetworks)
+    else showAlert('Error: ' + res)
+  }
+
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
-    <table className="w-full border-collapse mt-4 bg-zinc-800 text-sm">
+    <>
+    {showCreate && <CreateNetworkModal onConfirm={handleCreate} onCancel={() => setShowCreate(false)} />}
+    <div className="mb-3 flex items-center gap-2">
+      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCreate(true)}>
+        <i className="fa-solid fa-plus mr-1" /> Create Network
+      </button>
+    </div>
+    <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('ID')}>ID{icon('ID')}</th>
@@ -55,5 +71,6 @@ export default function NetworksPage() {
         ))}
       </tbody>
     </table>
+    </>
   )
 }

@@ -14,3 +14,9 @@ func NetworkRemove(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	respond.Result(w, service.RemoveNetwork(id))
 }
+
+func NetworkCreate(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	driver := r.PathValue("driver")
+	respond.Result(w, service.CreateNetwork(name, driver))
+}

@@ -21,7 +21,7 @@ export default function RenameModal({ currentName, title, onConfirm, onAlt, altL
             value={name} onChange={e => setName(e.target.value)} />
           <div className="flex justify-end gap-2">
             <button type="button" className="px-4 py-2 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={onCancel}>Cancel</button>
-            <button type="submit" className="px-4 py-2 text-sm bg-blue-600 border-none rounded-md text-white cursor-pointer hover:bg-blue-500" disabled={!valid}>Rename</button>
+            <button type="submit" className="px-4 py-2 text-sm bg-blue-600 border-none rounded-md text-white cursor-pointer hover:bg-blue-500" disabled={!valid}>{title === 'Rename' || !title ? 'Rename' : 'Create'}</button>
             {onAlt && <button type="button" className="px-4 py-2 text-sm bg-green-700 border-none rounded-md text-white cursor-pointer hover:bg-green-600" disabled={!valid} onClick={() => { if (valid) onAlt(name.trim()) }}>{altLabel || 'Create'}</button>}
           </div>
         </form>

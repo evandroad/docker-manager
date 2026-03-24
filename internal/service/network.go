@@ -67,3 +67,13 @@ func RemoveNetwork(id string) error {
 	}
 	return cli.NetworkRemove(ctx, id)
 }
+
+func CreateNetwork(name, driver string) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	_, err = cli.NetworkCreate(ctx, name, network.CreateOptions{Driver: driver})
+	return err
+}

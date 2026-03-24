@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
 import type { VolumeInfo } from '../types'
-import { fetchVolumes, removeVolume } from '../api'
+import { fetchVolumes, removeVolume, createVolume } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
+import RenameModal from '../components/RenameModal'
 
 export default function VolumesPage() {
   const [volumes, setVolumes] = useState<VolumeInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(volumes)
   const confirm = useConfirm()
   const showAlert = useAlert()
+  const [showCreate, setShowCreate] = useState(false)
 
   useEffect(() => {
     fetchVolumes().then(setVolumes)
@@ -22,10 +24,24 @@ export default function VolumesPage() {
     }})
   }
 
+  async function handleCreate(name: string) {
+    setShowCreate(false)
+    const res = await createVolume(name)
+    if (res === true) fetchVolumes().then(setVolumes)
+    else showAlert('Error: ' + res)
+  }
+
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
-    <table className="w-full border-collapse mt-4 bg-zinc-800 text-sm">
+    <>
+    {showCreate && <RenameModal title="Create Volume" currentName="" onConfirm={handleCreate} onCancel={() => setShowCreate(false)} />}
+    <div className="mb-3 flex items-center gap-2">
+      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCreate(true)}>
+        <i className="fa-solid fa-plus mr-1" /> Create Volume
+      </button>
+    </div>
+    <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('Name')}>Name{icon('Name')}</th>
@@ -55,5 +71,6 @@ export default function VolumesPage() {
         ))}
       </tbody>
     </table>
+    </>
   )
 }

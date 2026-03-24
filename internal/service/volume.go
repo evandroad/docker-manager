@@ -92,3 +92,13 @@ func RemoveVolume(name string) error {
 	}
 	return cli.VolumeRemove(ctx, name, true)
 }
+
+func CreateVolume(name string) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	_, err = cli.VolumeCreate(ctx, volume.CreateOptions{Name: name})
+	return err
+}

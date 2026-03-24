@@ -158,8 +158,20 @@ export async function removeVolume(name: string): Promise<true | string> {
   return data.ok ? true : data.error
 }
 
+export async function createVolume(name: string): Promise<true | string> {
+  const res = await fetch(`/api/volumes/create/${encodeURIComponent(name)}`)
+  const data = await res.json()
+  return data.ok ? true : data.error
+}
+
 export async function removeNetwork(id: string): Promise<true | string> {
   const res = await fetch(`/api/networks/remove/${encodeURIComponent(id)}`)
+  const data = await res.json()
+  return data.ok ? true : data.error
+}
+
+export async function createNetwork(name: string, driver = 'bridge'): Promise<true | string> {
+  const res = await fetch(`/api/networks/create/${encodeURIComponent(name)}/${encodeURIComponent(driver)}`)
   const data = await res.json()
   return data.ok ? true : data.error
 }

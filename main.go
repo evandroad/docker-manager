@@ -77,9 +77,11 @@ func startServer() string {
 	r.Get("/api/images/tag/{id}/{tag}/{keep}", handlers.ImageTag)
 
 	r.Get("/api/volumes", handlers.VolumesList)
+	r.Get("/api/volumes/create/{name}", handlers.VolumeCreate)
 	r.Get("/api/volumes/remove/{name}", handlers.VolumeRemove)
 
 	r.Get("/api/networks", handlers.NetworksList)
+	r.Get("/api/networks/create/{name}/{driver}", handlers.NetworkCreate)
 	r.Get("/api/networks/remove/{id}", handlers.NetworkRemove)
 
 	r.Get("/api/hosts", handlers.HostsList)

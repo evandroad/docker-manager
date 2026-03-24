@@ -44,7 +44,7 @@ export default function VolumesPage() {
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Driver}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 break-all">{v.Mountpoint}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Size}</td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(v.Created * 1000).toLocaleDateString('pt-BR')}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(v.Created * 1000).toLocaleString('pt-BR')}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>

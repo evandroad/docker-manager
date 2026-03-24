@@ -44,7 +44,7 @@ export default function NetworksPage() {
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Name}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Driver}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Scope}</td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(n.Created * 1000).toLocaleDateString('pt-BR')}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(n.Created * 1000).toLocaleString('pt-BR')}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {n.UsedBy?.length ? n.UsedBy.map(name => name.replace('/', '')).join(', ') : '—'}
             </td>

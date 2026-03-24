@@ -98,7 +98,7 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
             <td className={`p-2 text-lg font-light border-t border-zinc-600${isCompose ? ' pl-12' : ''}`}>{c.ID}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Name.replace('/', '')}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{c.Image}</td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(c.Created * 1000).toLocaleDateString('pt-BR')}</td>
+            <td className="p-2 text-lg font-light border-t border-zinc-600">{new Date(c.Created * 1000).toLocaleString('pt-BR')}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600" title={c.Status}><span className={`inline-block w-3 h-3 rounded-full mr-2 ${statusColor(c.State)}`} />{c.State}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 text-right">{stats[c.ID] ? stats[c.ID].cpu.toFixed(1) + '%' : '-'}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 text-right">{stats[c.ID]?.mem || '-'}</td>

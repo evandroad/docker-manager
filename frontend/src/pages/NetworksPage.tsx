@@ -7,7 +7,7 @@ import CreateNetworkModal from '../components/CreateNetworkModal'
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState<NetworkInfo[]>([])
-  const { sorted, toggleSort, icon } = useSort(networks)
+  const { sorted, toggleSort, icon } = useSort(networks, 'Name')
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [showCreate, setShowCreate] = useState(false)

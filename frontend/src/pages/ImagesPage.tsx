@@ -9,7 +9,7 @@ import PullModal from '../components/PullModal'
 
 export default function ImagesPage() {
   const [images, setImages] = useState<ImageInfo[]>([])
-  const { sorted, toggleSort, icon } = useSort(images)
+  const { sorted, toggleSort, icon } = useSort(images, 'Tags')
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [tagTarget, setTagTarget] = useState<string[] | null>(null)

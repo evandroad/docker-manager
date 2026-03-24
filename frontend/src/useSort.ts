@@ -2,9 +2,9 @@ import { useState, useMemo } from 'react'
 
 type SortDir = 'asc' | 'desc' | null
 
-export function useSort<T>(data: T[]) {
-  const [sortKey, setSortKey] = useState<keyof T | null>(null)
-  const [sortDir, setSortDir] = useState<SortDir>(null)
+export function useSort<T>(data: T[], defaultKey?: keyof T) {
+  const [sortKey, setSortKey] = useState<keyof T | null>(defaultKey ?? null)
+  const [sortDir, setSortDir] = useState<SortDir>(defaultKey ? 'asc' : null)
 
   function toggleSort(key: keyof T) {
     if (sortKey !== key) { setSortKey(key); setSortDir('asc'); return }

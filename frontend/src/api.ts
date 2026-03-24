@@ -164,6 +164,12 @@ export async function createVolume(name: string): Promise<true | string> {
   return data.ok ? true : data.error
 }
 
+export async function copyVolume(source: string, dest: string, overwrite = false): Promise<true | string> {
+  const res = await fetch(`/api/volumes/copy/${encodeURIComponent(source)}/${encodeURIComponent(dest)}/${overwrite ? '1' : '0'}`)
+  const data = await res.json()
+  return data.ok ? true : data.error
+}
+
 export async function removeNetwork(id: string): Promise<true | string> {
   const res = await fetch(`/api/networks/remove/${encodeURIComponent(id)}`)
   const data = await res.json()

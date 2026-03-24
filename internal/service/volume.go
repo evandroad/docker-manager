@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 )
@@ -101,4 +103,63 @@ func CreateVolume(name string) error {
 	}
 	_, err = cli.VolumeCreate(ctx, volume.CreateOptions{Name: name})
 	return err
+}
+
+func CopyVolume(source, dest string, overwrite bool) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	// validate source exists
+	if _, err := cli.VolumeInspect(ctx, source); err != nil {
+		return fmt.Errorf("source volume not found: %s", source)
+	}
+	if overwrite {
+		// validate dest exists
+		if _, err := cli.VolumeInspect(ctx, dest); err != nil {
+			return fmt.Errorf("destination volume not found: %s", dest)
+		}
+	} else {
+		// validate dest does not exist
+		if _, err := cli.VolumeInspect(ctx, dest); err == nil {
+			return fmt.Errorf("destination volume already exists: %s", dest)
+		}
+		if _, err := cli.VolumeCreate(ctx, volume.CreateOptions{Name: dest}); err != nil {
+			return err
+		}
+	}
+	// ensure alpine image is available
+	if _, _, err := cli.ImageInspectWithRaw(ctx, "alpine"); err != nil {
+		r, pullErr := cli.ImagePull(ctx, "alpine", image.PullOptions{})
+		if pullErr != nil {
+			return fmt.Errorf("failed to pull alpine image: %w", pullErr)
+		}
+		io.Copy(io.Discard, r)
+		r.Close()
+	}
+	// run alpine container to copy data
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		Image: "alpine",
+		Cmd:   []string{"sh", "-c", "cp -a /source/. /dest/"},
+	}, &container.HostConfig{
+		Binds: []string{source + ":/source", dest + ":/dest"},
+	}, nil, nil, "")
+	if err != nil {
+		return err
+	}
+	defer cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{})
+	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+		return err
+	}
+	waitCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	select {
+	case res := <-waitCh:
+		if res.StatusCode != 0 {
+			return fmt.Errorf("copy failed with exit code %d", res.StatusCode)
+		}
+	case err := <-errCh:
+		return err
+	}
+	return nil
 }

@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react'
 import type { VolumeInfo } from '../types'
-import { fetchVolumes, removeVolume, createVolume } from '../api'
+import { fetchVolumes, removeVolume, createVolume, copyVolume } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import RenameModal from '../components/RenameModal'
+import CopyVolumeModal from '../components/CopyVolumeModal'
 
 export default function VolumesPage() {
   const [volumes, setVolumes] = useState<VolumeInfo[]>([])
-  const { sorted, toggleSort, icon } = useSort(volumes)
+  const { sorted, toggleSort, icon } = useSort(volumes, 'Name')
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [showCreate, setShowCreate] = useState(false)
+  const [copyTarget, setCopyTarget] = useState<VolumeInfo | null>(null)
+  const [copying, setCopying] = useState('')
 
   useEffect(() => {
     fetchVolumes().then(setVolumes)
@@ -31,15 +34,33 @@ export default function VolumesPage() {
     else showAlert('Error: ' + res)
   }
 
+  async function handleCopy(dest: string, overwrite: boolean) {
+    const source = copyTarget!.Name
+    setCopyTarget(null)
+    setCopying(source)
+    const res = await copyVolume(source, dest, overwrite)
+    setCopying('')
+    if (res === true) fetchVolumes().then(setVolumes)
+    else showAlert('Error: ' + res)
+  }
+
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
     <>
     {showCreate && <RenameModal title="Create Volume" currentName="" onConfirm={handleCreate} onCancel={() => setShowCreate(false)} />}
+    {copyTarget && <CopyVolumeModal
+      sourceName={copyTarget.Name}
+      sourceContainers={copyTarget.UsedBy || []}
+      existingVolumes={volumes.filter(v => v.Name !== copyTarget.Name).map(v => v.Name)}
+      onCopy={handleCopy}
+      onCancel={() => setCopyTarget(null)}
+    />}
     <div className="mb-3 flex items-center gap-2">
       <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCreate(true)}>
         <i className="fa-solid fa-plus mr-1" /> Create Volume
       </button>
+      {copying && <span className="text-sm text-zinc-400"><i className="fa-solid fa-spinner fa-spin mr-1" />Copying {copying}…</span>}
     </div>
     <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
@@ -64,8 +85,9 @@ export default function VolumesPage() {
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
-            <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
+            <td className="p-2 text-lg font-light border-t border-zinc-600 whitespace-nowrap">
+              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Copy volume" onClick={() => setCopyTarget(v)}><i className="fa-solid fa-copy" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 type Props = {
   currentName: string
-  title?: string
+  title?: ReactNode
+  submitLabel?: string
   onConfirm: (name: string) => void
   onAlt?: (name: string) => void
   altLabel?: string
   onCancel: () => void
 }
 
-export default function RenameModal({ currentName, title, onConfirm, onAlt, altLabel, onCancel }: Props) {
+export default function RenameModal({ currentName, title, submitLabel, onConfirm, onAlt, altLabel, onCancel }: Props) {
   const [name, setName] = useState(currentName)
   const valid = !!name.trim()
   return (
@@ -21,7 +22,7 @@ export default function RenameModal({ currentName, title, onConfirm, onAlt, altL
             value={name} onChange={e => setName(e.target.value)} />
           <div className="flex justify-end gap-2">
             <button type="button" className="px-4 py-2 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={onCancel}>Cancel</button>
-            <button type="submit" className="px-4 py-2 text-sm bg-blue-600 border-none rounded-md text-white cursor-pointer hover:bg-blue-500" disabled={!valid}>{title === 'Rename' || !title ? 'Rename' : 'Create'}</button>
+            <button type="submit" className="px-4 py-2 text-sm bg-blue-600 border-none rounded-md text-white cursor-pointer hover:bg-blue-500" disabled={!valid}>{submitLabel || (title === 'Rename' || !title ? 'Rename' : 'Create')}</button>
             {onAlt && <button type="button" className="px-4 py-2 text-sm bg-green-700 border-none rounded-md text-white cursor-pointer hover:bg-green-600" disabled={!valid} onClick={() => { if (valid) onAlt(name.trim()) }}>{altLabel || 'Create'}</button>}
           </div>
         </form>

@@ -78,6 +78,7 @@ func startServer() string {
 
 	r.Get("/api/volumes", handlers.VolumesList)
 	r.Get("/api/volumes/create/{name}", handlers.VolumeCreate)
+	r.Get("/api/volumes/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
 	r.Get("/api/volumes/remove/{name}", handlers.VolumeRemove)
 
 	r.Get("/api/networks", handlers.NetworksList)

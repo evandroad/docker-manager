@@ -62,7 +62,7 @@ export default function VolumesPage() {
       </button>
       {copying && <span className="text-sm text-zinc-400"><i className="fa-solid fa-spinner fa-spin mr-1" />Copying {copying}…</span>}
     </div>
-    <table className="w-full border-collapse bg-zinc-800 text-sm">
+    <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('Name')}>Name{icon('Name')}</th>

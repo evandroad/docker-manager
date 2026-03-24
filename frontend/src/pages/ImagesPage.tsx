@@ -107,7 +107,7 @@ export default function ImagesPage() {
         </button>
       )}
     </div>
-    <table className="w-full border-collapse bg-zinc-800 text-sm">
+    <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('ID')}>ID{icon('ID')}</th>

@@ -10,6 +10,19 @@ export async function fetchContainers(): Promise<ContainerInfo[]> {
   return (await res.json()) || []
 }
 
+export interface ContainerDetail {
+  ports: string[]
+  env: string[]
+  mounts: { type: string; source: string; dest: string }[]
+  nets: string[]
+  labels: Record<string, string>
+}
+
+export async function fetchContainerDetail(id: string): Promise<ContainerDetail> {
+  const res = await fetch(`/api/containers/inspect/${id}`)
+  return res.json()
+}
+
 export async function fetchImages(): Promise<ImageInfo[]> {
   const res = await fetch('/api/images')
   return (await res.json()) || []

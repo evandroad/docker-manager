@@ -40,6 +40,16 @@ func ContainerRemove(w http.ResponseWriter, r *http.Request) {
 	respond.Result(w, service.RemoveContainer(id))
 }
 
+func ContainerInspect(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	detail, err := service.InspectContainer(id)
+	if err != nil {
+		respond.JSON(w, http.StatusOK, respond.H{"error": err.Error()})
+		return
+	}
+	respond.JSON(w, http.StatusOK, detail)
+}
+
 func ContainerRename(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	name := r.URL.Query().Get("name")

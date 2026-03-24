@@ -147,3 +147,48 @@ func ComposeStop(project string) {
 func ComposeDown(project string) {
 	go exec.Command("docker", "compose", "-p", project, "down").Run()
 }
+
+type ContainerDetail struct {
+	Ports  []string          `json:"ports"`
+	Env    []string          `json:"env"`
+	Mounts []MountInfo       `json:"mounts"`
+	Nets   []string          `json:"nets"`
+	Labels map[string]string `json:"labels"`
+}
+
+type MountInfo struct {
+	Type   string `json:"type"`
+	Source string `json:"source"`
+	Dest   string `json:"dest"`
+}
+
+func InspectContainer(id string) (*ContainerDetail, error) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, err
+	}
+	info, err := cli.ContainerInspect(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	d := &ContainerDetail{
+		Env:    info.Config.Env,
+		Labels: info.Config.Labels,
+	}
+	for p, bindings := range info.NetworkSettings.Ports {
+		for _, b := range bindings {
+			d.Ports = append(d.Ports, b.HostIP+":"+b.HostPort+"→"+string(p))
+		}
+		if len(bindings) == 0 {
+			d.Ports = append(d.Ports, string(p))
+		}
+	}
+	for _, m := range info.Mounts {
+		d.Mounts = append(d.Mounts, MountInfo{Type: string(m.Type), Source: m.Source, Dest: m.Destination})
+	}
+	for name := range info.NetworkSettings.Networks {
+		d.Nets = append(d.Nets, name)
+	}
+	return d, nil
+}

@@ -41,7 +41,7 @@ export default function NetworksPage() {
         <i className="fa-solid fa-plus mr-1" /> Create Network
       </button>
     </div>
-    <table className="w-full border-collapse bg-zinc-800 text-sm">
+    <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
         <tr>
           <th className={th} onClick={() => toggleSort('ID')}>ID{icon('ID')}</th>

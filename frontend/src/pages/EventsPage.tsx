@@ -63,7 +63,7 @@ export default function EventsPage({ events, onClear }: EventsPageProps) {
         </div>
       </div>
       <div className="flex-1 overflow-auto" onScroll={handleScroll}>
-        <table className="w-full border-collapse bg-zinc-800 text-sm">
+        <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
           <thead>
             <tr>
               <th className="bg-zinc-700 p-2 text-left w-24">Hora</th>

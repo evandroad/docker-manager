@@ -8,6 +8,7 @@ import ComposeModal from '../components/ComposeModal'
 import LogModal from '../components/LogModal'
 import RenameModal from '../components/RenameModal'
 import GroupRows from '../components/GroupRows'
+import DetailPanel from '../components/DetailPanel'
 
 function groupByProject(list: ContainerInfo[]) {
   const groups: Record<string, ContainerInfo[]> = {}
@@ -26,6 +27,7 @@ export default function ContainersPage() {
   const [logTarget, setLogTarget] = useState<{ id: string; name: string } | null>(null)
   const [showCompose, setShowCompose] = useState(false)
   const [renameTarget, setRenameTarget] = useState<{ id: string; name: string } | null>(null)
+  const [inspectTarget, setInspectTarget] = useState<{ id: string; name: string } | null>(null)
   const confirm = useConfirm()
   const showAlert = useAlert()
   const stats = useContainerStats()
@@ -108,6 +110,7 @@ export default function ContainersPage() {
     {logTarget && <LogModal id={logTarget.id} name={logTarget.name} onClose={() => setLogTarget(null)} />}
     {showCompose && <ComposeModal onClose={() => setShowCompose(false)} onDone={() => { setShowCompose(false); fetchContainers().then(setContainers) }} />}
     {renameTarget && <RenameModal title="Rename Container" currentName={renameTarget.name} onConfirm={doRename} onCancel={() => setRenameTarget(null)} />}
+    {inspectTarget && <DetailPanel id={inspectTarget.id} name={inspectTarget.name} onClose={() => setInspectTarget(null)} />}
     <div className="mb-3 flex gap-2">
       <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCompose(true)}>
         <i className="fa-solid fa-upload mr-1" /> Compose Up
@@ -116,7 +119,7 @@ export default function ContainersPage() {
         <i className="fa-solid fa-rotate-right mr-1" /> Refresh
       </button>
     </div>
-    <table className="w-full border-collapse bg-zinc-800 text-sm">
+    <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
         <tr>
           <th className="bg-zinc-700 p-1.5 text-left">ID</th>
@@ -150,6 +153,7 @@ export default function ContainersPage() {
               onRemove={handleRemove}
               onRename={handleRename}
               onLogs={(id, name) => setLogTarget({ id, name })}
+              onInspect={(id, name) => setInspectTarget({ id, name })}
             />
           )
         })}

@@ -40,6 +40,10 @@ export default function ContainersPage() {
   useDockerEvents(useCallback((e) => {
     const id = e.ID.substring(0, 12)
     const action = e.Action
+    if (action === 'create') {
+      fetchContainers().then(setContainers)
+      return
+    }
     if (action === 'start' || action === 'die' || action === 'stop') {
       setContainers(prev =>
         prev.map(c =>
@@ -104,9 +108,12 @@ export default function ContainersPage() {
     {logTarget && <LogModal id={logTarget.id} name={logTarget.name} onClose={() => setLogTarget(null)} />}
     {showCompose && <ComposeModal onClose={() => setShowCompose(false)} onDone={() => { setShowCompose(false); fetchContainers().then(setContainers) }} />}
     {renameTarget && <RenameModal title="Rename Container" currentName={renameTarget.name} onConfirm={doRename} onCancel={() => setRenameTarget(null)} />}
-    <div className="mb-3">
+    <div className="mb-3 flex gap-2">
       <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCompose(true)}>
         <i className="fa-solid fa-upload mr-1" /> Compose Up
+      </button>
+      <button className="px-3 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => fetchContainers().then(setContainers)}>
+        <i className="fa-solid fa-rotate-right mr-1" /> Refresh
       </button>
     </div>
     <table className="w-full border-collapse bg-zinc-800 text-sm">

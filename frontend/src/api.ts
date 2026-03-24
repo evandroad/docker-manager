@@ -101,6 +101,51 @@ export async function removeImage(id: string): Promise<true | string> {
   return data.ok ? true : data.error
 }
 
+export interface PullProgress {
+  status: string
+  id?: string
+  progress?: string
+}
+
+export async function pullImage(ref: string, onProgress?: (msg: PullProgress) => void): Promise<true | string> {
+  const res = await fetch(`/api/images/pull?ref=${encodeURIComponent(ref)}`)
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buf = '', error = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += decoder.decode(value, { stream: true })
+    const lines = buf.split('\n')
+    buf = lines.pop()!
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const raw = line.slice(6)
+        if (raw.startsWith('ERROR:')) { error = raw.slice(6); continue }
+        try { onProgress?.(JSON.parse(raw)) } catch {}
+      }
+    }
+  }
+  return error || true
+}
+
+export interface HubSearchResult {
+  name: string
+  description: string
+  stars: number
+  official: boolean
+}
+
+export async function searchHub(q: string): Promise<HubSearchResult[]> {
+  const res = await fetch(`/api/images/search?q=${encodeURIComponent(q)}`)
+  return res.json()
+}
+
+export async function searchHubTags(name: string): Promise<{ name: string; size: string }[]> {
+  const res = await fetch(`/api/images/search/tags?name=${encodeURIComponent(name)}`)
+  return res.json()
+}
+
 export async function tagImage(id: string, tag: string, keep = false): Promise<true | string> {
   const res = await fetch(`/api/images/tag/${encodeURIComponent(id)}/${encodeURIComponent(tag)}/${keep ? '1' : '0'}`)
   const data = await res.json()

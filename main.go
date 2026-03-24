@@ -70,6 +70,9 @@ func startServer() string {
 	r.Get("/api/compose/open-file", handlers.ComposeOpenFile)
 
 	r.Get("/api/images", handlers.ImagesList)
+	r.Get("/api/images/pull", handlers.ImagePull)
+	r.Get("/api/images/search", handlers.ImageSearch)
+	r.Get("/api/images/search/tags", handlers.ImageSearchTags)
 	r.Get("/api/images/remove/{id}", handlers.ImageRemove)
 	r.Get("/api/images/tag/{id}/{tag}/{keep}", handlers.ImageTag)
 

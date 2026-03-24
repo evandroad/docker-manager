@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ImageInfo } from '../types'
-import { fetchImages, removeImage, tagImage } from '../api'
+import type { PullProgress } from '../api'
+import { fetchImages, removeImage, tagImage, pullImage } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import TagModal from '../components/TagModal'
+import PullModal from '../components/PullModal'
 
 export default function ImagesPage() {
   const [images, setImages] = useState<ImageInfo[]>([])
@@ -11,6 +13,12 @@ export default function ImagesPage() {
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [tagTarget, setTagTarget] = useState<string[] | null>(null)
+  const [showPull, setShowPull] = useState(false)
+  const [pulling, setPulling] = useState('')
+  const [pullLayers, setPullLayers] = useState<Record<string, PullProgress>>({})
+  const [pullStatus, setPullStatus] = useState('')
+  const [showProgress, setShowProgress] = useState(false)
+  const progressRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchImages().then(setImages)
@@ -39,11 +47,66 @@ export default function ImagesPage() {
     else showAlert('Error: ' + res)
   }
 
+  async function handlePull(ref: string) {
+    setShowPull(false)
+    setPulling(ref)
+    setPullLayers({})
+    setPullStatus('')
+    setShowProgress(true)
+    const res = await pullImage(ref, (msg) => {
+      if (msg.id) {
+        setPullLayers(prev => ({ ...prev, [msg.id!]: msg }))
+      } else {
+        setPullStatus(msg.status)
+      }
+    })
+    setPulling('')
+    if (res === true) fetchImages().then(setImages)
+    else showAlert('Error: ' + res)
+  }
+
   const th = "bg-zinc-700 p-2 text-left cursor-pointer select-none hover:bg-zinc-600"
 
   return (
     <>
+    {showPull && <PullModal onPull={handlePull} onCancel={() => setShowPull(false)} />}
     {tagTarget && <TagModal tags={tagTarget} onConfirm={doTag} onDelete={doDeleteTag} onCancel={() => setTagTarget(null)} />}
+
+    {showProgress && (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => !pulling && setShowProgress(false)}>
+        <div className="bg-zinc-800 rounded-lg p-5 w-[500px] max-h-[70vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <h2 className="text-lg font-semibold mb-3">
+            {pulling ? `Pulling ${pulling}…` : 'Pull complete'}
+          </h2>
+          {pullStatus && <div className="text-xs text-zinc-400 mb-2">{pullStatus}</div>}
+          <div className="overflow-y-auto flex-1 min-h-0 font-mono text-xs" ref={progressRef}>
+            {Object.entries(pullLayers).map(([id, l]) => (
+              <div key={id} className="grid grid-cols-[100px_130px_1fr] gap-1 py-0.5">
+                <span className="text-zinc-400 truncate">{id}</span>
+                <span className="truncate">{l.status}</span>
+                <span className="text-zinc-500 truncate">{l.progress || ''}</span>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end mt-4 pt-3 border-t border-zinc-700">
+            <button className="px-4 py-1.5 text-sm bg-zinc-700 rounded text-white hover:bg-zinc-600 cursor-pointer" onClick={() => setShowProgress(false)}>
+              {pulling ? 'Hide' : 'Close'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div className="mb-3 flex items-center gap-2">
+      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80 disabled:opacity-50" disabled={!!pulling} onClick={() => setShowPull(true)}>
+        <i className="fa-solid fa-download mr-1" /> Pull Image
+      </button>
+      {pulling && (
+        <button className="px-3 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setShowProgress(true)}>
+          <i className="fa-solid fa-spinner fa-spin mr-1" /> {pulling}
+        </button>
+      )}
+    </div>
     <table className="w-full border-collapse bg-zinc-800 text-sm">
       <thead>
         <tr>

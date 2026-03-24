@@ -147,18 +147,16 @@ Funcionalidades planejadas:
 1. **Busca/filtro** — campo de texto para filtrar tabelas em tempo real
 2. **Copiar ID/nome com um clique**
 3. **Prune de recursos** — botões para `docker system/volume/image prune`
-4. **Renomear containers**
-5. **Detalhes do container em painel lateral** — portas, variáveis de ambiente, mounts, redes e labels
-6. **Inspeção de imagens** — layers, histórico de build e configuração
-7. **Pull de imagens** — com barra de progresso
-8. **Criação de volumes e networks**
-9. **Exec/terminal no container** — shell interativo
-10. **Estatísticas de recursos (CPU/memória/rede)** — gráficos em tempo real via `docker stats`
-11. **Notificações de eventos** — toasts/alertas visuais
-12. **Gerenciamento de registries** — login/logout em registries privados
-13. **Backup e restore de volumes** — exportar/importar como tar
-14. **Templates de stacks** — biblioteca de docker-compose templates
-15. **RBAC e autenticação** — controle de acesso por usuário
+4. **Detalhes do container em painel lateral** — portas, variáveis de ambiente, mounts, redes e labels
+5. **Inspeção de imagens** — layers, histórico de build e configuração
+6. **Criação de volumes e networks**
+7. **Exec/terminal no container** — shell interativo
+8. **Estatísticas de recursos (CPU/memória/rede)** — gráficos em tempo real via `docker stats`
+9. **Notificações de eventos** — toasts/alertas visuais
+10. **Gerenciamento de registries** — login/logout em registries privados
+11. **Backup e restore de volumes** — exportar/importar como tar
+12. **Templates de stacks** — biblioteca de docker-compose templates
+13. **RBAC e autenticação** — controle de acesso por usuário
 
 ## Licença
 

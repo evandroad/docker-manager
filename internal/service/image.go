@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/docker/docker/api/types/container"
@@ -60,6 +61,28 @@ func Images() []ImageInfo {
 	}
 
 	return out
+}
+
+func PullImage(refStr string, out chan<- string) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	reader, err := cli.ImagePull(ctx, refStr, image.PullOptions{})
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+	dec := json.NewDecoder(reader)
+	for dec.More() {
+		var msg json.RawMessage
+		if err := dec.Decode(&msg); err != nil {
+			break
+		}
+		out <- string(msg)
+	}
+	return nil
 }
 
 func RemoveImage(id string) error {

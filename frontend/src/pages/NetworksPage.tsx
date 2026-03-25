@@ -4,10 +4,12 @@ import { fetchNetworks, removeNetwork, createNetwork } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import CreateNetworkModal from '../components/CreateNetworkModal'
+import { useFilter } from '../useFilter'
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState<NetworkInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(networks, 'Name')
+  const { filtered, input: filterInput } = useFilter(sorted)
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [showCreate, setShowCreate] = useState(false)
@@ -40,6 +42,7 @@ export default function NetworksPage() {
       <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCreate(true)}>
         <i className="fa-solid fa-plus mr-1" /> Create Network
       </button>
+      {filterInput}
     </div>
     <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
@@ -54,7 +57,7 @@ export default function NetworksPage() {
         </tr>
       </thead>
       <tbody>
-        {sorted.map(n => (
+        {filtered.map(n => (
           <tr key={n.ID} className="hover:bg-zinc-700">
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.ID}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{n.Name}</td>

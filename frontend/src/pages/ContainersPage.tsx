@@ -9,6 +9,7 @@ import LogModal from '../components/LogModal'
 import RenameModal from '../components/RenameModal'
 import GroupRows from '../components/GroupRows'
 import DetailPanel from '../components/DetailPanel'
+import { useFilter } from '../useFilter'
 
 function groupByProject(list: ContainerInfo[]) {
   const groups: Record<string, ContainerInfo[]> = {}
@@ -31,6 +32,7 @@ export default function ContainersPage() {
   const confirm = useConfirm()
   const showAlert = useAlert()
   const stats = useContainerStats()
+  const { filtered, input: filterInput } = useFilter(containers)
 
   useEffect(() => {
     fetchContainers().then(setContainers)
@@ -103,7 +105,7 @@ export default function ContainersPage() {
     else showAlert('Error: ' + res)
   }
 
-  const groups = groupByProject(containers)
+  const groups = groupByProject(filtered)
 
   return (
     <>
@@ -118,6 +120,7 @@ export default function ContainersPage() {
       <button className="px-3 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => fetchContainers().then(setContainers)}>
         <i className="fa-solid fa-rotate-right mr-1" /> Refresh
       </button>
+      {filterInput}
     </div>
     <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>

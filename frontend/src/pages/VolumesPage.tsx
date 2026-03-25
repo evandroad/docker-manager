@@ -5,10 +5,12 @@ import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import RenameModal from '../components/RenameModal'
 import CopyVolumeModal from '../components/CopyVolumeModal'
+import { useFilter } from '../useFilter'
 
 export default function VolumesPage() {
   const [volumes, setVolumes] = useState<VolumeInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(volumes, 'Name')
+  const { filtered, input: filterInput } = useFilter(sorted)
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [showCreate, setShowCreate] = useState(false)
@@ -20,7 +22,8 @@ export default function VolumesPage() {
   }, [])
 
   function handleRemove(name: string) {
-    confirm({ message: `Remove volume "${name}"?`, onConfirm: async () => {
+    const label = name.length > 20 ? name.slice(0, 15) + '…' : name
+    confirm({ message: `Remove volume "${label}"?`, onConfirm: async () => {
       const res = await removeVolume(name)
       if (res === true) setVolumes(prev => prev.filter(v => v.Name !== name))
       else showAlert('Error: ' + res)
@@ -61,6 +64,7 @@ export default function VolumesPage() {
         <i className="fa-solid fa-plus mr-1" /> Create Volume
       </button>
       {copying && <span className="text-sm text-zinc-400"><i className="fa-solid fa-spinner fa-spin mr-1" />Copying {copying}…</span>}
+      {filterInput}
     </div>
     <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
@@ -75,7 +79,7 @@ export default function VolumesPage() {
         </tr>
       </thead>
       <tbody>
-        {sorted.map(v => (
+        {filtered.map(v => (
           <tr key={v.Name} className="hover:bg-zinc-700">
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Name}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{v.Driver}</td>

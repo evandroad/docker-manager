@@ -23,6 +23,8 @@ import (
 //go:embed web/*
 var webFiles embed.FS
 
+var Version = "dev"
+
 func main() {
 	os.Setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
 	
@@ -45,6 +47,7 @@ func main() {
 func startServer() string {
 	handlers.SaveDialogFunc = saveFileDialog
 	handlers.OpenFileDialogFunc = openFileDialog
+	handlers.AppVersion = Version
 
 	sub, _ := fs.Sub(webFiles, "web")
 	r := router.New()
@@ -52,6 +55,7 @@ func startServer() string {
 	r.Handle("/", http.FileServer(http.FS(sub)))
 
 	r.Get("/api/events", handlers.Events)
+	r.Get("/api/version", handlers.Version)
 	r.Get("/api/dashboard", handlers.DashboardInfo)
 
 	r.Get("/api/containers", handlers.ContainersList)

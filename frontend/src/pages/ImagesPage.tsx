@@ -6,10 +6,12 @@ import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import TagModal from '../components/TagModal'
 import PullModal from '../components/PullModal'
+import { useFilter } from '../useFilter'
 
 export default function ImagesPage() {
   const [images, setImages] = useState<ImageInfo[]>([])
   const { sorted, toggleSort, icon } = useSort(images, 'Tags')
+  const { filtered, input: filterInput } = useFilter(sorted)
   const confirm = useConfirm()
   const showAlert = useAlert()
   const [tagTarget, setTagTarget] = useState<string[] | null>(null)
@@ -106,6 +108,7 @@ export default function ImagesPage() {
           <i className="fa-solid fa-spinner fa-spin mr-1" /> {pulling}
         </button>
       )}
+      {filterInput}
     </div>
     <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
@@ -119,7 +122,7 @@ export default function ImagesPage() {
         </tr>
       </thead>
       <tbody>
-        {sorted.map(img => (
+        {filtered.map(img => (
           <tr key={img.ID}>
             <td className="p-2 text-lg font-light border-t border-zinc-600">{img.ID}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">

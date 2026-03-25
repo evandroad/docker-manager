@@ -21,6 +21,7 @@ function App() {
   const pages: Page[] = ['dashboard', 'containers', 'images', 'volumes', 'networks', 'events']
 
   const [page, setPage] = useState<Page>('dashboard')
+  const [version, setVersion] = useState('')
   const [hosts, setHosts] = useState<HostConfig[]>([])
   const [active, setActive] = useState('')
   const [connecting, setConnecting] = useState(false)
@@ -53,6 +54,7 @@ function App() {
       setHosts(data.hosts || [])
       setActive(data.active)
     })
+    fetch('/api/version').then(r => r.json()).then(d => setVersion(d.version))
   }, [])
 
   function navigate(p: Page) {
@@ -90,7 +92,7 @@ function App() {
   return (
     <div className="min-h-screen bg-zinc-900 text-white font-sans flex">
       <aside className="w-52 bg-zinc-950 flex flex-col shrink-0">
-        <div className="p-4 text-xl font-bold">Docker Manager</div>
+        <div className="p-4 text-xl font-bold">Docker Manager <span className="text-xs font-normal text-zinc-500">{version}</span></div>
         <nav className="flex flex-col gap-1 px-2">
           {pages.map(p => (
             <button

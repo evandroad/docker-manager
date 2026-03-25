@@ -11,7 +11,7 @@ frontend:
 	cd frontend && bun run build
 
 go:
-	go build -ldflags="-s -w" -o docker-manager .
+	go build -ldflags="-s -w -X main.Version=$(VERSION)" -o docker-manager .
 	cp docker-manager deb-pkg/usr/local/bin/
 
 deb: build

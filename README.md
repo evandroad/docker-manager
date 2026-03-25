@@ -144,13 +144,13 @@ docker-manager/
 
 Funcionalidades planejadas:
 
-1. **Busca/filtro** — campo de texto para filtrar tabelas em tempo real
-2. **Copiar ID/nome com um clique**
-3. **Prune de recursos** — botões para `docker system/volume/image prune`
-4. **Inspeção de imagens** — layers, histórico de build e configuração
-5. **Exec/terminal no container** — shell interativo
-6. **Notificações de eventos** — toasts/alertas visuais
-7. **Gerenciamento de registries** — login/logout em registries privados
-8. **Backup e restore de volumes** — exportar/importar como tar
+1. **Inspeção de imagens** — layers, histórico de build e configuração
+2. **Exec/terminal no container** — shell interativo
+3. **Backup e restore de volumes** — exportar/importar como tar
+4. **Importar/Exportar imagem de aruqivo** - botão na tela de image
+5. **Copiar ID/nome com um clique**
+6. **Prune de recursos** — botões para `docker system/volume/image prune`
+7. **Notificações de eventos** — toasts/alertas visuais
+8. **Gerenciamento de registries** — login/logout em registries privados
 9. **Templates de stacks** — biblioteca de docker-compose templates
 10. **RBAC e autenticação** — controle de acesso por usuário

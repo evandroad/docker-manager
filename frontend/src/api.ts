@@ -215,6 +215,20 @@ export async function copyVolume(source: string, dest: string, overwrite = false
   return data.ok ? true : data.error
 }
 
+export async function exportVolume(name: string): Promise<true | string> {
+  const res = await fetch(`/api/volumes/export/${encodeURIComponent(name)}`)
+  const data = await res.json()
+  if (!data.ok) return data.error
+  return true
+}
+
+export async function importVolume(name: string): Promise<true | string> {
+  const res = await fetch(`/api/volumes/import/${encodeURIComponent(name)}`)
+  const data = await res.json()
+  if (!data.ok) return data.error
+  return true
+}
+
 export async function removeNetwork(id: string): Promise<true | string> {
   const res = await fetch(`/api/networks/remove/${encodeURIComponent(id)}`)
   const data = await res.json()

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { VolumeInfo } from '../types'
-import { fetchVolumes, removeVolume, createVolume, copyVolume } from '../api'
+import { fetchVolumes, removeVolume, createVolume, copyVolume, exportVolume, importVolume } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import RenameModal from '../components/RenameModal'
@@ -33,7 +33,7 @@ export default function VolumesPage() {
   async function handleCreate(name: string) {
     setShowCreate(false)
     const res = await createVolume(name)
-    if (res === true) fetchVolumes().then(setVolumes)
+    if (res === true) { showAlert('Volume created', 'success'); fetchVolumes().then(setVolumes) }
     else showAlert('Error: ' + res)
   }
 
@@ -43,7 +43,7 @@ export default function VolumesPage() {
     setCopying(source)
     const res = await copyVolume(source, dest, overwrite)
     setCopying('')
-    if (res === true) fetchVolumes().then(setVolumes)
+    if (res === true) { showAlert('Volume copied successfully', 'success'); fetchVolumes().then(setVolumes) }
     else showAlert('Error: ' + res)
   }
 
@@ -91,6 +91,8 @@ export default function VolumesPage() {
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 whitespace-nowrap">
               <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Copy volume to new or existing" onClick={() => setCopyTarget(v)}><i className="fa-solid fa-copy" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Export volume as .tar.gz" onClick={async () => { const r = await exportVolume(v.Name); if (r === true) showAlert('Volume exported successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="fa-solid fa-file-export" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Restore volume from .tar.gz" onClick={async () => { const r = await importVolume(v.Name); if (r === true) showAlert('Volume restored successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="fa-solid fa-file-import" /></button>
               <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove volume" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>

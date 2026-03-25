@@ -26,3 +26,22 @@ func VolumeCopy(w http.ResponseWriter, r *http.Request) {
 	overwrite := r.PathValue("overwrite") == "1"
 	respond.Result(w, service.CopyVolume(source, dest, overwrite))
 }
+
+func VolumeExport(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	path, err := service.ExportVolume(name)
+	if err != nil {
+		respond.JSON(w, http.StatusOK, respond.H{"ok": false, "error": err.Error()})
+		return
+	}
+	if path == "" {
+		respond.JSON(w, http.StatusOK, respond.H{"ok": true, "status": "cancelled"})
+		return
+	}
+	respond.JSON(w, http.StatusOK, respond.H{"ok": true, "path": path})
+}
+
+func VolumeImport(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	respond.Result(w, service.ImportVolume(name))
+}

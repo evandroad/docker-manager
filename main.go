@@ -42,6 +42,8 @@ func startServer() string {
 	handlers.OpenTarDialogFunc = openTarDialog
 	handlers.AppVersion = Version
 	service.SaveDialogFunc = saveFileDialog
+	service.VolumeSaveDialogFunc = saveFileDialog
+	service.VolumeOpenTarDialogFunc = openTarDialog
 
 	sub, _ := fs.Sub(webFiles, "web")
 	r := router.New()
@@ -81,6 +83,8 @@ func startServer() string {
 	r.Get("/api/volumes", handlers.VolumesList)
 	r.Get("/api/volumes/create/{name}", handlers.VolumeCreate)
 	r.Get("/api/volumes/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
+	r.Get("/api/volumes/export/{name}", handlers.VolumeExport)
+	r.Get("/api/volumes/import/{name}", handlers.VolumeImport)
 	r.Get("/api/volumes/remove/{name}", handlers.VolumeRemove)
 
 	r.Get("/api/networks", handlers.NetworksList)

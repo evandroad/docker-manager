@@ -29,7 +29,7 @@ export default function NetworksPage() {
   async function handleCreate(name: string, driver: string) {
     setShowCreate(false)
     const res = await createNetwork(name, driver)
-    if (res === true) fetchNetworks().then(setNetworks)
+    if (res === true) { showAlert('Network created', 'success'); fetchNetworks().then(setNetworks) }
     else showAlert('Error: ' + res)
   }
 

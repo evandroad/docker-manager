@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"path/filepath"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -130,6 +131,15 @@ func CopyVolume(source, dest string, overwrite bool) error {
 		}
 	}
 	// ensure alpine image is available
+	if err := ensureAlpine(ctx, cli); err != nil {
+		return err
+	}
+	return runAlpineContainer(ctx, cli, "cp -a /source/. /dest/", []string{source + ":/source", dest + ":/dest"})
+}
+
+var VolumeSaveDialogFunc func(filename string) (string, bool)
+
+func ensureAlpine(ctx context.Context, cli *client.Client) error {
 	if _, _, err := cli.ImageInspectWithRaw(ctx, "alpine"); err != nil {
 		r, pullErr := cli.ImagePull(ctx, "alpine", image.PullOptions{})
 		if pullErr != nil {
@@ -138,12 +148,15 @@ func CopyVolume(source, dest string, overwrite bool) error {
 		io.Copy(io.Discard, r)
 		r.Close()
 	}
-	// run alpine container to copy data
+	return nil
+}
+
+func runAlpineContainer(ctx context.Context, cli *client.Client, cmd string, binds []string) error {
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image: "alpine",
-		Cmd:   []string{"sh", "-c", "cp -a /source/. /dest/"},
+		Cmd:   []string{"sh", "-c", cmd},
 	}, &container.HostConfig{
-		Binds: []string{source + ":/source", dest + ":/dest"},
+		Binds: binds,
 	}, nil, nil, "")
 	if err != nil {
 		return err
@@ -156,10 +169,60 @@ func CopyVolume(source, dest string, overwrite bool) error {
 	select {
 	case res := <-waitCh:
 		if res.StatusCode != 0 {
-			return fmt.Errorf("copy failed with exit code %d", res.StatusCode)
+			return fmt.Errorf("command failed with exit code %d", res.StatusCode)
 		}
 	case err := <-errCh:
 		return err
 	}
 	return nil
 }
+
+func ExportVolume(name string) (string, error) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return "", err
+	}
+	if _, err := cli.VolumeInspect(ctx, name); err != nil {
+		return "", fmt.Errorf("volume not found: %s", name)
+	}
+	filename := name + ".tar.gz"
+	if len(name) > 20 {
+		filename = name[:15] + ".tar.gz"
+	}
+	path, ok := VolumeSaveDialogFunc(filename)
+	if !ok {
+		return "", nil
+	}
+	if err := ensureAlpine(ctx, cli); err != nil {
+		return "", err
+	}
+	base := filepath.Base(path)
+	err = runAlpineContainer(ctx, cli, "tar czf /out/"+base+" -C /volume .", []string{name + ":/volume:ro", filepath.Dir(path) + ":/out"})
+	if err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+func ImportVolume(name string) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	if _, err := cli.VolumeInspect(ctx, name); err != nil {
+		return fmt.Errorf("volume not found: %s", name)
+	}
+	path, ok := VolumeOpenTarDialogFunc()
+	if !ok {
+		return nil
+	}
+	if err := ensureAlpine(ctx, cli); err != nil {
+		return err
+	}
+	base := filepath.Base(path)
+	return runAlpineContainer(ctx, cli, "tar xzf /in/"+base+" -C /volume", []string{name + ":/volume", filepath.Dir(path) + ":/in:ro"})
+}
+
+var VolumeOpenTarDialogFunc func() (string, bool)

@@ -14,7 +14,7 @@ Aplicativo desktop para Linux que permite gerenciar containers Docker através d
 - **Detalhes do container** — painel lateral com portas, variáveis de ambiente, mounts, redes e labels
 - **Compose** — start, stop e down de stacks inteiras; Compose Up com streaming de output via modal (aceita arquivo YAML ou cole direto)
 - **Imagens** — listar, remover, tag/retag, pull com busca no Docker Hub (pesquisa + seleção de tags com filtro e tamanho), inspeção (layers, histórico de build, configuração, env)
-- **Volumes** — listar, criar, remover e copiar volumes (novo ou sobrescrever existente), com tamanho em disco e containers vinculados
+- **Volumes** — listar, criar, remover e copiar volumes (novo ou sobrescrever existente), backup/restore como tar.gz, com tamanho em disco e containers vinculados
 - **Networks** — listar, criar e remover redes (bridge, host, overlay, macvlan, none), com containers conectados
 - **Busca/filtro** — campo de texto em todas as tabelas para filtrar em tempo real
 - **Logs** — visualizar logs de containers em tempo real com auto-scroll e exportação para arquivo via diálogo nativo GTK
@@ -147,11 +147,9 @@ docker-manager/
 Funcionalidades planejadas:
 
 1. **Exec/terminal no container** — shell interativo
-2. **Backup e restore de volumes** — exportar/importar como tar
-3. **Importar/Exportar imagem de arquivo** — botão na tela de images
-4. **Copiar ID/nome com um clique**
-5. **Prune de recursos** — botões para `docker system/volume/image prune`
-6. **Notificações de eventos** — toasts/alertas visuais
-7. **Gerenciamento de registries** — login/logout em registries privados
-8. **Templates de stacks** — biblioteca de docker-compose templates
-9. **RBAC e autenticação** — controle de acesso por usuário
+2. **Copiar ID/nome com um clique**
+3. **Prune de recursos** — botões para `docker system/volume/image prune`
+4. **Notificações de eventos** — toasts/alertas visuais
+5. **Gerenciamento de registries** — login/logout em registries privados
+6. **Templates de stacks** — biblioteca de docker-compose templates
+7. **RBAC e autenticação** — controle de acesso por usuário

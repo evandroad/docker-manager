@@ -1,25 +1,28 @@
 import { useState, useCallback, createContext, useContext, useEffect } from 'react'
 
 type ConfirmOptions = { message: string; onConfirm: () => void }
+type AlertOptions = { message: string; type?: 'error' | 'success' }
 
 const ConfirmContext = createContext<(opts: ConfirmOptions) => void>(() => {})
-const AlertContext = createContext<(msg: string) => void>(() => {})
+const AlertContext = createContext<(msg: string, type?: 'error' | 'success') => void>(() => {})
 
 export const useConfirm = () => useContext(ConfirmContext)
 export const useAlert = () => useContext(AlertContext)
 
 export function ConfirmProvider({ children }: { children: React.ReactNode }) {
   const [opts, setOpts] = useState<ConfirmOptions | null>(null)
-  const [alertMsg, setAlertMsg] = useState('')
+  const [alertOpts, setAlertOpts] = useState<AlertOptions | null>(null)
 
   const confirm = useCallback((o: ConfirmOptions) => setOpts(o), [])
-  const alert = useCallback((msg: string) => setAlertMsg(msg), [])
+  const alert = useCallback((msg: string, type: 'error' | 'success' = 'error') => setAlertOpts({ message: msg, type }), [])
 
   useEffect(() => {
-    if (!alertMsg) return
-    const t = setTimeout(() => setAlertMsg(''), 5000)
+    if (!alertOpts) return
+    const t = setTimeout(() => setAlertOpts(null), 5000)
     return () => clearTimeout(t)
-  }, [alertMsg])
+  }, [alertOpts])
+
+  const isSuccess = alertOpts?.type === 'success'
 
   return (
     <ConfirmContext.Provider value={confirm}>
@@ -36,9 +39,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
             </div>
           </div>
         )}
-        {alertMsg && (
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-900/90 text-white text-sm px-4 py-3 rounded-lg border border-red-700 shadow-lg max-w-md">
-            {alertMsg}
+        {alertOpts && (
+          <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 text-white text-sm px-4 py-3 rounded-lg shadow-lg max-w-md border ${isSuccess ? 'bg-green-900/90 border-green-700' : 'bg-red-900/90 border-red-700'}`}>
+            {alertOpts.message}
           </div>
         )}
       </AlertContext.Provider>

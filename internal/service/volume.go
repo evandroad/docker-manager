@@ -1,10 +1,12 @@
 package service
 
 import (
+	"archive/tar"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
-	"path/filepath"
+	"os"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -177,7 +179,7 @@ func runAlpineContainer(ctx context.Context, cli *client.Client, cmd string, bin
 	return nil
 }
 
-func ExportVolume(name string) (string, error) {
+func ExportVolume(name string, progress func(string)) (string, error) {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -197,15 +199,117 @@ func ExportVolume(name string) (string, error) {
 	if err := ensureAlpine(ctx, cli); err != nil {
 		return "", err
 	}
-	base := filepath.Base(path)
-	err = runAlpineContainer(ctx, cli, "tar czf /out/"+base+" -C /volume .", []string{name + ":/volume:ro", filepath.Dir(path) + ":/out"})
+	progress("Creating archive…")
+	// get volume size for progress estimation
+	du, _ := cli.DiskUsage(ctx, types.DiskUsageOptions{})
+	var totalSize int64
+	if du.Volumes != nil {
+		for _, v := range du.Volumes {
+			if v.Name == name {
+				totalSize = v.UsageData.Size
+				break
+			}
+		}
+	}
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		Image: "alpine",
+		Cmd:   []string{"tar", "czf", "/backup.tar.gz", "-C", "/volume", "."},
+	}, &container.HostConfig{
+		Binds: []string{name + ":/volume:ro"},
+	}, nil, nil, "")
 	if err != nil {
 		return "", err
+	}
+	defer cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{})
+	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+		return "", err
+	}
+	SaveTask(&ActiveTask{Type: "export", VolumeName: name, ContainerID: resp.ID, SavePath: path})
+	defer SaveTask(nil)
+	// poll container size while running
+	waitCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	done := false
+	go func() {
+		for !done {
+			time.Sleep(3 * time.Second)
+			if done {
+				return
+			}
+			cjson, err := cli.ContainerInspect(ctx, resp.ID)
+			if err != nil {
+				continue
+			}
+			if cjson.State != nil && !cjson.State.Running {
+				return
+			}
+			stat, err := cli.ContainerStatPath(ctx, resp.ID, "/backup.tar.gz")
+			if err == nil && totalSize > 0 {
+				// estimate: compressed is ~20% of original, so scale accordingly
+				pct := int(float64(stat.Size) / (float64(totalSize) * 0.2) * 100)
+				if pct > 99 {
+					pct = 99
+				}
+				progress(fmt.Sprintf("Compressing… %s (%d%%)", formatVolSize(stat.Size), pct))
+			} else if err == nil {
+				progress(fmt.Sprintf("Compressing… %s", formatVolSize(stat.Size)))
+			}
+		}
+	}()
+	select {
+	case res := <-waitCh:
+		done = true
+		if res.StatusCode != 0 {
+			return "", fmt.Errorf("tar failed with exit code %d", res.StatusCode)
+		}
+	case e := <-errCh:
+		done = true
+		return "", e
+	}
+	stat, _ := cli.ContainerStatPath(ctx, resp.ID, "/backup.tar.gz")
+	totalStr := ""
+	if stat.Size > 0 {
+		totalStr = formatVolSize(stat.Size)
+	}
+	progress("Downloading archive…")
+	reader, _, err := cli.CopyFromContainer(ctx, resp.ID, "/backup.tar.gz")
+	if err != nil {
+		return "", err
+	}
+	defer reader.Close()
+	f, err := os.Create(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	tr := tar.NewReader(reader)
+	if _, err := tr.Next(); err != nil {
+		return "", err
+	}
+	buf := make([]byte, 256*1024)
+	var written int64
+	lastReport := time.Now()
+	for {
+		n, readErr := tr.Read(buf)
+		if n > 0 {
+			f.Write(buf[:n])
+			written += int64(n)
+			if time.Since(lastReport) > 3*time.Second {
+				if totalStr != "" {
+					progress(fmt.Sprintf("Downloading… %s / %s", formatVolSize(written), totalStr))
+				} else {
+					progress(fmt.Sprintf("Downloading… %s", formatVolSize(written)))
+				}
+				lastReport = time.Now()
+			}
+		}
+		if readErr != nil {
+			break
+		}
 	}
 	return path, nil
 }
 
-func ImportVolume(name string) error {
+func ImportVolume(name string, progress func(string)) error {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -221,8 +325,47 @@ func ImportVolume(name string) error {
 	if err := ensureAlpine(ctx, cli); err != nil {
 		return err
 	}
-	base := filepath.Base(path)
-	return runAlpineContainer(ctx, cli, "tar xzf /in/"+base+" -C /volume", []string{name + ":/volume", filepath.Dir(path) + ":/in:ro"})
+	resp, err := cli.ContainerCreate(ctx, &container.Config{
+		Image: "alpine",
+		Cmd:   []string{"tar", "xzf", "/backup.tar.gz", "-C", "/volume"},
+	}, &container.HostConfig{
+		Binds: []string{name + ":/volume"},
+	}, nil, nil, "")
+	if err != nil {
+		return err
+	}
+	defer cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{})
+	progress("Uploading archive…")
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	fi, _ := f.Stat()
+	var buf bytes.Buffer
+	tw := tar.NewWriter(&buf)
+	tw.WriteHeader(&tar.Header{Name: "backup.tar.gz", Size: fi.Size(), Mode: 0644})
+	io.Copy(tw, f)
+	tw.Close()
+	if err := cli.CopyToContainer(ctx, resp.ID, "/", &buf, container.CopyToContainerOptions{}); err != nil {
+		return err
+	}
+	progress("Extracting…")
+	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
+		return err
+	}
+	SaveTask(&ActiveTask{Type: "import", VolumeName: name, ContainerID: resp.ID})
+	defer SaveTask(nil)
+	waitCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
+	select {
+	case res := <-waitCh:
+		if res.StatusCode != 0 {
+			return fmt.Errorf("tar extract failed with exit code %d", res.StatusCode)
+		}
+	case e := <-errCh:
+		return e
+	}
+	return nil
 }
 
 var VolumeOpenTarDialogFunc func() (string, bool)

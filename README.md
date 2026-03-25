@@ -142,14 +142,3 @@ docker-manager/
 3. O frontend React se comunica com o backend via chamadas HTTP à API.
 4. Eventos do Docker são transmitidos em tempo real pelo endpoint SSE `/api/events`, atualizando o estado na interface sem polling.
 5. Para hosts remotos, um túnel SSH é criado encaminhando o socket Docker remoto para um socket local temporário.
-
-## Roadmap
-
-Funcionalidades planejadas:
-
-1. **Copiar ID/nome com um clique**
-2. **Prune de recursos** — botões para `docker system/volume/image prune`
-3. **Notificações de eventos** — toasts/alertas visuais
-4. **Gerenciamento de registries** — login/logout em registries privados
-5. **Templates de stacks** — biblioteca de docker-compose templates
-6. **RBAC e autenticação** — controle de acesso por usuário

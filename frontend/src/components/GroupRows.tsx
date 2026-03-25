@@ -4,8 +4,8 @@ import type { StatsMap } from '../useContainerStats'
 import { composeDown, composeStart, composeStop } from '../api'
 import { useConfirm } from './ConfirmModal'
 
-const btn = "px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
-const btnDanger = "ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600"
+const btn = "px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600"
+const btnDanger = "ml-2 px-2.5 py-1.5 text-sm bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600"
 
 function statusColor(state: string) {
   if (state === 'running') return 'bg-green-500'
@@ -77,16 +77,16 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
             ({list.length}) <b className='text-lg font-light'>{project}</b>
           </span>
           {groupTarget
-            ? <span className="text-zinc-400"><i className="fa-solid fa-spinner fa-spin" /></span>
+            ? <span className="text-zinc-400"><i className="text-base fa-solid fa-spinner fa-spin" /></span>
             : <span>
                 <button className={btn} disabled={allRunning} style={{opacity: allRunning ? 0.3 : 1}} onClick={startAll}>
-                  <i className="fa-solid fa-play" /> All
+                  <i className="text-base fa-solid fa-play" /> All
                 </button>
                 <button className={btnDanger} disabled={allRunning} style={{opacity: allRunning ? 0.3 : 1}} onClick={downAll}>
-                  <i className="fa-solid fa-trash" /> All
+                  <i className="text-base fa-solid fa-trash" /> All
                 </button>
                 <button className={"ml-2 " + btn} disabled={allStopped} style={{opacity: allStopped ? 0.3 : 1}} onClick={stopAll}>
-                  <i className="fa-solid fa-stop" /> All
+                  <i className="text-base fa-solid fa-stop" /> All
                 </button>
               </span>
           }
@@ -106,21 +106,21 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
             <td className="p-2 text-lg font-light border-t border-zinc-600 text-right">{stats[c.ID]?.mem || '-'}</td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {busy
-                ? <i className="fa-solid fa-spinner fa-spin text-zinc-400" />
+                ? <i className="text-base fa-solid fa-spinner fa-spin text-zinc-400" />
                 : c.State === 'running'
                   ? <>
-                      <button className={btn} onClick={() => onStop(c.ID, c.Name)} title="Stop container"><i className="fa-solid fa-stop" /></button>
-                      <button className={'ml-2 ' + btn} onClick={() => onRestart(c.ID)} title="Restart container"><i className="fa-solid fa-rotate-right" /></button>
+                      <button className={btn} onClick={() => onStop(c.ID, c.Name)} title="Stop container"><i className="text-base fa-solid fa-stop" /></button>
+                      <button className={'ml-2 ' + btn} onClick={() => onRestart(c.ID)} title="Restart container"><i className="text-base fa-solid fa-rotate-right" /></button>
                     </>
                   : <>
-                      <button className={btn} onClick={() => onStart(c.ID)} title="Start container"><i className="fa-solid fa-play" /></button>
-                      <button className={btnDanger} onClick={() => onRemove(c.ID, c.Name)} title="Remove container"><i className="fa-solid fa-trash" /></button>
+                      <button className={btn} onClick={() => onStart(c.ID)} title="Start container"><i className="text-base fa-solid fa-play" /></button>
+                      <button className={btnDanger} onClick={() => onRemove(c.ID, c.Name)} title="Remove container"><i className="text-base fa-solid fa-trash" /></button>
                     </>
               }
-              <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)} title="View logs"><i className="fa-solid fa-file-lines" /></button>
-              {c.State === 'running' && <button className={"ml-2 " + btn} onClick={() => onExec(c.ID, c.Name)} title="Open shell"><i className="fa-solid fa-terminal" /></button>}
-              <button className={"ml-2 " + btn} onClick={() => onRename(c.ID, c.Name)} title="Rename container"><i className="fa-solid fa-pen" /></button>
-              <button className={"ml-2 " + btn} onClick={() => onInspect(c.ID, c.Name)} title="Inspect container"><i className="fa-solid fa-circle-info" /></button>
+              <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)} title="View logs"><i className="text-base fa-solid fa-file-lines" /></button>
+              {c.State === 'running' && <button className={"ml-2 " + btn} onClick={() => onExec(c.ID, c.Name)} title="Open shell"><i className="text-base fa-solid fa-terminal" /></button>}
+              <button className={"ml-2 " + btn} onClick={() => onRename(c.ID, c.Name)} title="Rename container"><i className="text-base fa-solid fa-pen" /></button>
+              <button className={"ml-2 " + btn} onClick={() => onInspect(c.ID, c.Name)} title="Inspect container"><i className="text-base fa-solid fa-circle-info" /></button>
             </td>
           </tr>
         )

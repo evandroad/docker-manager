@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"docker-manager/internal/service"
 	"docker-manager/internal/respond"
+	"docker-manager/internal/service"
+	"fmt"
 	"net/http"
 )
 
@@ -27,21 +28,69 @@ func VolumeCopy(w http.ResponseWriter, r *http.Request) {
 	respond.Result(w, service.CopyVolume(source, dest, overwrite))
 }
 
+func sseProgress(w http.ResponseWriter) func(string) {
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	flusher, _ := w.(http.Flusher)
+	return func(msg string) {
+		fmt.Fprintf(w, "data: %s\n\n", msg)
+		if flusher != nil {
+			flusher.Flush()
+		}
+	}
+}
+
 func VolumeExport(w http.ResponseWriter, r *http.Request) {
 	name := r.PathValue("name")
-	path, err := service.ExportVolume(name)
+	progress := sseProgress(w)
+	path, err := service.ExportVolume(name, progress)
 	if err != nil {
-		respond.JSON(w, http.StatusOK, respond.H{"ok": false, "error": err.Error()})
+		progress("ERROR:" + err.Error())
 		return
 	}
 	if path == "" {
-		respond.JSON(w, http.StatusOK, respond.H{"ok": true, "status": "cancelled"})
+		progress("CANCELLED")
 		return
 	}
-	respond.JSON(w, http.StatusOK, respond.H{"ok": true, "path": path})
+	progress("DONE:" + path)
 }
 
 func VolumeImport(w http.ResponseWriter, r *http.Request) {
 	name := r.PathValue("name")
-	respond.Result(w, service.ImportVolume(name))
+	progress := sseProgress(w)
+	err := service.ImportVolume(name, progress)
+	if err != nil {
+		progress("ERROR:" + err.Error())
+		return
+	}
+	progress("DONE")
+}
+
+func VolumeTaskStatus(w http.ResponseWriter, r *http.Request) {
+	task := service.LoadTask()
+	if task == nil {
+		respond.JSON(w, http.StatusOK, respond.H{"active": false})
+		return
+	}
+	respond.JSON(w, http.StatusOK, respond.H{"active": true, "type": task.Type, "volume": task.VolumeName})
+}
+
+func VolumeTaskResume(w http.ResponseWriter, r *http.Request) {
+	task := service.LoadTask()
+	if task == nil {
+		respond.JSON(w, http.StatusOK, respond.H{"active": false})
+		return
+	}
+	progress := sseProgress(w)
+	progress("Resuming…")
+	err := service.CompleteExportTask(task, progress)
+	if err != nil {
+		progress("ERROR:" + err.Error())
+		return
+	}
+	progress("DONE")
+}
+
+func VolumeTaskCancel(w http.ResponseWriter, r *http.Request) {
+	respond.Result(w, service.CancelTask())
 }

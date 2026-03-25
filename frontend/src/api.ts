@@ -215,18 +215,60 @@ export async function copyVolume(source: string, dest: string, overwrite = false
   return data.ok ? true : data.error
 }
 
-export async function exportVolume(name: string): Promise<true | string> {
+export async function exportVolume(name: string, onProgress?: (msg: string) => void): Promise<true | string> {
   const res = await fetch(`/api/volumes/export/${encodeURIComponent(name)}`)
-  const data = await res.json()
-  if (!data.ok) return data.error
-  return true
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buf = '', result: true | string = true
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += decoder.decode(value, { stream: true })
+    const lines = buf.split('\n')
+    buf = lines.pop()!
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const msg = line.slice(6)
+        if (msg.startsWith('ERROR:')) result = msg.slice(6)
+        else if (msg === 'CANCELLED') result = true
+        else if (msg.startsWith('DONE')) result = true
+        else onProgress?.(msg)
+      }
+    }
+  }
+  return result
 }
 
-export async function importVolume(name: string): Promise<true | string> {
+export async function fetchVolumeTask(): Promise<{ active: boolean; type?: string; volume?: string }> {
+  const res = await fetch('/api/volumes/task')
+  return res.json()
+}
+
+export async function cancelVolumeTask(): Promise<void> {
+  await fetch('/api/volumes/task/cancel')
+}
+
+export async function importVolume(name: string, onProgress?: (msg: string) => void): Promise<true | string> {
   const res = await fetch(`/api/volumes/import/${encodeURIComponent(name)}`)
-  const data = await res.json()
-  if (!data.ok) return data.error
-  return true
+  const reader = res.body!.getReader()
+  const decoder = new TextDecoder()
+  let buf = '', result: true | string = true
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += decoder.decode(value, { stream: true })
+    const lines = buf.split('\n')
+    buf = lines.pop()!
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const msg = line.slice(6)
+        if (msg.startsWith('ERROR:')) result = msg.slice(6)
+        else if (msg === 'DONE') result = true
+        else onProgress?.(msg)
+      }
+    }
+  }
+  return result
 }
 
 export async function removeNetwork(id: string): Promise<true | string> {

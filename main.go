@@ -82,6 +82,9 @@ func startServer() string {
 	r.Get("/api/images/tag/{id}/{tag}/{keep}", handlers.ImageTag)
 
 	r.Get("/api/volumes", handlers.VolumesList)
+	r.Get("/api/volumes/task", handlers.VolumeTaskStatus)
+	r.Get("/api/volumes/task/resume", handlers.VolumeTaskResume)
+	r.Get("/api/volumes/task/cancel", handlers.VolumeTaskCancel)
 	r.Get("/api/volumes/create/{name}", handlers.VolumeCreate)
 	r.Get("/api/volumes/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
 	r.Get("/api/volumes/export/{name}", handlers.VolumeExport)

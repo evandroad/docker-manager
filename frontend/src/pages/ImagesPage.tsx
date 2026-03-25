@@ -146,10 +146,10 @@ export default function ImagesPage() {
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Inspect image" onClick={() => setInspectTarget({ id: img.ID, name: img.Tags?.[0] || img.ID })}><i className="fa-solid fa-circle-info" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Export image to .tar file" onClick={async () => { const r = await exportImage(img.Tags?.[0] || img.ID); if (r === true) showAlert('Image exported successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="fa-solid fa-file-export" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Edit tags" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="fa-solid fa-pen" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove image" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Inspect image" onClick={() => setInspectTarget({ id: img.ID, name: img.Tags?.[0] || img.ID })}><i className="text-base fa-solid fa-circle-info" /></button>
+              <button className="ml-2 px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Export image to .tar file" onClick={async () => { const r = await exportImage(img.Tags?.[0] || img.ID); if (r === true) showAlert('Image exported successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="text-base fa-solid fa-file-export" /></button>
+              <button className="ml-2 px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Edit tags" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="text-base fa-solid fa-pen" /></button>
+              <button className="ml-2 px-2.5 py-1.5 text-sm bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove image" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="text-base fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

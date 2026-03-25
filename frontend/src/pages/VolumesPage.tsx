@@ -6,6 +6,7 @@ import { useConfirm, useAlert } from '../components/ConfirmModal'
 import RenameModal from '../components/RenameModal'
 import CopyVolumeModal from '../components/CopyVolumeModal'
 import { useFilter } from '../useFilter'
+import { useTask } from '../useTask'
 
 export default function VolumesPage() {
   const [volumes, setVolumes] = useState<VolumeInfo[]>([])
@@ -13,6 +14,7 @@ export default function VolumesPage() {
   const { filtered, input: filterInput } = useFilter(sorted)
   const confirm = useConfirm()
   const showAlert = useAlert()
+  const { message: taskMsg, setMessage: setTaskMsg, cancel: cancelTask } = useTask()
   const [showCreate, setShowCreate] = useState(false)
   const [copyTarget, setCopyTarget] = useState<VolumeInfo | null>(null)
   const [copying, setCopying] = useState('')
@@ -65,6 +67,7 @@ export default function VolumesPage() {
       </button>
       {copying && <span className="text-sm text-zinc-400"><i className="fa-solid fa-spinner fa-spin mr-1" />Copying {copying}…</span>}
       {filterInput}
+      {taskMsg && <span className="ml-auto text-sm text-zinc-400 flex items-center gap-2"><i className="fa-solid fa-spinner fa-spin" />{taskMsg}<button className="text-red-400 hover:text-red-300 cursor-pointer" title="Cancel" onClick={cancelTask}>✕</button></span>}
     </div>
     <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
       <thead>
@@ -90,10 +93,10 @@ export default function VolumesPage() {
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 whitespace-nowrap">
-              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Copy volume to new or existing" onClick={() => setCopyTarget(v)}><i className="fa-solid fa-copy" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Export volume as .tar.gz" onClick={async () => { const r = await exportVolume(v.Name); if (r === true) showAlert('Volume exported successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="fa-solid fa-file-export" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Restore volume from .tar.gz" onClick={async () => { const r = await importVolume(v.Name); if (r === true) showAlert('Volume restored successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="fa-solid fa-file-import" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove volume" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Copy volume to new or existing" onClick={() => setCopyTarget(v)}><i className="text-base fa-solid fa-copy" /></button>
+              <button className="ml-2 px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Export volume as .tar.gz" onClick={async () => { setTaskMsg('Exporting…'); const r = await exportVolume(v.Name, setTaskMsg); setTaskMsg(''); if (r === true) showAlert('Volume exported successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="text-base fa-solid fa-file-export" /></button>
+              <button className="ml-2 px-2.5 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Restore volume from .tar.gz" onClick={async () => { setTaskMsg('Importing…'); const r = await importVolume(v.Name, setTaskMsg); setTaskMsg(''); if (r === true) showAlert('Volume restored successfully', 'success'); else if (r) showAlert('Error: ' + r) }}><i className="text-base fa-solid fa-file-import" /></button>
+              <button className="ml-2 px-2.5 py-1.5 text-sm bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove volume" onClick={() => handleRemove(v.Name)}><i className="text-base fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

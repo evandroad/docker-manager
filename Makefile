@@ -1,4 +1,4 @@
-.PHONY: build frontend go deb version
+.PHONY: build frontend go deb version test-backend test-frontend test
 
 VERSION := $(shell git describe --tags --always)
 
@@ -17,3 +17,11 @@ go:
 deb: build
 	rm -f docker-manager*.deb
 	dpkg-deb --build deb-pkg docker-manager_$(VERSION)_amd64.deb
+
+test-backend:
+	go test ./internal/... -v
+
+test-frontend:
+	cd frontend && npx vitest run
+
+test: test-backend test-frontend

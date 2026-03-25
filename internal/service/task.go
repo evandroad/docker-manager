@@ -33,6 +33,14 @@ func init() {
 	taskFile = filepath.Join(dir, "task.json")
 }
 
+func setTaskFile(path string) string {
+	taskMu.Lock()
+	defer taskMu.Unlock()
+	old := taskFile
+	taskFile = path
+	return old
+}
+
 func SaveTask(task *ActiveTask) {
 	taskMu.Lock()
 	defer taskMu.Unlock()

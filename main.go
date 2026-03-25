@@ -29,9 +29,7 @@ func main() {
 
 	w.SetTitle("Docker Manager")
 	w.SetSize(1100, 700, webview.HintNone)
-
 	w.Dispatch(func() { maximizeWindow(w.Window()) })
-
 	w.Navigate(url)
 	w.Run()
 }
@@ -50,59 +48,75 @@ func startServer() string {
 
 	r.Handle("/", http.FileServer(http.FS(sub)))
 
-	r.Get("/api/events", handlers.Events)
-	r.Get("/api/version", handlers.Version)
-	r.Get("/api/dashboard", handlers.DashboardInfo)
+	r.Group("/api", func(api *router.Router) {
+		api.Get("/events", handlers.Events)
+		api.Get("/version", handlers.Version)
+		api.Get("/dashboard", handlers.DashboardInfo)
 
-	r.Get("/api/containers", handlers.ContainersList)
-	r.Get("/api/containers/stats", handlers.ContainerStatsStream)
-	r.Get("/api/containers/start/{id}", handlers.ContainerStart)
-	r.Get("/api/containers/stop/{id}", handlers.ContainerStop)
-	r.Get("/api/containers/restart/{id}", handlers.ContainerRestart)
-	r.Get("/api/containers/remove/{id}", handlers.ContainerRemove)
-	r.Get("/api/containers/inspect/{id}", handlers.ContainerInspect)
-	r.Get("/api/containers/rename/{id}", handlers.ContainerRename)
-	r.Get("/api/containers/logs/{id}", handlers.ContainerLogs)
-	r.Get("/api/containers/exec/{id}", handlers.ContainerExec)
+		api.Group("/containers", func(g *router.Router) {
+			g.Get("", handlers.ContainersList)
+			g.Get("/stats", handlers.ContainerStatsStream)
+			g.Get("/start/{id}", handlers.ContainerStart)
+			g.Get("/stop/{id}", handlers.ContainerStop)
+			g.Get("/restart/{id}", handlers.ContainerRestart)
+			g.Get("/remove/{id}", handlers.ContainerRemove)
+			g.Get("/inspect/{id}", handlers.ContainerInspect)
+			g.Get("/rename/{id}", handlers.ContainerRename)
+			g.Get("/logs/{id}", handlers.ContainerLogs)
+			g.Get("/exec/{id}", handlers.ContainerExec)
+		})
 
-	r.Get("/api/compose/start/{project}", handlers.ComposeStart)
-	r.Get("/api/compose/stop/{project}", handlers.ComposeStop)
-	r.Post("/api/compose/up", handlers.ComposeUp)
-	r.Get("/api/compose/down/{project}", handlers.ComposeDown)
-	r.Get("/api/compose/open-file", handlers.ComposeOpenFile)
+		api.Group("/compose", func(g *router.Router) {
+			g.Get("/start/{project}", handlers.ComposeStart)
+			g.Get("/stop/{project}", handlers.ComposeStop)
+			g.Post("/up", handlers.ComposeUp)
+			g.Get("/down/{project}", handlers.ComposeDown)
+			g.Get("/open-file", handlers.ComposeOpenFile)
+		})
 
-	r.Get("/api/images", handlers.ImagesList)
-	r.Get("/api/images/inspect/{id}", handlers.ImageInspect)
-	r.Get("/api/images/export/{id}", handlers.ImageExport)
-	r.Get("/api/images/import", handlers.ImageImport)
-	r.Get("/api/images/pull", handlers.ImagePull)
-	r.Get("/api/images/search", handlers.ImageSearch)
-	r.Get("/api/images/search/tags", handlers.ImageSearchTags)
-	r.Get("/api/images/remove/{id}", handlers.ImageRemove)
-	r.Get("/api/images/tag/{id}/{tag}/{keep}", handlers.ImageTag)
+		api.Group("/images", func(g *router.Router) {
+			g.Get("", handlers.ImagesList)
+			g.Get("/inspect/{id}", handlers.ImageInspect)
+			g.Get("/export/{id}", handlers.ImageExport)
+			g.Get("/import", handlers.ImageImport)
+			g.Get("/pull", handlers.ImagePull)
+			g.Get("/search", handlers.ImageSearch)
+			g.Get("/search/tags", handlers.ImageSearchTags)
+			g.Get("/remove/{id}", handlers.ImageRemove)
+			g.Get("/tag/{id}/{tag}/{keep}", handlers.ImageTag)
+		})
 
-	r.Get("/api/volumes", handlers.VolumesList)
-	r.Get("/api/volumes/task", handlers.VolumeTaskStatus)
-	r.Get("/api/volumes/task/resume", handlers.VolumeTaskResume)
-	r.Get("/api/volumes/task/cancel", handlers.VolumeTaskCancel)
-	r.Get("/api/volumes/create/{name}", handlers.VolumeCreate)
-	r.Get("/api/volumes/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
-	r.Get("/api/volumes/export/{name}", handlers.VolumeExport)
-	r.Get("/api/volumes/import/{name}", handlers.VolumeImport)
-	r.Get("/api/volumes/remove/{name}", handlers.VolumeRemove)
+		api.Group("/volumes", func(g *router.Router) {
+			g.Get("", handlers.VolumesList)
+			g.Get("/task", handlers.VolumeTaskStatus)
+			g.Get("/task/resume", handlers.VolumeTaskResume)
+			g.Get("/task/cancel", handlers.VolumeTaskCancel)
+			g.Get("/create/{name}", handlers.VolumeCreate)
+			g.Get("/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
+			g.Get("/export/{name}", handlers.VolumeExport)
+			g.Get("/import/{name}", handlers.VolumeImport)
+			g.Get("/remove/{name}", handlers.VolumeRemove)
+		})
 
-	r.Get("/api/networks", handlers.NetworksList)
-	r.Get("/api/networks/create/{name}/{driver}", handlers.NetworkCreate)
-	r.Get("/api/networks/remove/{id}", handlers.NetworkRemove)
+		api.Group("/networks", func(g *router.Router) {
+			g.Get("", handlers.NetworksList)
+			g.Get("/create/{name}/{driver}", handlers.NetworkCreate)
+			g.Get("/remove/{id}", handlers.NetworkRemove)
+		})
 
-	r.Get("/api/hosts", handlers.HostsList)
-	r.Post("/api/hosts/save", handlers.HostsSave)
-	r.Get("/api/hosts/connect", handlers.HostConnect)
+		api.Group("/hosts", func(g *router.Router) {
+			g.Get("", handlers.HostsList)
+			g.Post("/save", handlers.HostsSave)
+			g.Get("/connect", handlers.HostConnect)
+		})
 
-	r.Get("/api/prefs", handlers.PrefsLoad)
-	r.Post("/api/prefs/save", handlers.PrefsSave)
+		api.Group("/prefs", func(g *router.Router) {
+			g.Get("", handlers.PrefsLoad)
+			g.Post("/save", handlers.PrefsSave)
+		})
 
-	r.Post("/api/save-file", handlers.SaveFile)
+		api.Post("/save-file", handlers.SaveFile)
+	})
 
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {

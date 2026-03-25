@@ -1,18 +1,11 @@
 package main
 
-/*
-#cgo linux pkg-config: gtk+-3.0
-#include <gtk/gtk.h>
-*/
-import "C"
-
 import (
 	"embed"
 	"io/fs"
 	"net"
 	"net/http"
 	"os"
-	"unsafe"
 
 	"docker-manager/internal/handlers"
 	"docker-manager/internal/router"
@@ -37,9 +30,7 @@ func main() {
 	w.SetTitle("Docker Manager")
 	w.SetSize(1100, 700, webview.HintNone)
 
-	w.Dispatch(func() {
-		C.gtk_window_maximize((*C.GtkWindow)(unsafe.Pointer(w.Window())))
-	})
+	w.Dispatch(func() { maximizeWindow(w.Window()) })
 
 	w.Navigate(url)
 	w.Run()

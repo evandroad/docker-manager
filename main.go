@@ -16,6 +16,7 @@ import (
 
 	"docker-manager/internal/handlers"
 	"docker-manager/internal/router"
+	"docker-manager/internal/service"
 
 	webview "github.com/webview/webview_go"
 )
@@ -47,7 +48,9 @@ func main() {
 func startServer() string {
 	handlers.SaveDialogFunc = saveFileDialog
 	handlers.OpenFileDialogFunc = openFileDialog
+	handlers.OpenTarDialogFunc = openTarDialog
 	handlers.AppVersion = Version
+	service.SaveDialogFunc = saveFileDialog
 
 	sub, _ := fs.Sub(webFiles, "web")
 	r := router.New()
@@ -76,6 +79,8 @@ func startServer() string {
 
 	r.Get("/api/images", handlers.ImagesList)
 	r.Get("/api/images/inspect/{id}", handlers.ImageInspect)
+	r.Get("/api/images/export/{id}", handlers.ImageExport)
+	r.Get("/api/images/import", handlers.ImageImport)
 	r.Get("/api/images/pull", handlers.ImagePull)
 	r.Get("/api/images/search", handlers.ImageSearch)
 	r.Get("/api/images/search/tags", handlers.ImageSearchTags)

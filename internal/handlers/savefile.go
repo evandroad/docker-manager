@@ -10,6 +10,8 @@ import (
 // SaveDialogFunc is set by main to provide the native GTK save dialog.
 var SaveDialogFunc func(filename string) (path string, ok bool)
 
+var OpenTarDialogFunc func() (path string, ok bool)
+
 func SaveFile(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Filename string `json:"filename"`

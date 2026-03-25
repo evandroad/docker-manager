@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { ImageInfo } from '../types'
 import type { PullProgress } from '../api'
-import { fetchImages, removeImage, tagImage, pullImage } from '../api'
+import { fetchImages, removeImage, tagImage, pullImage, exportImage, importImage } from '../api'
 import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import TagModal from '../components/TagModal'
@@ -103,8 +103,15 @@ export default function ImagesPage() {
     )}
 
     <div className="mb-3 flex items-center gap-2">
-      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80 disabled:opacity-50" disabled={!!pulling} onClick={() => setShowPull(true)}>
+      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80 disabled:opacity-50" disabled={!!pulling} onClick={() => setShowPull(true)} title="Search and pull image from Docker Hub">
         <i className="fa-solid fa-download mr-1" /> Pull Image
+      </button>
+      <button className="px-3 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Import image from .tar file" onClick={async () => {
+        const res = await importImage()
+        if (res === true) fetchImages().then(setImages)
+        else if (res) showAlert('Error: ' + res)
+      }}>
+        <i className="fa-solid fa-file-import mr-1" /> Import
       </button>
       {pulling && (
         <button className="px-3 py-1.5 text-sm bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setShowProgress(true)}>
@@ -139,9 +146,10 @@ export default function ImagesPage() {
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setInspectTarget({ id: img.ID, name: img.Tags?.[0] || img.ID })}><i className="fa-solid fa-circle-info" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="fa-solid fa-pen" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Inspect image" onClick={() => setInspectTarget({ id: img.ID, name: img.Tags?.[0] || img.ID })}><i className="fa-solid fa-circle-info" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Export image to .tar file" onClick={async () => { const r = await exportImage(img.Tags?.[0] || img.ID); if (r !== true && r) showAlert('Error: ' + r) }}><i className="fa-solid fa-file-export" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Edit tags" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="fa-solid fa-pen" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove image" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

@@ -85,3 +85,26 @@ func ImageSearchTags(w http.ResponseWriter, r *http.Request) {
 	}
 	respond.JSON(w, http.StatusOK, tags)
 }
+
+func ImageExport(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	path, err := service.ExportImage(id)
+	if err != nil {
+		respond.JSON(w, http.StatusOK, respond.H{"ok": false, "error": err.Error()})
+		return
+	}
+	if path == "" {
+		respond.JSON(w, http.StatusOK, respond.H{"ok": true, "status": "cancelled"})
+		return
+	}
+	respond.JSON(w, http.StatusOK, respond.H{"ok": true, "path": path})
+}
+
+func ImageImport(w http.ResponseWriter, r *http.Request) {
+	path, ok := OpenTarDialogFunc()
+	if !ok {
+		respond.JSON(w, http.StatusOK, respond.H{"ok": true, "status": "cancelled"})
+		return
+	}
+	respond.Result(w, service.ImportImage(path))
+}

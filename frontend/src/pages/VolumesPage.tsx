@@ -60,7 +60,7 @@ export default function VolumesPage() {
       onCancel={() => setCopyTarget(null)}
     />}
     <div className="mb-3 flex items-center gap-2">
-      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" onClick={() => setShowCreate(true)}>
+      <button className="px-3 py-1.5 text-sm bg-blue-900/80 border-none rounded-md text-white cursor-pointer hover:bg-blue-800/80" title="Create a new volume" onClick={() => setShowCreate(true)}>
         <i className="fa-solid fa-plus mr-1" /> Create Volume
       </button>
       {copying && <span className="text-sm text-zinc-400"><i className="fa-solid fa-spinner fa-spin mr-1" />Copying {copying}…</span>}
@@ -90,8 +90,8 @@ export default function VolumesPage() {
               {v.UsedBy?.length ? v.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600 whitespace-nowrap">
-              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Copy volume" onClick={() => setCopyTarget(v)}><i className="fa-solid fa-copy" /></button>
-              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
+              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" title="Copy volume to new or existing" onClick={() => setCopyTarget(v)}><i className="fa-solid fa-copy" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" title="Remove volume" onClick={() => handleRemove(v.Name)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>
         ))}

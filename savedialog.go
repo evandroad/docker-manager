@@ -40,6 +40,40 @@ static char* run_open_dialog() {
 	gtk_file_filter_add_pattern(filter, "*.yaml");
 	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
 
+	GtkFileFilter *all = gtk_file_filter_new();
+	gtk_file_filter_set_name(all, "All files");
+	gtk_file_filter_add_pattern(all, "*");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), all);
+
+	char *result = NULL;
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		result = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	}
+	gtk_widget_destroy(dialog);
+	while (gtk_events_pending()) gtk_main_iteration();
+	return result;
+}
+
+static char* run_open_tar_dialog() {
+	GtkWidget *dialog = gtk_file_chooser_dialog_new(
+		"Import image",
+		NULL,
+		GTK_FILE_CHOOSER_ACTION_OPEN,
+		"Cancel", GTK_RESPONSE_CANCEL,
+		"Open", GTK_RESPONSE_ACCEPT,
+		NULL);
+
+	GtkFileFilter *filter = gtk_file_filter_new();
+	gtk_file_filter_set_name(filter, "Tar files");
+	gtk_file_filter_add_pattern(filter, "*.tar");
+	gtk_file_filter_add_pattern(filter, "*.tar.gz");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+
+	GtkFileFilter *all = gtk_file_filter_new();
+	gtk_file_filter_set_name(all, "All files");
+	gtk_file_filter_add_pattern(all, "*");
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), all);
+
 	char *result = NULL;
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		result = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
@@ -117,6 +151,22 @@ func openFileDialog() (string, bool) {
 	done := make(chan *C.char, 1)
 	gtkDo(func() {
 		done <- C.run_open_dialog()
+	})
+	cpath := <-done
+
+	if cpath == nil {
+		return "", false
+	}
+	path := C.GoString(cpath)
+	C.g_free(C.gpointer(unsafe.Pointer(cpath)))
+	return path, true
+}
+
+// openTarDialog opens a native GTK open dialog filtered to tar files.
+func openTarDialog() (string, bool) {
+	done := make(chan *C.char, 1)
+	gtkDo(func() {
+		done <- C.run_open_tar_dialog()
 	})
 	cpath := <-done
 

@@ -4,11 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+	"strings"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
+
+var SaveDialogFunc func(filename string) (string, bool)
 
 type ImageInfo struct {
 	ID      string
@@ -163,4 +168,50 @@ func InspectImage(id string) (*ImageDetail, error) {
 		}
 	}
 	return d, nil
+}
+
+func ExportImage(id string) (string, error) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return "", err
+	}
+	reader, err := cli.ImageSave(ctx, []string{id})
+	if err != nil {
+		return "", err
+	}
+	defer reader.Close()
+
+	filename := strings.ReplaceAll(id, ":", "_") + ".tar"
+	path, ok := SaveDialogFunc(filename)
+	if !ok {
+		return "", nil
+	}
+	f, err := os.Create(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	io.Copy(f, reader)
+	return path, nil
+}
+
+func ImportImage(path string) error {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	resp, err := cli.ImageLoad(ctx, f)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	io.Copy(io.Discard, resp.Body)
+	return nil
 }

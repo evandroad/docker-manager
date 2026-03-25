@@ -177,6 +177,20 @@ export async function searchHubTags(name: string): Promise<{ name: string; size:
   return res.json()
 }
 
+export async function exportImage(id: string): Promise<true | string> {
+  const res = await fetch(`/api/images/export/${encodeURIComponent(id)}`)
+  const data = await res.json()
+  if (!data.ok) return data.error
+  return true
+}
+
+export async function importImage(): Promise<true | string> {
+  const res = await fetch('/api/images/import')
+  const data = await res.json()
+  if (!data.ok) return data.error
+  return true
+}
+
 export async function tagImage(id: string, tag: string, keep = false): Promise<true | string> {
   const res = await fetch(`/api/images/tag/${encodeURIComponent(id)}/${encodeURIComponent(tag)}/${keep ? '1' : '0'}`)
   const data = await res.json()

@@ -108,17 +108,17 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
                 ? <i className="fa-solid fa-spinner fa-spin text-zinc-400" />
                 : c.State === 'running'
                   ? <>
-                      <button className={btn} onClick={() => onStop(c.ID, c.Name)}><i className="fa-solid fa-stop" /></button>
-                      <button className={'ml-2 ' + btn} onClick={() => onRestart(c.ID)}><i className="fa-solid fa-rotate-right" /></button>
+                      <button className={btn} onClick={() => onStop(c.ID, c.Name)} title="Stop container"><i className="fa-solid fa-stop" /></button>
+                      <button className={'ml-2 ' + btn} onClick={() => onRestart(c.ID)} title="Restart container"><i className="fa-solid fa-rotate-right" /></button>
                     </>
                   : <>
-                      <button className={btn} onClick={() => onStart(c.ID)}><i className="fa-solid fa-play" /></button>
-                      <button className={btnDanger} onClick={() => onRemove(c.ID, c.Name)}><i className="fa-solid fa-trash" /></button>
+                      <button className={btn} onClick={() => onStart(c.ID)} title="Start container"><i className="fa-solid fa-play" /></button>
+                      <button className={btnDanger} onClick={() => onRemove(c.ID, c.Name)} title="Remove container"><i className="fa-solid fa-trash" /></button>
                     </>
               }
-              <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)}><i className="fa-solid fa-file-lines" /></button>
-              <button className={"ml-2 " + btn} onClick={() => onRename(c.ID, c.Name)}><i className="fa-solid fa-pen" /></button>
-              <button className={"ml-2 " + btn} onClick={() => onInspect(c.ID, c.Name)}><i className="fa-solid fa-circle-info" /></button>
+              <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)} title="View logs"><i className="fa-solid fa-file-lines" /></button>
+              <button className={"ml-2 " + btn} onClick={() => onRename(c.ID, c.Name)} title="Rename container"><i className="fa-solid fa-pen" /></button>
+              <button className={"ml-2 " + btn} onClick={() => onInspect(c.ID, c.Name)} title="Inspect container"><i className="fa-solid fa-circle-info" /></button>
             </td>
           </tr>
         )

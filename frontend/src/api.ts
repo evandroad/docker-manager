@@ -23,6 +23,24 @@ export async function fetchContainerDetail(id: string): Promise<ContainerDetail>
   return res.json()
 }
 
+export interface ImageDetail {
+  id: string
+  tags: string[]
+  size: string
+  os: string
+  arch: string
+  created: string
+  cmd: string[]
+  env: string[]
+  layers: string[]
+  history: { created_by: string; size: string; created: number }[]
+}
+
+export async function fetchImageDetail(id: string): Promise<ImageDetail> {
+  const res = await fetch(`/api/images/inspect/${encodeURIComponent(id)}`)
+  return res.json()
+}
+
 export async function fetchImages(): Promise<ImageInfo[]> {
   const res = await fetch('/api/images')
   return (await res.json()) || []

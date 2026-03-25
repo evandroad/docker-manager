@@ -11,10 +11,12 @@ Aplicativo desktop para Linux que permite gerenciar containers Docker através d
 
 - **Dashboard** — painel inicial com resumo de recursos (containers, imagens, volumes, networks), versão do Docker, OS e arquitetura
 - **Containers** — listar, iniciar, parar, reiniciar e remover containers, agrupados por projeto Docker Compose com estado colapsável persistido
+- **Detalhes do container** — painel lateral com portas, variáveis de ambiente, mounts, redes e labels
 - **Compose** — start, stop e down de stacks inteiras; Compose Up com streaming de output via modal (aceita arquivo YAML ou cole direto)
-- **Imagens** — listar e remover imagens, com exibição de containers que as utilizam
-- **Volumes** — listar e remover volumes, com tamanho em disco e containers vinculados
-- **Networks** — listar e remover redes, com containers conectados
+- **Imagens** — listar, remover, tag/retag, pull com busca no Docker Hub (pesquisa + seleção de tags com filtro e tamanho), inspeção (layers, histórico de build, configuração, env)
+- **Volumes** — listar, criar, remover e copiar volumes (novo ou sobrescrever existente), com tamanho em disco e containers vinculados
+- **Networks** — listar, criar e remover redes (bridge, host, overlay, macvlan, none), com containers conectados
+- **Busca/filtro** — campo de texto em todas as tabelas para filtrar em tempo real
 - **Logs** — visualizar logs de containers em tempo real com auto-scroll e exportação para arquivo via diálogo nativo GTK
 - **Eventos** — página de eventos Docker em tempo real via SSE, com salvar e limpar
 - **Hosts remotos** — conectar a Docker daemons remotos via túnel SSH (com suporte a senha via sshpass ou chave)
@@ -144,13 +146,12 @@ docker-manager/
 
 Funcionalidades planejadas:
 
-1. **Inspeção de imagens** — layers, histórico de build e configuração
-2. **Exec/terminal no container** — shell interativo
-3. **Backup e restore de volumes** — exportar/importar como tar
-4. **Importar/Exportar imagem de aruqivo** - botão na tela de image
-5. **Copiar ID/nome com um clique**
-6. **Prune de recursos** — botões para `docker system/volume/image prune`
-7. **Notificações de eventos** — toasts/alertas visuais
-8. **Gerenciamento de registries** — login/logout em registries privados
-9. **Templates de stacks** — biblioteca de docker-compose templates
-10. **RBAC e autenticação** — controle de acesso por usuário
+1. **Exec/terminal no container** — shell interativo
+2. **Backup e restore de volumes** — exportar/importar como tar
+3. **Importar/Exportar imagem de arquivo** — botão na tela de images
+4. **Copiar ID/nome com um clique**
+5. **Prune de recursos** — botões para `docker system/volume/image prune`
+6. **Notificações de eventos** — toasts/alertas visuais
+7. **Gerenciamento de registries** — login/logout em registries privados
+8. **Templates de stacks** — biblioteca de docker-compose templates
+9. **RBAC e autenticação** — controle de acesso por usuário

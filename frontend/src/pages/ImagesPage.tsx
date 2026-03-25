@@ -6,6 +6,7 @@ import { useSort } from '../useSort'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import TagModal from '../components/TagModal'
 import PullModal from '../components/PullModal'
+import ImageDetailPanel from '../components/ImageDetailPanel'
 import { useFilter } from '../useFilter'
 
 export default function ImagesPage() {
@@ -16,6 +17,7 @@ export default function ImagesPage() {
   const showAlert = useAlert()
   const [tagTarget, setTagTarget] = useState<string[] | null>(null)
   const [showPull, setShowPull] = useState(false)
+  const [inspectTarget, setInspectTarget] = useState<{ id: string; name: string } | null>(null)
   const [pulling, setPulling] = useState('')
   const [pullLayers, setPullLayers] = useState<Record<string, PullProgress>>({})
   const [pullStatus, setPullStatus] = useState('')
@@ -73,6 +75,7 @@ export default function ImagesPage() {
     <>
     {showPull && <PullModal onPull={handlePull} onCancel={() => setShowPull(false)} />}
     {tagTarget && <TagModal tags={tagTarget} onConfirm={doTag} onDelete={doDeleteTag} onCancel={() => setTagTarget(null)} />}
+    {inspectTarget && <ImageDetailPanel id={inspectTarget.id} name={inspectTarget.name} onClose={() => setInspectTarget(null)} />}
 
     {showProgress && (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => !pulling && setShowProgress(false)}>
@@ -136,7 +139,8 @@ export default function ImagesPage() {
               {img.UsedBy?.length ? img.UsedBy.map(n => n.replace('/', '')).join(', ') : '—'}
             </td>
             <td className="p-2 text-lg font-light border-t border-zinc-600">
-              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="fa-solid fa-pen" /></button>
+              <button className="px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setInspectTarget({ id: img.ID, name: img.Tags?.[0] || img.ID })}><i className="fa-solid fa-circle-info" /></button>
+              <button className="ml-2 px-2 py-1 text-xs bg-zinc-700 border-none rounded-md text-white cursor-pointer hover:bg-zinc-600" onClick={() => setTagTarget(img.Tags?.length ? img.Tags : [])}><i className="fa-solid fa-pen" /></button>
               <button className="ml-2 px-2 py-1 text-xs bg-red-700 border-none rounded-md text-white cursor-pointer hover:bg-red-600" onClick={() => handleRemove(img.ID, img.Tags?.length ? img.Tags[0] : img.ID)}><i className="fa-solid fa-trash" /></button>
             </td>
           </tr>

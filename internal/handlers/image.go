@@ -41,6 +41,16 @@ func ImagePull(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ImageInspect(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	detail, err := service.InspectImage(id)
+	if err != nil {
+		respond.JSON(w, http.StatusOK, respond.H{"error": err.Error()})
+		return
+	}
+	respond.JSON(w, http.StatusOK, detail)
+}
+
 func ImageTag(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	tag := r.PathValue("tag")

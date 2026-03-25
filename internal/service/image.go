@@ -109,3 +109,58 @@ func TagImage(source, newTag string, keep bool) error {
 	}
 	return nil
 }
+
+type ImageDetail struct {
+	ID      string            `json:"id"`
+	Tags    []string          `json:"tags"`
+	Size    string            `json:"size"`
+	OS      string            `json:"os"`
+	Arch    string            `json:"arch"`
+	Created string            `json:"created"`
+	Cmd     []string          `json:"cmd"`
+	Env     []string          `json:"env"`
+	Layers  []string          `json:"layers"`
+	History []ImageHistoryRow `json:"history"`
+}
+
+type ImageHistoryRow struct {
+	CreatedBy string `json:"created_by"`
+	Size      string `json:"size"`
+	Created   int64  `json:"created"`
+}
+
+func InspectImage(id string) (*ImageDetail, error) {
+	ctx := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return nil, err
+	}
+	info, _, err := cli.ImageInspectWithRaw(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	d := &ImageDetail{
+		ID:      info.ID,
+		Tags:    info.RepoTags,
+		Size:    formatSize(info.Size),
+		OS:      info.Os,
+		Arch:    info.Architecture,
+		Created: info.Created,
+		Layers:  info.RootFS.Layers,
+	}
+	if info.Config != nil {
+		d.Cmd = info.Config.Cmd
+		d.Env = info.Config.Env
+	}
+	hist, err := cli.ImageHistory(ctx, id)
+	if err == nil {
+		for _, h := range hist {
+			d.History = append(d.History, ImageHistoryRow{
+				CreatedBy: h.CreatedBy,
+				Size:      formatSize(h.Size),
+				Created:   h.Created,
+			})
+		}
+	}
+	return d, nil
+}

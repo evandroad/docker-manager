@@ -12,6 +12,7 @@ Aplicativo desktop para Linux que permite gerenciar containers Docker através d
 - **Dashboard** — painel inicial com resumo de recursos (containers, imagens, volumes, networks), versão do Docker, OS e arquitetura
 - **Containers** — listar, iniciar, parar, reiniciar e remover containers, agrupados por projeto Docker Compose com estado colapsável persistido
 - **Detalhes do container** — painel lateral com portas, variáveis de ambiente, mounts, redes e labels
+- **Exec/Terminal** — shell interativo no container via WebSocket e xterm.js
 - **Compose** — start, stop e down de stacks inteiras; Compose Up com streaming de output via modal (aceita arquivo YAML ou cole direto)
 - **Imagens** — listar, remover, tag/retag, pull com busca no Docker Hub (pesquisa + seleção de tags com filtro e tamanho), inspeção (layers, histórico de build, configuração, env)
 - **Volumes** — listar, criar, remover e copiar volumes (novo ou sobrescrever existente), backup/restore como tar.gz, com tamanho em disco e containers vinculados
@@ -146,10 +147,9 @@ docker-manager/
 
 Funcionalidades planejadas:
 
-1. **Exec/terminal no container** — shell interativo
-2. **Copiar ID/nome com um clique**
-3. **Prune de recursos** — botões para `docker system/volume/image prune`
-4. **Notificações de eventos** — toasts/alertas visuais
-5. **Gerenciamento de registries** — login/logout em registries privados
-6. **Templates de stacks** — biblioteca de docker-compose templates
-7. **RBAC e autenticação** — controle de acesso por usuário
+1. **Copiar ID/nome com um clique**
+2. **Prune de recursos** — botões para `docker system/volume/image prune`
+3. **Notificações de eventos** — toasts/alertas visuais
+4. **Gerenciamento de registries** — login/logout em registries privados
+5. **Templates de stacks** — biblioteca de docker-compose templates
+6. **RBAC e autenticação** — controle de acesso por usuário

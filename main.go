@@ -63,6 +63,7 @@ func startServer() string {
 	r.Get("/api/containers/inspect/{id}", handlers.ContainerInspect)
 	r.Get("/api/containers/rename/{id}", handlers.ContainerRename)
 	r.Get("/api/containers/logs/{id}", handlers.ContainerLogs)
+	r.Get("/api/containers/exec/{id}", handlers.ContainerExec)
 
 	r.Get("/api/compose/start/{project}", handlers.ComposeStart)
 	r.Get("/api/compose/stop/{project}", handlers.ComposeStop)

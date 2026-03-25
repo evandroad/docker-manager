@@ -27,9 +27,10 @@ type GroupRowsProps = {
   onRename: (id: string, name: string) => void
   onLogs: (id: string, name: string) => void
   onInspect: (id: string, name: string) => void
+  onExec: (id: string, name: string) => void
 }
 
-export default function GroupRows({ project, list, open, loading, stats, onToggle, onStart, onStop, onRestart, onRemove, onRename, onLogs, onInspect }: GroupRowsProps) {
+export default function GroupRows({ project, list, open, loading, stats, onToggle, onStart, onStop, onRestart, onRemove, onRename, onLogs, onInspect, onExec }: GroupRowsProps) {
   const [groupTarget, setGroupTarget] = useState<'running' | 'stopped' | null>(null)
   const allRunning = list.every(c => c.State === 'running')
   const allStopped = list.every(c => c.State !== 'running')
@@ -117,6 +118,7 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
                     </>
               }
               <button className={"ml-2 " + btn} onClick={() => onLogs(c.ID, c.Name)} title="View logs"><i className="fa-solid fa-file-lines" /></button>
+              {c.State === 'running' && <button className={"ml-2 " + btn} onClick={() => onExec(c.ID, c.Name)} title="Open shell"><i className="fa-solid fa-terminal" /></button>}
               <button className={"ml-2 " + btn} onClick={() => onRename(c.ID, c.Name)} title="Rename container"><i className="fa-solid fa-pen" /></button>
               <button className={"ml-2 " + btn} onClick={() => onInspect(c.ID, c.Name)} title="Inspect container"><i className="fa-solid fa-circle-info" /></button>
             </td>

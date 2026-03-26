@@ -9,6 +9,7 @@ const btnDanger = "ml-2 px-2.5 py-1.5 text-sm bg-red-700 border-none rounded-md 
 
 function statusColor(state: string) {
   if (state === 'running') return 'bg-green-500'
+  if (state === 'restarting') return 'bg-yellow-500'
   if (state === 'exited') return 'bg-red-500'
   return 'bg-gray-500'
 }
@@ -107,7 +108,7 @@ export default function GroupRows({ project, list, open, loading, stats, onToggl
             <td className="p-2 text-lg font-light border-t border-zinc-600">
               {busy
                 ? <i className="text-base fa-solid fa-spinner fa-spin text-zinc-400" />
-                : c.State === 'running'
+                : c.State === 'running' || c.State === 'restarting'
                   ? <>
                       <button className={btn} onClick={() => onStop(c.ID, c.Name)} title="Stop container"><i className="text-base fa-solid fa-stop" /></button>
                       <button className={'ml-2 ' + btn} onClick={() => onRestart(c.ID)} title="Restart container"><i className="text-base fa-solid fa-rotate-right" /></button>

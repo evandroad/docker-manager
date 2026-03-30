@@ -125,7 +125,7 @@ func startServer() string {
 		panic(err)
 	}
 
-	go http.Serve(listener, r.Mux)
+	go http.Serve(listener, r.Handler())
 
 	return "http://" + listener.Addr().String()
 }

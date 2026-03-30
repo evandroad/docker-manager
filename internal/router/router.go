@@ -3,6 +3,7 @@ package router
 import (
 	"docker-manager/internal/respond"
 	"net/http"
+	"strings"
 )
 
 type Middleware func(http.HandlerFunc) http.HandlerFunc
@@ -38,15 +39,8 @@ func (r *Router) chain(h http.HandlerFunc) http.HandlerFunc {
 }
 
 func (r *Router) method(method, path string, h http.HandlerFunc) {
-	full := r.prefix + path
-	handler := r.chain(h)
-	r.Mux.HandleFunc(full, func(res http.ResponseWriter, req *http.Request) {
-		if req.Method != method {
-			respond.JSON(res, http.StatusMethodNotAllowed, respond.H{"error": "Method Not Allowed"})
-			return
-		}
-		handler(res, req)
-	})
+	full := method + " " + r.prefix + path
+	r.Mux.HandleFunc(full, r.chain(h))
 }
 
 func (r *Router) Get(path string, h http.HandlerFunc)  { r.method(http.MethodGet, path, h) }
@@ -56,3 +50,39 @@ func (r *Router) Pat(path string, h http.HandlerFunc)  { r.method(http.MethodPat
 func (r *Router) Del(path string, h http.HandlerFunc)  { r.method(http.MethodDelete, path, h) }
 
 func (r *Router) Handle(path string, h http.Handler) { r.Mux.Handle(r.prefix+path, h) }
+
+func (r *Router) Handler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if strings.HasPrefix(req.URL.Path, "/api/") {
+			rec := &jsonErrorWriter{ResponseWriter: w}
+			r.Mux.ServeHTTP(rec, req)
+			return
+		}
+		r.Mux.ServeHTTP(w, req)
+	})
+}
+
+type jsonErrorWriter struct {
+	http.ResponseWriter
+	done bool
+}
+
+func (j *jsonErrorWriter) WriteHeader(code int) {
+	if code == http.StatusMethodNotAllowed || code == http.StatusNotFound {
+		j.done = true
+		msg := "Not Found"
+		if code == http.StatusMethodNotAllowed {
+			msg = "Method Not Allowed"
+		}
+		respond.JSON(j.ResponseWriter, code, respond.H{"error": msg})
+		return
+	}
+	j.ResponseWriter.WriteHeader(code)
+}
+
+func (j *jsonErrorWriter) Write(b []byte) (int, error) {
+	if j.done {
+		return len(b), nil
+	}
+	return j.ResponseWriter.Write(b)
+}

@@ -1,8 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react'
 
 export type StatsMap = Record<string, { cpu: number; mem: string }>
 
+export const StatsContext = createContext<StatsMap>({})
+
 export function useContainerStats() {
+  return useContext(StatsContext)
+}
+
+export function useContainerStatsSource() {
   const [stats, setStats] = useState<StatsMap>({})
 
   useEffect(() => {

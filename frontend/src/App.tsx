@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, createContext, useContext, useCallback } from 'react'
 import ContainersPage from './pages/ContainersPage'
 import ImagesPage from './pages/ImagesPage'
 import VolumesPage from './pages/VolumesPage'
@@ -8,9 +8,19 @@ import DashboardPage from './pages/DashboardPage'
 import HostSelector from './components/HostSelector'
 import { useTask, TaskProvider } from './useTask'
 import { loadPrefs, savePrefs } from './api'
+import { useContainerStatsSource, StatsContext } from './useContainerStats'
 import type { DockerEvent } from './types'
 
 type Page = 'dashboard' | 'containers' | 'images' | 'volumes' | 'networks' | 'events'
+
+type DockerEventListener = (e: DockerEvent) => void
+const DockerEventContext = createContext<{ subscribe: (fn: DockerEventListener) => () => void }>({ subscribe: () => () => {} })
+export function useDockerEventBus(fn: DockerEventListener) {
+  const ref = useRef(fn)
+  ref.current = fn
+  const { subscribe } = useContext(DockerEventContext)
+  useEffect(() => subscribe((e) => ref.current(e)), [subscribe])
+}
 
 function TaskStatus() {
   const { message, cancel } = useTask()
@@ -30,15 +40,20 @@ function App() {
   const [page, setPage] = useState<Page>('dashboard')
   const [version, setVersion] = useState('')
   const [active, setActive] = useState('')
+  const stats = useContainerStatsSource()
   const [dockerEvents, setDockerEvents] = useState<DockerEvent[]>([])
-  const eventsRef = useRef(dockerEvents)
-  eventsRef.current = dockerEvents
+  const listenersRef = useRef(new Set<DockerEventListener>())
+  const subscribe = useCallback((fn: DockerEventListener) => {
+    listenersRef.current.add(fn)
+    return () => { listenersRef.current.delete(fn) }
+  }, [])
 
   useEffect(() => {
     const es = new EventSource('/api/events')
     es.onmessage = (msg) => {
       const e: DockerEvent = JSON.parse(msg.data)
       setDockerEvents(prev => [...prev, e])
+      listenersRef.current.forEach(fn => fn(e))
     }
     return () => es.close()
   }, [active])
@@ -71,6 +86,8 @@ function App() {
   }
 
   return (
+    <DockerEventContext.Provider value={{ subscribe }}>
+    <StatsContext.Provider value={stats}>
     <TaskProvider hostKey={active}>
     <div className="min-h-screen bg-zinc-900 text-white font-sans flex">
       <aside className="bg-zinc-950 flex flex-col shrink-0" style={{ width: sidebarWidth }}>
@@ -102,6 +119,8 @@ function App() {
       </main>
     </div>
     </TaskProvider>
+    </StatsContext.Provider>
+    </DockerEventContext.Provider>
   )
 }
 

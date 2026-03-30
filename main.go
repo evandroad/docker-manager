@@ -45,6 +45,8 @@ func startServer() string {
 
 	sub, _ := fs.Sub(webFiles, "web")
 	r := router.New()
+	r.Use(router.Recovery)
+	r.Use(router.Logger)
 
 	r.Handle("/", http.FileServer(http.FS(sub)))
 
@@ -56,21 +58,21 @@ func startServer() string {
 		api.Group("/containers", func(g *router.Router) {
 			g.Get("", handlers.ContainersList)
 			g.Get("/stats", handlers.ContainerStatsStream)
-			g.Get("/start/{id}", handlers.ContainerStart)
-			g.Get("/stop/{id}", handlers.ContainerStop)
-			g.Get("/restart/{id}", handlers.ContainerRestart)
-			g.Get("/remove/{id}", handlers.ContainerRemove)
+			g.Post("/start/{id}", handlers.ContainerStart)
+			g.Post("/stop/{id}", handlers.ContainerStop)
+			g.Post("/restart/{id}", handlers.ContainerRestart)
+			g.Del("/remove/{id}", handlers.ContainerRemove)
 			g.Get("/inspect/{id}", handlers.ContainerInspect)
-			g.Get("/rename/{id}", handlers.ContainerRename)
+			g.Pat("/rename/{id}", handlers.ContainerRename)
 			g.Get("/logs/{id}", handlers.ContainerLogs)
 			g.Get("/exec/{id}", handlers.ContainerExec)
 		})
 
 		api.Group("/compose", func(g *router.Router) {
-			g.Get("/start/{project}", handlers.ComposeStart)
-			g.Get("/stop/{project}", handlers.ComposeStop)
+			g.Post("/start/{project}", handlers.ComposeStart)
+			g.Post("/stop/{project}", handlers.ComposeStop)
 			g.Post("/up", handlers.ComposeUp)
-			g.Get("/down/{project}", handlers.ComposeDown)
+			g.Post("/down/{project}", handlers.ComposeDown)
 			g.Get("/open-file", handlers.ComposeOpenFile)
 		})
 
@@ -78,30 +80,30 @@ func startServer() string {
 			g.Get("", handlers.ImagesList)
 			g.Get("/inspect/{id}", handlers.ImageInspect)
 			g.Get("/export/{id}", handlers.ImageExport)
-			g.Get("/import", handlers.ImageImport)
-			g.Get("/pull", handlers.ImagePull)
+			g.Post("/import", handlers.ImageImport)
+			g.Post("/pull", handlers.ImagePull)
 			g.Get("/search", handlers.ImageSearch)
 			g.Get("/search/tags", handlers.ImageSearchTags)
-			g.Get("/remove/{id}", handlers.ImageRemove)
-			g.Get("/tag/{id}/{tag}/{keep}", handlers.ImageTag)
+			g.Del("/remove/{id}", handlers.ImageRemove)
+			g.Post("/tag/{id}/{tag}/{keep}", handlers.ImageTag)
 		})
 
 		api.Group("/volumes", func(g *router.Router) {
 			g.Get("", handlers.VolumesList)
 			g.Get("/task", handlers.VolumeTaskStatus)
-			g.Get("/task/resume", handlers.VolumeTaskResume)
-			g.Get("/task/cancel", handlers.VolumeTaskCancel)
-			g.Get("/create/{name}", handlers.VolumeCreate)
-			g.Get("/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
+			g.Post("/task/resume", handlers.VolumeTaskResume)
+			g.Post("/task/cancel", handlers.VolumeTaskCancel)
+			g.Post("/create/{name}", handlers.VolumeCreate)
+			g.Post("/copy/{source}/{dest}/{overwrite}", handlers.VolumeCopy)
 			g.Get("/export/{name}", handlers.VolumeExport)
-			g.Get("/import/{name}", handlers.VolumeImport)
-			g.Get("/remove/{name}", handlers.VolumeRemove)
+			g.Post("/import/{name}", handlers.VolumeImport)
+			g.Del("/remove/{name}", handlers.VolumeRemove)
 		})
 
 		api.Group("/networks", func(g *router.Router) {
 			g.Get("", handlers.NetworksList)
-			g.Get("/create/{name}/{driver}", handlers.NetworkCreate)
-			g.Get("/remove/{id}", handlers.NetworkRemove)
+			g.Post("/create/{name}/{driver}", handlers.NetworkCreate)
+			g.Del("/remove/{id}", handlers.NetworkRemove)
 		})
 
 		api.Group("/hosts", func(g *router.Router) {

@@ -11,7 +11,7 @@ export const useTask = () => useContext(TaskContext)
 
 async function resumeTask(setMessage: (msg: string) => void, abortSignal: AbortSignal): Promise<void> {
   try {
-    const res = await fetch('/api/volumes/task/resume', { signal: abortSignal })
+    const res = await fetch('/api/volumes/task/resume', { method: 'POST', signal: abortSignal })
     const reader = res.body!.getReader()
     const decoder = new TextDecoder()
     let buf = ''

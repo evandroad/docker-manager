@@ -57,37 +57,37 @@ export async function fetchNetworks(): Promise<NetworkInfo[]> {
 }
 
 export async function startContainer(id: string) {
-  await fetch(`/api/containers/start/${id}`)
+  await fetch(`/api/containers/start/${id}`, { method: 'POST' })
 }
 
 export async function stopContainer(id: string) {
-  await fetch(`/api/containers/stop/${id}`)
+  await fetch(`/api/containers/stop/${id}`, { method: 'POST' })
 }
 
 export async function restartContainer(id: string) {
-  await fetch(`/api/containers/restart/${id}`)
+  await fetch(`/api/containers/restart/${id}`, { method: 'POST' })
 }
 
 export async function removeContainer(id: string) {
-  await fetch(`/api/containers/remove/${id}`)
+  await fetch(`/api/containers/remove/${id}`, { method: 'DELETE' })
 }
 
 export async function renameContainer(id: string, name: string): Promise<true | string> {
-  const res = await fetch(`/api/containers/rename/${id}?name=${encodeURIComponent(name)}`)
+  const res = await fetch(`/api/containers/rename/${id}?name=${encodeURIComponent(name)}`, { method: 'PATCH' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function composeStart(project: string) {
-  await fetch(`/api/compose/start/${encodeURIComponent(project)}`)
+  await fetch(`/api/compose/start/${encodeURIComponent(project)}`, { method: 'POST' })
 }
 
 export async function composeStop(project: string) {
-  await fetch(`/api/compose/stop/${encodeURIComponent(project)}`)
+  await fetch(`/api/compose/stop/${encodeURIComponent(project)}`, { method: 'POST' })
 }
 
 export async function composeDown(project: string) {
-  await fetch(`/api/compose/down/${encodeURIComponent(project)}`)
+  await fetch(`/api/compose/down/${encodeURIComponent(project)}`, { method: 'POST' })
 }
 
 export async function composeUpStream(yaml: string, path?: string, onLine?: (line: string) => void): Promise<string> {
@@ -127,7 +127,7 @@ export async function composeOpenFile(): Promise<string> {
 }
 
 export async function removeImage(id: string): Promise<true | string> {
-  const res = await fetch(`/api/images/remove/${encodeURIComponent(id)}`)
+  const res = await fetch(`/api/images/remove/${encodeURIComponent(id)}`, { method: 'DELETE' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
@@ -139,7 +139,7 @@ export interface PullProgress {
 }
 
 export async function pullImage(ref: string, onProgress?: (msg: PullProgress) => void): Promise<true | string> {
-  const res = await fetch(`/api/images/pull?ref=${encodeURIComponent(ref)}`)
+  const res = await fetch(`/api/images/pull?ref=${encodeURIComponent(ref)}`, { method: 'POST' })
   const reader = res.body!.getReader()
   const decoder = new TextDecoder()
   let buf = '', error = ''
@@ -185,32 +185,32 @@ export async function exportImage(id: string): Promise<true | string> {
 }
 
 export async function importImage(): Promise<true | string> {
-  const res = await fetch('/api/images/import')
+  const res = await fetch('/api/images/import', { method: 'POST' })
   const data = await res.json()
   if (!data.ok) return data.error
   return true
 }
 
 export async function tagImage(id: string, tag: string, keep = false): Promise<true | string> {
-  const res = await fetch(`/api/images/tag/${encodeURIComponent(id)}/${encodeURIComponent(tag)}/${keep ? '1' : '0'}`)
+  const res = await fetch(`/api/images/tag/${encodeURIComponent(id)}/${encodeURIComponent(tag)}/${keep ? '1' : '0'}`, { method: 'POST' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function removeVolume(name: string): Promise<true | string> {
-  const res = await fetch(`/api/volumes/remove/${encodeURIComponent(name)}`)
+  const res = await fetch(`/api/volumes/remove/${encodeURIComponent(name)}`, { method: 'DELETE' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function createVolume(name: string): Promise<true | string> {
-  const res = await fetch(`/api/volumes/create/${encodeURIComponent(name)}`)
+  const res = await fetch(`/api/volumes/create/${encodeURIComponent(name)}`, { method: 'POST' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function copyVolume(source: string, dest: string, overwrite = false): Promise<true | string> {
-  const res = await fetch(`/api/volumes/copy/${encodeURIComponent(source)}/${encodeURIComponent(dest)}/${overwrite ? '1' : '0'}`)
+  const res = await fetch(`/api/volumes/copy/${encodeURIComponent(source)}/${encodeURIComponent(dest)}/${overwrite ? '1' : '0'}`, { method: 'POST' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
@@ -245,11 +245,11 @@ export async function fetchVolumeTask(): Promise<{ active: boolean; type?: strin
 }
 
 export async function cancelVolumeTask(): Promise<void> {
-  await fetch('/api/volumes/task/cancel')
+  await fetch('/api/volumes/task/cancel', { method: 'POST' })
 }
 
 export async function importVolume(name: string, onProgress?: (msg: string) => void): Promise<true | string> {
-  const res = await fetch(`/api/volumes/import/${encodeURIComponent(name)}`)
+  const res = await fetch(`/api/volumes/import/${encodeURIComponent(name)}`, { method: 'POST' })
   const reader = res.body!.getReader()
   const decoder = new TextDecoder()
   let buf = '', result: true | string = true
@@ -272,13 +272,13 @@ export async function importVolume(name: string, onProgress?: (msg: string) => v
 }
 
 export async function removeNetwork(id: string): Promise<true | string> {
-  const res = await fetch(`/api/networks/remove/${encodeURIComponent(id)}`)
+  const res = await fetch(`/api/networks/remove/${encodeURIComponent(id)}`, { method: 'DELETE' })
   const data = await res.json()
   return data.ok ? true : data.error
 }
 
 export async function createNetwork(name: string, driver = 'bridge'): Promise<true | string> {
-  const res = await fetch(`/api/networks/create/${encodeURIComponent(name)}/${encodeURIComponent(driver)}`)
+  const res = await fetch(`/api/networks/create/${encodeURIComponent(name)}/${encodeURIComponent(driver)}`, { method: 'POST' })
   const data = await res.json()
   return data.ok ? true : data.error
 }

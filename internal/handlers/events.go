@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -21,7 +20,7 @@ func Events(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx := r.Context()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		fmt.Println("Error creating docker client:", err)
@@ -48,6 +47,9 @@ func Events(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "data: %s\n\n", data)
 			flusher.Flush()
 		case err := <-errs:
+			if ctx.Err() != nil {
+				return
+			}
 			fmt.Println("docker events error:", err)
 			return
 		}

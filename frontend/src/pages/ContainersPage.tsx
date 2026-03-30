@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import type { ContainerInfo } from '../types'
 import { fetchContainers, startContainer, stopContainer, restartContainer, removeContainer, renameContainer, loadPrefs, savePrefs } from '../api'
-import { useDockerEvents } from '../useDockerEvents'
+import { useDockerEventBus } from '../App'
 import { useContainerStats } from '../useContainerStats'
 import { useConfirm, useAlert } from '../components/ConfirmModal'
 import ComposeModal from '../components/ComposeModal'
@@ -44,7 +44,7 @@ export default function ContainersPage() {
     })
   }, [])
 
-  useDockerEvents(useCallback((e) => {
+  useDockerEventBus(useCallback((e) => {
     const id = e.ID.substring(0, 12)
     const action = e.Action
     if (action === 'create') {

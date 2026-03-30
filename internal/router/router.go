@@ -5,28 +5,47 @@ import (
 	"net/http"
 )
 
+type Middleware func(http.HandlerFunc) http.HandlerFunc
+
 type Router struct {
-	Mux    *http.ServeMux
-	prefix string
+	Mux         *http.ServeMux
+	prefix      string
+	middlewares []Middleware
 }
 
 func New() *Router {
 	return &Router{Mux: http.NewServeMux()}
 }
 
+func (r *Router) Use(mw ...Middleware) {
+	r.middlewares = append(r.middlewares, mw...)
+}
+
 func (r *Router) Group(prefix string, fn func(g *Router)) {
-	g := &Router{Mux: r.Mux, prefix: r.prefix + prefix}
+	g := &Router{
+		Mux:         r.Mux,
+		prefix:      r.prefix + prefix,
+		middlewares:  append([]Middleware{}, r.middlewares...),
+	}
 	fn(g)
+}
+
+func (r *Router) chain(h http.HandlerFunc) http.HandlerFunc {
+	for i := len(r.middlewares) - 1; i >= 0; i-- {
+		h = r.middlewares[i](h)
+	}
+	return h
 }
 
 func (r *Router) method(method, path string, h http.HandlerFunc) {
 	full := r.prefix + path
-	r.Mux.HandleFunc(full, func(w http.ResponseWriter, req *http.Request) {
+	handler := r.chain(h)
+	r.Mux.HandleFunc(full, func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != method {
-			respond.JSON(w, http.StatusMethodNotAllowed, respond.H{"error": "Method Not Allowed"})
+			respond.JSON(res, http.StatusMethodNotAllowed, respond.H{"error": "Method Not Allowed"})
 			return
 		}
-		h(w, req)
+		handler(res, req)
 	})
 }
 

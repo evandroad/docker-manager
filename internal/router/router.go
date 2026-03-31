@@ -49,7 +49,9 @@ func (r *Router) Put(path string, h http.HandlerFunc)  { r.method(http.MethodPut
 func (r *Router) Pat(path string, h http.HandlerFunc)  { r.method(http.MethodPatch, path, h) }
 func (r *Router) Del(path string, h http.HandlerFunc)  { r.method(http.MethodDelete, path, h) }
 
-func (r *Router) Handle(path string, h http.Handler) { r.Mux.Handle(r.prefix+path, h) }
+func (r *Router) Handle(path string, h http.Handler) {
+	r.Mux.HandleFunc(r.prefix+path, r.chain(h.ServeHTTP))
+}
 
 func (r *Router) Handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {

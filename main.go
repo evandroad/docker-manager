@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"docker-manager/internal/handlers"
 	"docker-manager/internal/router"
@@ -125,7 +126,12 @@ func startServer() string {
 		panic(err)
 	}
 
-	go http.Serve(listener, r.Handler())
+	srv := &http.Server{
+		Handler:           r.Handler(),
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	go srv.Serve(listener)
 
 	return "http://" + listener.Addr().String()
 }

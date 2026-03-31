@@ -46,7 +46,7 @@ func (r *Router) method(method, path string, h http.HandlerFunc) {
 func (r *Router) Get(path string, h http.HandlerFunc)  { r.method(http.MethodGet, path, h) }
 func (r *Router) Post(path string, h http.HandlerFunc) { r.method(http.MethodPost, path, h) }
 func (r *Router) Put(path string, h http.HandlerFunc)  { r.method(http.MethodPut, path, h) }
-func (r *Router) Pat(path string, h http.HandlerFunc)  { r.method(http.MethodPatch, path, h) }
+func (r *Router) Patch(path string, h http.HandlerFunc) { r.method(http.MethodPatch, path, h) }
 func (r *Router) Del(path string, h http.HandlerFunc)  { r.method(http.MethodDelete, path, h) }
 
 func (r *Router) Handle(path string, h http.Handler) {

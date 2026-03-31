@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"io/fs"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"docker-manager/internal/handlers"
@@ -23,10 +26,19 @@ var Version = "dev"
 func main() {
 	os.Setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
 	
-	url := startServer()
+	url, srv := startServer()
 
 	w := webview.New(true)
 	defer w.Destroy()
+
+	go func() {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+		<-sig
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		srv.Shutdown(ctx)
+	}()
 
 	w.SetTitle("Docker Manager")
 	w.SetSize(1100, 700, webview.HintNone)
@@ -35,7 +47,7 @@ func main() {
 	w.Run()
 }
 
-func startServer() string {
+func startServer() (string, *http.Server) {
 	handlers.SaveDialogFunc = saveFileDialog
 	handlers.OpenFileDialogFunc = openFileDialog
 	handlers.OpenTarDialogFunc = openTarDialog
@@ -46,6 +58,7 @@ func startServer() string {
 
 	sub, _ := fs.Sub(webFiles, "web")
 	r := router.New()
+	r.Use(router.RequestID)
 	r.Use(router.Recovery)
 	r.Use(router.Logger)
 
@@ -64,7 +77,7 @@ func startServer() string {
 			g.Post("/restart/{id}", handlers.ContainerRestart)
 			g.Del("/remove/{id}", handlers.ContainerRemove)
 			g.Get("/inspect/{id}", handlers.ContainerInspect)
-			g.Pat("/rename/{id}", handlers.ContainerRename)
+			g.Patch("/rename/{id}", handlers.ContainerRename)
 			g.Get("/logs/{id}", handlers.ContainerLogs)
 			g.Get("/exec/{id}", handlers.ContainerExec)
 		})
@@ -133,5 +146,5 @@ func startServer() string {
 	}
 	go srv.Serve(listener)
 
-	return "http://" + listener.Addr().String()
+	return "http://" + listener.Addr().String(), srv
 }

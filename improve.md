@@ -10,6 +10,8 @@ O router é um wrapper leve sobre http.ServeMux do Go 1.22+ (que já suporta MET
 - **Request ID middleware** — Gera ou propaga X-Request-ID em cada request.
 - **Graceful shutdown** — SIGINT/SIGTERM → srv.Shutdown com timeout de 5s pra drenar conexões.
 - **Middlewares separados em arquivos** — logger.go, recovery.go, requestid.go.
+- **MaxConcurrent middleware** — Limita requests simultâneas no servidor via channel semáforo.
+- **RateLimit middleware** — Token bucket por IP com cleanup automático de clientes inativos.
 
 ## 🔧 Pendente — Performance
 
@@ -25,4 +27,4 @@ O router é um wrapper leve sobre http.ServeMux do Go 1.22+ (que já suporta MET
 
 ## 🔧 Pendente — Produção
 
-7. **Rate limiting / max concurrent** — Proteção contra sobrecarga em microserviços.
+(vazio)

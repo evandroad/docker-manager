@@ -40,6 +40,7 @@ func main() {
 }
 
 func startServer() (string, *http.Server) {
+	router.Debug = Version == "dev"
 	handlers.SaveDialogFunc = saveFileDialog
 	handlers.OpenFileDialogFunc = openFileDialog
 	handlers.OpenTarDialogFunc = openTarDialog
@@ -67,6 +68,7 @@ func startServer() (string, *http.Server) {
 
 	r.Group("/api", func(api *router.Router) {
 		api.Use(router.JSONErrors)
+		api.Use(router.MaxBody(1 << 20)) // 1MB
 		api.Get("/events", handlers.Events)
 		api.Get("/version", handlers.Version)
 		api.Get("/dashboard", handlers.DashboardInfo)

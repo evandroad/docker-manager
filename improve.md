@@ -9,22 +9,15 @@ O router é um wrapper leve sobre http.ServeMux do Go 1.22+ (que já suporta MET
 - **Renomear Pat → Patch** — Corrigido no router e em todos os call sites.
 - **Request ID middleware** — Gera ou propaga X-Request-ID em cada request.
 - **Graceful shutdown** — SIGINT/SIGTERM → srv.Shutdown com timeout de 5s pra drenar conexões.
-- **Middlewares separados em arquivos** — logger.go, recovery.go, requestid.go.
+- **Middlewares separados em arquivos** — logger.go, recovery.go, requestid.go, jsonerrors.go, ratelimit.go.
 - **MaxConcurrent middleware** — Limita requests simultâneas no servidor via channel semáforo.
 - **RateLimit middleware** — Token bucket por IP com cleanup automático de clientes inativos.
-
-## 🔧 Pendente — Performance
-
-1. **Pool de buffers no respond.JSON** — Usar sync.Pool pra reutilizar bytes.Buffer no encoding JSON. Evita alocação por response.
-2. **strings.HasPrefix em cada request** — Mover o JSON error writer pra middleware do grupo /api em vez de check global no Handler().
-3. **Cache-Control nos assets estáticos** — http.FileServer não seta cache headers. Adicionar pra JS/CSS evitar re-parse no WebView.
+- **Pool de buffers no respond.JSON** — sync.Pool de bytes.Buffer, zero alocação em regime.
+- **JSON error writer como middleware** — Extraído pra jsonerrors.go, aplicado só no grupo /api. Handler() retorna direto o Mux.
+- **Cache-Control nos assets estáticos** — JS/CSS recebem max-age=86400 (24h).
 
 ## 🔧 Pendente — Segurança
 
-4. **Limite de body size** — Rotas POST como /api/images/import aceitam body ilimitado. Adicionar http.MaxBytesReader nos handlers de upload.
-5. **Recovery sanitizar stack trace** — Ok pra dev, mas em produção o panic pode vazar info sensível. Logar stack só em debug mode.
-6. **CORS headers** — Não é problema agora (localhost + webview), mas necessário se expor a API.
-
-## 🔧 Pendente — Produção
-
-(vazio)
+1. **Limite de body size** — Rotas POST como /api/images/import aceitam body ilimitado. Adicionar http.MaxBytesReader nos handlers de upload.
+2. **Recovery sanitizar stack trace** — Ok pra dev, mas em produção o panic pode vazar info sensível. Logar stack só em debug mode.
+3. **CORS headers** — Não é problema agora (localhost + webview), mas necessário se expor a API.

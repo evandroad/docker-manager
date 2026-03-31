@@ -27,18 +27,10 @@ func main() {
 	os.Setenv("WEBKIT_DISABLE_COMPOSITING_MODE", "1")
 	
 	url, srv := startServer()
+	go gracefulShutdown(srv)
 
 	w := webview.New(true)
 	defer w.Destroy()
-
-	go func() {
-		sig := make(chan os.Signal, 1)
-		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-		<-sig
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		srv.Shutdown(ctx)
-	}()
 
 	w.SetTitle("Docker Manager")
 	w.SetSize(1100, 700, webview.HintNone)
@@ -62,9 +54,19 @@ func startServer() (string, *http.Server) {
 	r.Use(router.Recovery)
 	r.Use(router.Logger)
 
-	r.Handle("/", http.FileServer(http.FS(sub)))
+	fileServer := http.FileServer(http.FS(sub))
+	r.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if p := req.URL.Path; len(p) > 4 {
+			switch p[len(p)-3:] {
+			case ".js", "css":
+				w.Header().Set("Cache-Control", "public, max-age=86400")
+			}
+		}
+		fileServer.ServeHTTP(w, req)
+	}))
 
 	r.Group("/api", func(api *router.Router) {
+		api.Use(router.JSONErrors)
 		api.Get("/events", handlers.Events)
 		api.Get("/version", handlers.Version)
 		api.Get("/dashboard", handlers.DashboardInfo)
@@ -147,4 +149,13 @@ func startServer() (string, *http.Server) {
 	go srv.Serve(listener)
 
 	return "http://" + listener.Addr().String(), srv
+}
+
+func gracefulShutdown(srv *http.Server) {
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	<-sig
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	srv.Shutdown(ctx)
 }

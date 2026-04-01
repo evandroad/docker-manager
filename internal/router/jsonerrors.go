@@ -36,3 +36,9 @@ func (j *jsonErrorWriter) Write(b []byte) (int, error) {
 	}
 	return j.ResponseWriter.Write(b)
 }
+
+func (j *jsonErrorWriter) Flush() {
+	if f, ok := j.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}

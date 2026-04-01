@@ -66,11 +66,11 @@ export default function EventsPage({ events, onClear }: EventsPageProps) {
         <table className="w-full border-separate border-spacing-0 bg-zinc-800 text-sm rounded-lg overflow-hidden">
           <thead>
             <tr>
-              <th className="bg-zinc-700 p-2 text-left w-24">Hora</th>
-              <th className="bg-zinc-700 p-2 text-left w-10" />
-              <th className="bg-zinc-700 p-2 text-left w-24">Tipo</th>
-              <th className="bg-zinc-700 p-2 text-left w-20">Ação</th>
-              <th className="bg-zinc-700 p-2 text-left">Nome</th>
+              <th className="bg-zinc-700 p-2 text-left whitespace-nowrap">Hora</th>
+              <th className="bg-zinc-700 p-2 text-left whitespace-nowrap w-8" />
+              <th className="bg-zinc-700 p-2 text-left whitespace-nowrap">Tipo</th>
+              <th className="bg-zinc-700 p-2 text-left whitespace-nowrap">Ação</th>
+              <th className="bg-zinc-700 p-2 text-left w-full">Nome</th>
             </tr>
           </thead>
           <tbody>
@@ -79,15 +79,15 @@ export default function EventsPage({ events, onClear }: EventsPageProps) {
             )}
             {events.map((ev, i) => (
               <tr key={i} className="hover:bg-zinc-700">
-                <td className="p-2 text-xs text-zinc-500 border-t border-zinc-700 font-mono">
+                <td className="p-2 text-xs text-zinc-500 border-t border-zinc-700 font-mono whitespace-nowrap">
                   {new Date(ev.Time * 1000).toLocaleTimeString()}
                 </td>
-                <td className="p-2 text-zinc-400 border-t border-zinc-700 text-center">
+                <td className="p-2 text-zinc-400 border-t border-zinc-700 text-center whitespace-nowrap">
                   <i className={`fa-solid ${typeIcon(ev.Type)}`} />
                 </td>
-                <td className="p-2 text-zinc-400 border-t border-zinc-700">{ev.Type}</td>
-                <td className={`p-2 border-t border-zinc-700 ${actionColor(ev.Action)}`}>{ev.Action}</td>
-                <td className="p-2 text-zinc-300 border-t border-zinc-700 truncate max-w-0">{ev.Name || ev.ID?.substring(0, 12)}</td>
+                <td className="p-2 text-zinc-400 border-t border-zinc-700 whitespace-nowrap">{ev.Type}</td>
+                <td className={`p-2 border-t border-zinc-700 whitespace-nowrap ${actionColor(ev.Action)}`}>{ev.Action}</td>
+                <td className="p-2 text-zinc-300 border-t border-zinc-700 truncate">{ev.Name || ev.ID?.substring(0, 12)}</td>
               </tr>
             ))}
           </tbody>

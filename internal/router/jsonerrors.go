@@ -1,7 +1,10 @@
 package router
 
 import (
+	"bufio"
 	"docker-manager/internal/respond"
+	"fmt"
+	"net"
 	"net/http"
 )
 
@@ -41,4 +44,11 @@ func (j *jsonErrorWriter) Flush() {
 	if f, ok := j.ResponseWriter.(http.Flusher); ok {
 		f.Flush()
 	}
+}
+
+func (j *jsonErrorWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if h, ok := j.ResponseWriter.(http.Hijacker); ok {
+		return h.Hijack()
+	}
+	return nil, nil, fmt.Errorf("underlying ResponseWriter does not support Hijack")
 }

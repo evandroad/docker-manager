@@ -8,7 +8,7 @@ version:
 	sed -i 's/^Version:.*/Version: $(VERSION)/' deb-pkg/DEBIAN/control
 
 frontend:
-	cd frontend && bun run build
+	cd frontend && npm install && npm run build
 
 go:
 	go build -ldflags="-s -w -X main.Version=$(VERSION)" -o docker-manager .

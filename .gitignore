@@ -1,3 +1,4 @@
 docker-manager*
 deb-pkg/DEBIAN/control
 .vscode/
+web/

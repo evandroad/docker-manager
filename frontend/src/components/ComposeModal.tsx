@@ -16,10 +16,13 @@ export default function ComposeModal({ onClose, onDone }: ComposeModalProps) {
   async function handleDeploy() {
     setRunning(true)
     setLogs([])
+
     const res = await composeUpStream(yaml, filePath || undefined, (line) => {
       setLogs(prev => [...prev, line])
     })
+
     setRunning(false)
+
     if (res === 'ok') {
       setLogs(prev => [...prev, '\n✓ Done'])
       setTimeout(onDone, 1000)

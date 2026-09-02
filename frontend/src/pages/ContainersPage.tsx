@@ -40,7 +40,7 @@ export default function ContainersPage() {
   useEffect(() => {
     fetchContainers().then(setContainers)
     loadPrefs().then(p => {
-      if (p.groupState) setCollapsed(p.groupState)
+      if (p.groupState) setCollapsed(p.groupState as Record<string, boolean>)
     })
   }, [])
 

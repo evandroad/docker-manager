@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -39,6 +40,7 @@ func ComposeUp(w http.ResponseWriter, r *http.Request) {
 		Path string
 		Yaml string
 	}
+
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		respond.JSON(w, http.StatusBadRequest, respond.H{"error": "bad request"})
 		return
@@ -101,6 +103,10 @@ func ComposeUp(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
+	if err := scanner.Err(); err != nil {
+    log.Printf("erro ao ler arquivo: %v", err)
+	}
+	
 	fmt.Fprintf(w, "event: done\ndata: \"ok\"\n\n")
 	flusher.Flush()
 }

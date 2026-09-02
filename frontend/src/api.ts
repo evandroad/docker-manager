@@ -96,6 +96,7 @@ export async function composeUpStream(yaml: string, path?: string, onLine?: (lin
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(path ? { Path: path } : { Yaml: yaml }),
   })
+
   const reader = res.body!.getReader()
   const decoder = new TextDecoder()
   let buf = ''
@@ -107,11 +108,13 @@ export async function composeUpStream(yaml: string, path?: string, onLine?: (lin
     buf += decoder.decode(value, { stream: true })
     const lines = buf.split('\n')
     buf = lines.pop()!
+    
     for (const line of lines) {
       if (line.startsWith('data: ')) {
         const data = JSON.parse(line.slice(6))
         onLine?.(data)
       }
+      
       if (line.startsWith('event: error')) {
         result = 'error'
       }
@@ -143,17 +146,23 @@ export async function pullImage(ref: string, onProgress?: (msg: PullProgress) =>
   const reader = res.body!.getReader()
   const decoder = new TextDecoder()
   let buf = '', error = ''
+  
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
     buf += decoder.decode(value, { stream: true })
     const lines = buf.split('\n')
     buf = lines.pop()!
+    
     for (const line of lines) {
       if (line.startsWith('data: ')) {
         const raw = line.slice(6)
         if (raw.startsWith('ERROR:')) { error = raw.slice(6); continue }
-        try { onProgress?.(JSON.parse(raw)) } catch {}
+        try {
+          onProgress?.(JSON.parse(raw))
+        } catch (e) {
+          console.error('Error parsing pull progress:', e)
+        }
       }
     }
   }
@@ -220,12 +229,14 @@ export async function exportVolume(name: string, onProgress?: (msg: string) => v
   const reader = res.body!.getReader()
   const decoder = new TextDecoder()
   let buf = '', result: true | string = true
+  
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
     buf += decoder.decode(value, { stream: true })
     const lines = buf.split('\n')
     buf = lines.pop()!
+    
     for (const line of lines) {
       if (line.startsWith('data: ')) {
         const msg = line.slice(6)
@@ -253,12 +264,14 @@ export async function importVolume(name: string, onProgress?: (msg: string) => v
   const reader = res.body!.getReader()
   const decoder = new TextDecoder()
   let buf = '', result: true | string = true
+ 
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
     buf += decoder.decode(value, { stream: true })
     const lines = buf.split('\n')
     buf = lines.pop()!
+    
     for (const line of lines) {
       if (line.startsWith('data: ')) {
         const msg = line.slice(6)
@@ -309,12 +322,12 @@ export async function connectHost(name: string, password?: string) {
   return res.json()
 }
 
-export async function loadPrefs(): Promise<Record<string, any>> {
+export async function loadPrefs(): Promise<Record<string, unknown>> {
   const res = await fetch('/api/prefs')
   return res.json()
 }
 
-export async function savePrefs(prefs: Record<string, any>) {
+export async function savePrefs(prefs: Record<string, unknown>) {
   await fetch('/api/prefs/save', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
